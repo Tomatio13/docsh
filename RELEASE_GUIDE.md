@@ -11,13 +11,18 @@
 
 ### 2. ローカルテスト
 ```bash
-# ローカルでビルドテストを実行
+# ローカルでビルドテストを実行（現在のプラットフォーム用）
 ./build.sh
 
-# 各プラットフォームの実行ファイルが正常に動作することを確認
-./Release/cherrysh-linux-x64
-./Release/cherrysh-macos-x64
-./Release/cherrysh-macos-arm64
+# 実行ファイルが正常に動作することを確認
+./cherrysh  # Linux/macOS
+# または
+./cherrysh.exe  # Windows
+
+# 複数プラットフォームでのテストが必要な場合は手動でビルド
+GOOS=linux GOARCH=amd64 go build -o test-linux .
+GOOS=darwin GOARCH=amd64 go build -o test-macos .
+GOOS=windows GOARCH=amd64 go build -o test-windows.exe .
 ```
 
 ## 🏷️ リリースタグの作成

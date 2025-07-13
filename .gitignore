@@ -45,3 +45,11 @@ assets/theme-screenshots/
 .cursor/
 .claude/
 
+# Build artifacts
+Release/
+cherrysh
+cherrysh.exe
+cherrysh-*
+*.zip
+*.tar.gz
+
