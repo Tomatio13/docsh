@@ -297,11 +297,45 @@ func (s *Shell) deleteFile(args []string) error {
 		return fmt.Errorf("usage: del <file>")
 	}
 
+	// オプション解析
+	recursive := false
+	force := false
+	var files []string
+
+	for _, arg := range args {
+		if strings.HasPrefix(arg, "-") {
+			// オプション処理
+			for _, flag := range arg[1:] {
+				switch flag {
+				case 'r', 'R':
+					recursive = true
+				case 'f':
+					force = true
+				}
+			}
+		} else {
+			// ファイル名
+			files = append(files, arg)
+		}
+	}
+
+	if len(files) == 0 {
+		return fmt.Errorf("usage: rm [-rf] <file>")
+	}
+
 	deletedCount := 0
-	for _, filename := range args {
-		err := os.Remove(filename)
+	for _, filename := range files {
+		var err error
+		if recursive {
+			err = os.RemoveAll(filename)
+		} else {
+			err = os.Remove(filename)
+		}
+
 		if err != nil {
-			fmt.Fprintf(os.Stderr, i18n.T("windows.rm_error")+"\n", filename, err)
+			if !force {
+				fmt.Fprintf(os.Stderr, i18n.T("windows.rm_error")+"\n", filename, err)
+			}
 			continue
 		}
 		deletedCount++

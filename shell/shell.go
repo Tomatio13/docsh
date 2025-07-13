@@ -116,10 +116,10 @@ func (s *Shell) executeCommand(input string) error {
 			case "show":
 				s.showConfig()
 			default:
-				fmt.Printf("不明なconfigコマンド: %s\n", args[0])
+				fmt.Printf(i18n.T("config.unknown_command")+"\n", args[0])
 			}
 		} else {
-			fmt.Println("使用方法: config show")
+			fmt.Println(i18n.T("config.usage"))
 		}
 		return nil
 	default:
@@ -251,25 +251,25 @@ func (s *Shell) handleGitCommand(args []string) error {
 }
 
 func (s *Shell) showConfig() {
-	fmt.Println("=== Cherry Shell 設定 ===")
-	fmt.Printf("テーマ: %s\n", s.config.Theme)
-	fmt.Printf("言語: %s\n", s.config.Language)
+	fmt.Println(i18n.T("config.show_header"))
+	fmt.Printf(i18n.T("config.show_theme")+"\n", s.config.Theme)
+	fmt.Printf(i18n.T("config.show_language")+"\n", s.config.Language)
 
 	if s.config.GitHubUser != "" {
-		fmt.Printf("GitHubユーザー: %s\n", s.config.GitHubUser)
+		fmt.Printf(i18n.T("config.show_github_user")+"\n", s.config.GitHubUser)
 	}
 
 	if s.config.GitHubToken != "" {
-		fmt.Printf("GitHubトークン: %s...\n", s.config.GitHubToken[:10])
+		fmt.Printf(i18n.T("config.show_github_token")+"\n", s.config.GitHubToken[:10])
 	} else {
-		fmt.Println("GitHubトークン: 未設定")
+		fmt.Println(i18n.T("config.show_github_token_not_set"))
 	}
 
-	fmt.Printf("エイリアス数: %d\n", len(s.config.Aliases))
+	fmt.Printf(i18n.T("config.show_aliases_count")+"\n", len(s.config.Aliases))
 	if len(s.config.Aliases) > 0 {
-		fmt.Println("エイリアス:")
+		fmt.Println(i18n.T("config.show_aliases_header"))
 		for name, command := range s.config.Aliases {
-			fmt.Printf("  %s = %s\n", name, command)
+			fmt.Printf(i18n.T("config.show_alias_item")+"\n", name, command)
 		}
 	}
 }

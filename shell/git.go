@@ -234,7 +234,7 @@ func (s *Shell) gitClone(args []string) error {
 		return fmt.Errorf("could not determine directory name")
 	}
 
-	fmt.Printf(i18n.T("git.cloning_repository"), url, directory)
+	fmt.Printf(i18n.T("git.cloning_repository")+"\n", url, directory)
 
 	// Clone options
 	cloneOptions := &git.CloneOptions{
@@ -259,7 +259,7 @@ func (s *Shell) gitClone(args []string) error {
 		return fmt.Errorf("クローンに失敗しました: %v", err)
 	}
 
-	fmt.Printf(i18n.T("git.clone_completed"), directory)
+	fmt.Printf(i18n.T("git.clone_completed")+"\n", directory)
 	return nil
 }
 
