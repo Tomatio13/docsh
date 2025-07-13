@@ -35,7 +35,39 @@ Small but beautiful, it provides an elegant command-line experience.
 
 ## 📦 Installation
 
-### From Source
+### 🚀 Quick Install (Recommended)
+
+Download the latest pre-built binary for your platform:
+
+[![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
+
+#### Windows
+- **64-bit**: [Download cherrysh-windows-x64.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-windows-x64.zip)
+- **32-bit**: [Download cherrysh-windows-x86.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-windows-x86.zip)
+
+#### Linux
+- **64-bit**: [Download cherrysh-linux-x64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-linux-x64.tar.gz)
+
+#### macOS
+- **Intel**: [Download cherrysh-macos-x64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-macos-x64.tar.gz)
+- **Apple Silicon**: [Download cherrysh-macos-arm64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-macos-arm64.tar.gz)
+
+### 📋 Installation Steps
+
+#### Windows
+1. Download the appropriate `.zip` file for your system
+2. Extract the archive to a folder (e.g., `C:\cherrysh\`)
+3. Add the folder to your PATH environment variable
+4. Run `cherrysh-windows-x64.exe` in Command Prompt or PowerShell
+
+#### Linux / macOS
+1. Download the appropriate `.tar.gz` file for your system
+2. Extract: `tar -xzf cherrysh-*.tar.gz`
+3. Make executable: `chmod +x cherrysh-*`
+4. Move to PATH: `sudo mv cherrysh-* /usr/local/bin/cherrysh`
+5. Run: `cherrysh`
+
+### 🛠️ Build from Source
 
 ```bash
 git clone https://github.com/your-username/cherryshell.git
@@ -43,9 +75,19 @@ cd cherryshell
 go build -o cherrysh main.go
 ```
 
-### Binary Release
+### 🔨 Development Build
 
-Download the latest binary from the releases page.
+```bash
+# Clone the repository
+git clone https://github.com/your-username/cherryshell.git
+cd cherryshell
+
+# Build for all platforms
+./build.sh
+
+# Or build for specific platform
+GOOS=windows GOARCH=amd64 go build -o cherrysh.exe main.go
+```
 
 ## 🚀 Usage
 
