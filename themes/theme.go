@@ -3,165 +3,180 @@ package themes
 import (
 	"fmt"
 	"strings"
+
+	"cherrysh/i18n"
 )
 
+// Theme はプロンプトテーマの定義
 type Theme struct {
-	Name        string
-	Prompt      string
-	Colors      map[string]string
-	Symbols     map[string]string
+	Name   string
+	Prompt string
+	Colors map[string]string
 }
 
-var BuiltinThemes = map[string]*Theme{
+// 利用可能なテーマ
+var themes = map[string]Theme{
 	"default": {
-		Name:   "default",
-		Prompt: "cherry:%s$ ",
+		Name:   "Default",
+		Prompt: "🌸 %s $ ",
 		Colors: map[string]string{
-			"reset":   "\033[0m",
-			"red":     "\033[31m",
-			"green":   "\033[32m",
-			"yellow":  "\033[33m",
-			"blue":    "\033[34m",
-			"magenta": "\033[35m",
-			"cyan":    "\033[36m",
-			"white":   "\033[37m",
-			"bold":    "\033[1m",
+			"directory": "cyan",
+			"prompt":    "green",
+			"error":     "red",
 		},
-		Symbols: map[string]string{
-			"arrow":  "➜",
-			"branch": "⎇",
-			"dirty":  "✗",
-			"clean":  "✓",
+	},
+	"minimal": {
+		Name:   "Minimal",
+		Prompt: "%s > ",
+		Colors: map[string]string{
+			"directory": "blue",
+			"prompt":    "white",
+			"error":     "red",
 		},
 	},
 	"robbyrussell": {
-		Name:   "robbyrussell",
-		Prompt: "%{$fg[cyan]%}%s %{$fg[red]%}➜ %{$reset_color%}",
+		Name:   "Robbyrussell",
+		Prompt: "➜ %s ",
 		Colors: map[string]string{
-			"reset":   "\033[0m",
-			"red":     "\033[31m",
-			"green":   "\033[32m",
-			"yellow":  "\033[33m",
-			"blue":    "\033[34m",
-			"magenta": "\033[35m",
-			"cyan":    "\033[36m",
-			"white":   "\033[37m",
-			"bold":    "\033[1m",
-		},
-		Symbols: map[string]string{
-			"arrow":  "➜",
-			"branch": "",
-			"dirty":  "✗",
-			"clean":  "",
+			"directory": "cyan",
+			"prompt":    "green",
+			"error":     "red",
 		},
 	},
 	"agnoster": {
-		Name:   "agnoster",
-		Prompt: "%{$fg[green]%}%u@%h%{$reset_color%} %{$fg[blue]%}%s%{$reset_color%} $ ",
+		Name:   "Agnoster",
+		Prompt: "⚡ %s ➤ ",
 		Colors: map[string]string{
-			"reset":   "\033[0m",
-			"red":     "\033[31m",
-			"green":   "\033[32m",
-			"yellow":  "\033[33m",
-			"blue":    "\033[34m",
-			"magenta": "\033[35m",
-			"cyan":    "\033[36m",
-			"white":   "\033[37m",
-			"bold":    "\033[1m",
-		},
-		Symbols: map[string]string{
-			"arrow":  "⮀",
-			"branch": "⎇",
-			"dirty":  "±",
-			"clean":  "",
+			"directory": "blue",
+			"prompt":    "yellow",
+			"error":     "red",
 		},
 	},
-	"simple": {
-		Name:   "simple",
-		Prompt: "%s $ ",
+	"pure": {
+		Name:   "Pure",
+		Prompt: "%s ❯ ",
 		Colors: map[string]string{
-			"reset": "\033[0m",
+			"directory": "blue",
+			"prompt":    "magenta",
+			"error":     "red",
 		},
-		Symbols: map[string]string{},
 	},
 }
 
-func GetTheme(name string) (*Theme, bool) {
-	theme, exists := BuiltinThemes[name]
+// GetTheme は指定されたテーマを取得
+func GetTheme(name string) (Theme, bool) {
+	theme, exists := themes[name]
 	return theme, exists
 }
 
-func (t *Theme) ApplyColors(text string) string {
+// GetThemePrompt はテーマのプロンプトを取得
+func GetThemePrompt(themeName string) string {
+	if theme, exists := themes[themeName]; exists {
+		return theme.Prompt
+	}
+	return themes["default"].Prompt
+}
+
+// GetThemeColor はテーマの色設定を取得
+func GetThemeColor(themeName, colorType string) string {
+	if theme, exists := themes[themeName]; exists {
+		if color, exists := theme.Colors[colorType]; exists {
+			return color
+		}
+	}
+	return themes["default"].Colors[colorType]
+}
+
+// colorizeText は文字列に色を適用
+func colorizeText(text, color string) string {
+	colorCodes := map[string]string{
+		"black":   "30",
+		"red":     "31",
+		"green":   "32",
+		"yellow":  "33",
+		"blue":    "34",
+		"magenta": "35",
+		"cyan":    "36",
+		"white":   "37",
+	}
+
+	if code, exists := colorCodes[color]; exists {
+		return fmt.Sprintf("\033[%sm%s\033[0m", code, text)
+	}
+	return text
+}
+
+// ApplyThemeColors はテーマの色設定を適用
+func ApplyThemeColors(themeName, text string) string {
+	theme, exists := themes[themeName]
+	if !exists {
+		return text
+	}
+
 	result := text
-	
-	// oh-my-zsh形式のカラープレースホルダーを置換
-	for colorName, colorCode := range t.Colors {
+	for colorName, colorValue := range theme.Colors {
 		placeholder := fmt.Sprintf("$fg[%s]", colorName)
-		result = strings.ReplaceAll(result, placeholder, colorCode)
-		
+		result = strings.ReplaceAll(result, placeholder, colorizeText("", colorValue))
+
 		placeholder = fmt.Sprintf("%%{$fg[%s]%%}", colorName)
-		result = strings.ReplaceAll(result, placeholder, colorCode)
+		result = strings.ReplaceAll(result, placeholder, colorizeText("", colorValue))
 	}
-	
-	// リセットカラー
-	result = strings.ReplaceAll(result, "$reset_color", t.Colors["reset"])
-	result = strings.ReplaceAll(result, "%{$reset_color%}", t.Colors["reset"])
-	result = strings.ReplaceAll(result, "%{reset%}", t.Colors["reset"])
-	
-	// 未解決のカラープレースホルダーを除去（空白問題の解決）
-	result = t.removeUnresolvedPlaceholders(result)
-	
+
 	return result
 }
 
-func (t *Theme) removeUnresolvedPlaceholders(text string) string {
-	result := text
-	
-	// 未解決の %{...%} 形式のプレースホルダーを除去
-	for {
-		start := strings.Index(result, "%{")
-		if start == -1 {
-			break
-		}
-		
-		end := strings.Index(result[start:], "%}")
-		if end == -1 {
-			break
-		}
-		
-		end = start + end + 2 // "%}" の分を加算
-		result = result[:start] + result[end:]
+// GetAvailableThemes は利用可能なテーマのリストを取得
+func GetAvailableThemes() []string {
+	var themeNames []string
+	for name := range themes {
+		themeNames = append(themeNames, name)
 	}
-	
-	// 未解決の $fg[...] 形式のプレースホルダーを除去
-	for {
-		start := strings.Index(result, "$fg[")
-		if start == -1 {
-			break
-		}
-		
-		end := strings.Index(result[start:], "]")
-		if end == -1 {
-			break
-		}
-		
-		end = start + end + 1 // "]" の分を加算
-		result = result[:start] + result[end:]
-	}
-	
-	// $reset_color の未解決分を除去
-	result = strings.ReplaceAll(result, "$reset_color", "")
-	
-	return result
+	return themeNames
 }
 
-func (t *Theme) GetPrompt() string {
-	return t.ApplyColors(t.Prompt)
+// AddTheme は新しいテーマを追加
+func AddTheme(name string, theme Theme) {
+	themes[name] = theme
 }
 
+// RemoveTheme はテーマを削除
+func RemoveTheme(name string) bool {
+	if name == "default" {
+		return false // デフォルトテーマは削除不可
+	}
+
+	if _, exists := themes[name]; exists {
+		delete(themes, name)
+		return true
+	}
+	return false
+}
+
+// ValidateTheme はテーマの妥当性をチェック
+func ValidateTheme(theme Theme) error {
+	if theme.Name == "" {
+		return fmt.Errorf("theme name cannot be empty")
+	}
+
+	if theme.Prompt == "" {
+		return fmt.Errorf("theme prompt cannot be empty")
+	}
+
+	// 必要な色設定がすべて存在するかチェック
+	requiredColors := []string{"directory", "prompt", "error"}
+	for _, colorType := range requiredColors {
+		if _, exists := theme.Colors[colorType]; !exists {
+			return fmt.Errorf("missing required color: %s", colorType)
+		}
+	}
+
+	return nil
+}
+
+// ListThemes は利用可能なテーマを表示
 func ListThemes() {
-	fmt.Println("Available themes:")
-	for name, theme := range BuiltinThemes {
+	fmt.Println(i18n.T("theme.available_themes"))
+	for name, theme := range themes {
 		fmt.Printf("  %s - %s\n", name, theme.Name)
 	}
 }

@@ -10,53 +10,52 @@ import (
 
 func (s *Shell) changeDirectory(args []string) error {
 	var target string
-	
+
 	if len(args) == 0 {
-		// cdコマンドのみの場合はホームディレクトリへ
-		if home, err := os.UserHomeDir(); err == nil {
-			target = home
-		} else {
+		// 引数がない場合はホームディレクトリに移動
+		homeDir, err := os.UserHomeDir()
+		if err != nil {
 			return fmt.Errorf("could not get home directory: %v", err)
 		}
+		target = homeDir
 	} else {
 		target = args[0]
-		
+
 		// Windows特有のパス処理
 		if runtime.GOOS == "windows" {
-			target = s.normalizeWindowsPath(target)
 			target = s.expandWindowsEnvironmentVariable(target)
-			
+
 			// Windows特殊ディレクトリの処理
 			if windowsPath := s.resolveWindowsSpecialPath(target); windowsPath != "" {
 				target = windowsPath
 			}
 		}
 	}
-	
+
 	// 相対パスを絶対パスに変換
 	if !filepath.IsAbs(target) {
 		current := s.getCurrentDir()
 		target = filepath.Join(current, target)
 	}
-	
-	// Windowsの場合はパスを正規化
-	if runtime.GOOS == "windows" {
-		target = filepath.Clean(target)
-	}
-	
+
+	// パスをクリーンアップ
+	target = filepath.Clean(target)
+
 	// ディレクトリの存在確認
 	if info, err := os.Stat(target); err != nil {
-		return fmt.Errorf("directory not found: %s", target)
+		return fmt.Errorf("cd: %s: %v", target, err)
 	} else if !info.IsDir() {
-		return fmt.Errorf("not a directory: %s", target)
+		return fmt.Errorf("cd: %s: not a directory", target)
 	}
-	
-	// ディレクトリ変更実行
+
+	// ディレクトリを変更
 	if err := os.Chdir(target); err != nil {
-		return fmt.Errorf("failed to change directory: %v", err)
+		return fmt.Errorf("cd: %s: %v", target, err)
 	}
-	
+
+	// 現在のディレクトリを更新
 	s.cwd = target
+
 	return nil
 }
 
@@ -64,28 +63,22 @@ func (s *Shell) resolveWindowsSpecialPath(path string) string {
 	if runtime.GOOS != "windows" {
 		return ""
 	}
-	
-	lowerPath := strings.ToLower(path)
-	
+
 	// Windows特殊ディレクトリのマッピング
-	specialDirs := s.getWindowsSpecialFolders()
-	
-	for name, fullPath := range specialDirs {
-		if lowerPath == strings.ToLower(name) {
-			return fullPath
-		}
+	specialDirs := map[string]string{
+		"~":         os.Getenv("USERPROFILE"),
+		"desktop":   filepath.Join(os.Getenv("USERPROFILE"), "Desktop"),
+		"docs":      filepath.Join(os.Getenv("USERPROFILE"), "Documents"),
+		"downloads": filepath.Join(os.Getenv("USERPROFILE"), "Downloads"),
+		"music":     filepath.Join(os.Getenv("USERPROFILE"), "Music"),
+		"pictures":  filepath.Join(os.Getenv("USERPROFILE"), "Pictures"),
+		"videos":    filepath.Join(os.Getenv("USERPROFILE"), "Videos"),
 	}
-	
-	// ドライブレター処理
-	if len(path) == 2 && path[1] == ':' {
-		// "C:" -> "C:\"
-		return path + "\\"
+
+	lowerPath := strings.ToLower(path)
+	if specialPath, exists := specialDirs[lowerPath]; exists {
+		return specialPath
 	}
-	
-	// ネットワークパス対応
-	if strings.HasPrefix(path, "\\\\") {
-		return path
-	}
-	
+
 	return ""
 }

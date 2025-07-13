@@ -1,248 +1,180 @@
-# 🌸 Cherry Shell 🌸
-
-**Windows専用の美しくシンプルなシェル - Cherry Shell**
-
-Cherry Shell（チェリーシェル）は、桜貝（Sakura-gai）という美しい桃色の二枚貝にちなんで名付けられた、Windows専用の小さいながらも美しいシェルです。
-
-## ✨ 特徴
-
-- 🎨 **美しいテーマシステム** - 4つのビルトインテーマ（default、robbyrussell、agnoster、simple）
-- 🔧 **Unix風コマンド** - WindowsでもUnix風のコマンド（ls、cat、clear等）が使用可能
-- ⚙️ **設定ファイル対応** - .cherryshrcファイルでエイリアスや環境変数を設定
-- 🚀 **外部プログラム実行** - 既存のexeファイルやWindowsコマンドを実行可能
-- 🖥️ **Windows最適化** - Windows環境変数とパス処理に完全対応
-- 💝 **軽量・高速** - Goで書かれた軽量なシェル
-
-## 🔧 インストール・ビルド
-
-### 必要環境
-- Go 1.22.2以上
-- Windows 10/11 (64-bit推奨)
-
-### ビルド方法
-
-```cmd
-# リポジトリをクローン
-git clone <repository-url>
-cd go-zsh
-
-# Windows ビルド
-GOOS=windows GOARCH=amd64 go build -o cherrysh-windows-x64.exe .
-
-# Linux向けビルド
- go build -o cherrysh .
-
-# 実行
-cherrysh-windows-x64.exe
-```
-
-### バッチファイルでのビルド
-
-```cmd
-# build.batを実行
-build.bat
-```
-
-## 🎯 使用方法
-
-### 基本コマンド
-
-```cmd
-# ディレクトリ移動
-cd <directory>
-cd Desktop        # 特殊フォルダ対応
-cd Documents      # 特殊フォルダ対応
-cd C:             # ドライブ変更
-
-# ファイル一覧表示
-ls                 # 基本表示
-ls -l              # 詳細表示
-ls -a              # 隠しファイル含む
-ls -la             # 詳細＋隠しファイル
-
-# ファイル内容表示
-cat <filename>
-
-# 現在のディレクトリ表示
-pwd
-
-# 画面クリア
-clear
-
-# ファイル・ディレクトリ操作
-cp <source> <dest>     # ファイルコピー
-mv <source> <dest>     # ファイル移動
-rm <file>              # ファイル削除
-mkdir <directory>      # ディレクトリ作成
-rmdir <directory>      # ディレクトリ削除
-
-# 環境変数・システム情報
-env                    # 環境変数一覧
-which <command>        # コマンドのパス検索
-echo <text>            # テキスト出力
-
-# シェル終了
-exit
-```
-
-### エイリアス管理
-
-```cmd
-# エイリアス一覧表示
-alias
-
-# 新しいエイリアス作成
-alias ll='ls -la'
-alias la='ls -la'
-alias ..='cd ..'
-alias ...='cd ../..'
-```
-
-### テーマ管理
-
-```cmd
-# 利用可能なテーマ一覧
-theme
-
-# テーマ変更
-theme default      # デフォルトテーマ
-theme robbyrussell # oh-my-zsh風テーマ
-theme agnoster     # agnoster風テーマ
-theme simple       # シンプルテーマ
-```
-
-## ⚙️ 設定ファイル（.cherryshrc）
-
-Cherry Shellは起動時に以下の場所から設定ファイルを読み込みます：
-
-1. カレントディレクトリの `.cherryshrc`
-2. ホームディレクトリの `.cherryshrc`
-3. `%USERPROFILE%\.cherryshrc`
-
-### 設定例
-
-```cmd
-# Cherry Shell Configuration File
 # 🌸 Cherry Shell - Beautiful & Simple Shell 🌸
 
-# プロンプト設定
-PROMPT="cherry:%s$ "
+Cherry Shell is a beautiful and simple shell named after the cherry blossom shell (Sakura-gai). Small but beautiful, it provides an elegant command-line experience.
 
-# テーマ設定
-THEME="robbyrussell"
+## Features
 
-# エイリアス設定
-alias ll='ls -la'
-alias la='ls -la'
-alias l='ls -l'
-alias grep='grep --color=auto'
-alias ..='cd ..'
-alias ...='cd ../..'
+- **Beautiful Design**: Elegant prompt with cherry blossom theme
+- **Cross-platform**: Works on Windows, macOS, and Linux
+- **Built-in Commands**: Essential commands like `ls`, `cat`, `cp`, `mv`, etc.
+- **Git Integration**: Built-in git commands for version control
+- **Theme Support**: Multiple themes to customize your shell appearance
+- **Alias Support**: Create custom command shortcuts
+- **Internationalization**: Supports English and Japanese languages
 
-# カスタム環境変数
-# EDITOR="notepad"
-# BROWSER="chrome"
+## Installation
+
+### From Source
+
+```bash
+git clone https://github.com/your-username/cherryshell.git
+cd cherryshell
+go build -o cherrysh main.go
 ```
 
-## 🎨 テーマシステム
+### Binary Release
 
-Cherry Shellは4つの美しいビルトインテーマを提供します：
+Download the latest binary from the releases page.
 
-### default
-```
-cherry:C:\Users\user$ 
-```
-- シンプルでクリーンなデフォルトテーマ
-- 基本的なカラーサポート
+## Usage
 
-### robbyrussell
-```
-C:\Users\user ➜ 
-```
-- oh-my-zsh風のカラフルなテーマ
-- シアンとレッドのカラーリング
-- 矢印記号（➜）を使用
+### Basic Commands
 
-### agnoster
-```
-user@hostname C:\Users\user $ 
-```
-- ユーザー名とホスト名を表示
-- グリーンとブルーのカラーリング
-- より詳細な情報表示
+```bash
+# Start Cherry Shell
+./cherrysh
 
-### simple
-```
-C:\Users\user $ 
-```
-- 最小限のシンプルなデザイン
-- カラーなしのクリーンな表示
+# Basic file operations
+ls                    # List directory contents
+cat file.txt         # Display file contents
+cp source dest       # Copy files
+mv source dest       # Move files
+rm file.txt          # Delete files
+mkdir dirname        # Create directory
+cd dirname           # Change directory
+pwd                  # Print working directory
 
-## 🖥️ Windows専用機能
+# Git commands
+git status           # Show git status
+git add file.txt     # Add file to staging
+git commit -m "msg"  # Commit changes
+git push             # Push to remote
+git pull             # Pull from remote
+git log              # Show commit history
+git clone <URL>      # Clone repository
 
-### 特殊フォルダ対応
-```cmd
-cd Desktop        # デスクトップフォルダ
-cd Documents      # ドキュメントフォルダ
-cd Downloads      # ダウンロードフォルダ
-cd Pictures       # ピクチャフォルダ
-cd Music          # ミュージックフォルダ
-cd Videos         # ビデオフォルダ
-cd ProgramFiles   # Program Filesフォルダ
-cd Windows        # Windowsフォルダ
-cd System32       # System32フォルダ
+# Theme management
+theme                # List available themes
+theme <name>         # Set theme
+
+# Alias management
+alias                # List aliases
+alias ll='ls -la'    # Create alias
 ```
 
-### 環境変数展開
-```cmd
-cd %USERPROFILE%\Documents
-cd %PROGRAMFILES%\MyApp
+## Language Support
+
+Cherry Shell supports multiple languages. You can set the language using:
+
+### Command Line Option
+```bash
+./cherrysh --lang en    # English
+./cherrysh --lang ja    # Japanese
 ```
 
-### Windows実行ファイル対応
-- .exe、.com、.bat、.cmd ファイルの自動実行
-- PATHからの実行ファイル検索
-- cmd.exe内部コマンドの実行
-
-### Windows環境変数の自動設定
-- PATHEXT、TEMP、TMP、SYSTEMROOT等の設定
-- USERPROFILE、APPDATA、LOCALAPPDATA等の設定
-- Windows標準パスの自動追加
-
-## 🚀 外部プログラム実行
-
-Cherry Shellは以下の方法で外部プログラムを実行できます：
-
-```cmd
-# 実行ファイルの直接実行
-notepad.exe myfile.txt
-calc.exe
-
-# PATHからの実行
-git status
-npm install
-
-# cmd.exe内部コマンド
-dir
-type myfile.txt
+### Environment Variable
+```bash
+export CHERRYSH_LANG=en    # English
+export CHERRYSH_LANG=ja    # Japanese
+./cherrysh
 ```
 
-## 🛠️ 開発・デバッグ
+### System Locale
+Cherry Shell automatically detects your system locale. If `LANG` environment variable is set to `ja_JP.UTF-8` or similar, it will use Japanese.
 
-### 実行時情報
-起動時に以下の情報が表示されます：
-- Runtime OS: windows
-- Runtime ARCH: amd64
-- ANSIカラーサポート状況
+## Configuration
 
-### 設定ファイルの自動生成
-初回起動時に `%USERPROFILE%\.cherryshrc` が自動生成されます。
+Cherry Shell uses a configuration file located at `~/.cherryshrc`:
 
-## 📝 ライセンス
+```bash
+# Theme setting
+theme default
 
-MIT License
+# Aliases
+alias ll="ls -la"
+alias la="ls -la"
+alias l="ls -l"
+alias grep="grep --color=auto"
+alias ..="cd .."
+alias ...="cd ../.."
+```
+
+## Available Themes
+
+- **default**: Cherry blossom theme with elegant prompt
+- **minimal**: Clean and minimal design
+- **robbyrussell**: Oh-my-zsh robbyrussell style
+- **agnoster**: Powerline-style theme
+- **pure**: Pure and simple theme
+
+## Supported Languages
+
+- **English (en)**: Full support
+- **Japanese (ja)**: Full support
+
+## Development
+
+### Building
+
+```bash
+# Build for current platform
+go build -o cherrysh main.go
+
+# Build for all platforms
+make build-all
+
+# Run tests
+go test ./...
+```
+
+### Adding New Languages
+
+1. Create a new message file in `i18n/messages/<lang>.json`
+2. Translate all message keys
+3. Add the language code to `GetAvailableLanguages()` in `i18n/i18n.go`
+4. Update the language detection logic if needed
+
+### Project Structure
+
+```
+cherryshell/
+├── main.go              # Entry point
+├── i18n/                # Internationalization
+│   ├── i18n.go         # i18n management
+│   └── messages/        # Translation files
+│       ├── en.json     # English messages
+│       └── ja.json     # Japanese messages
+├── shell/               # Shell implementation
+│   ├── shell.go        # Main shell logic
+│   ├── command.go      # Command handling
+│   ├── git.go          # Git integration
+│   ├── prompt.go       # Prompt generation
+│   └── windows.go      # Windows-specific commands
+├── config/              # Configuration
+│   ├── config.go       # Config management
+│   └── alias.go        # Alias handling
+└── themes/              # Theme system
+    └── theme.go        # Theme definitions
+```
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Add tests if applicable
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Acknowledgments
+
+- Named after the cherry blossom shell (Sakura-gai)
+- Inspired by the beauty of simplicity
+- Built with Go for cross-platform compatibility
 
 ---
 
-**🌸 Cherry Shell - 小さいながらも美しい、あなたのためのシェル 🌸**
-
+🌸 **Cherry Shell** - Small but beautiful, just like the cherry blossom shell. 

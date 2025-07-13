@@ -23,18 +23,13 @@ func (s *Shell) buildPrompt() string {
 	// テーマが設定されている場合はテーマのプロンプトを使用
 	if s.config != nil && s.config.Theme != "" {
 		if theme, exists := themes.GetTheme(s.config.Theme); exists {
-			prompt = theme.GetPrompt()
+			prompt = theme.Prompt
 		}
-	}
-
-	// カスタムプロンプトが設定されている場合はそれを優先
-	if s.config != nil && s.config.Prompt != "" && s.config.Prompt != "cherry:%s$ " {
-		prompt = s.config.Prompt
 	}
 
 	// プロンプトが設定されていない場合はデフォルト
 	if prompt == "" {
-		prompt = "cherry:%s$ "
+		prompt = "🌸 %s $ "
 	}
 
 	// 変数展開とクリーンアップ
@@ -49,75 +44,76 @@ func (s *Shell) cleanPrompt(prompt string) string {
 	spaceRegex := regexp.MustCompile(`\s{2,}`)
 	result = spaceRegex.ReplaceAllString(result, " ")
 
-	// 先頭の空白を除去（ただし末尾のスペースは意図的な場合があるので保持）
-	result = strings.TrimLeft(result, " \t")
+	// 改行文字を削除
+	result = strings.ReplaceAll(result, "\n", "")
+	result = strings.ReplaceAll(result, "\r", "")
 
-	// ANSIエスケープシーケンスの直後の余分な空白を除去
-	// \033[XXXm の後に続く空白を除去（ただし最後のスペースは保持）
-	ansiSpaceRegex := regexp.MustCompile(`(\033\[[0-9;]*m)\s+`)
-	result = ansiSpaceRegex.ReplaceAllString(result, "$1")
+	// 末尾の空白を削除
+	result = strings.TrimRight(result, " ")
 
-	// エスケープシーケンス間の余分な空白を除去
-	multiAnsiRegex := regexp.MustCompile(`(\033\[[0-9;]*m)\s+(\033\[[0-9;]*m)`)
-	result = multiAnsiRegex.ReplaceAllString(result, "$1$2")
+	// プロンプトの末尾にスペースを追加（入力との区切り）
+	if !strings.HasSuffix(result, " ") {
+		result += " "
+	}
 
 	return result
 }
 
 func (s *Shell) expandPromptVariables(prompt string) string {
-	// まず \n と \t をプレースホルダーとして扱い、
-	// 変数展開前に処理することで、パス文字列 (例: "C:\\temp") 内の
-	// 文字列が誤って置換される問題を防ぐ。
-	result := strings.ReplaceAll(prompt, "\\n", "\n")
-	result = strings.ReplaceAll(result, "\\t", "\t")
+	result := prompt
 
-	// 変数プレースホルダーを安定した順序で置換する
-	replacements := map[string]string{
-		"%s": s.getShortPath(),  // 現在のディレクトリ (短縮)
-		"%S": s.getCurrentDir(), // 現在のディレクトリ (フルパス)
-		"%u": s.getUsername(),   // ユーザー名
-		"%h": s.getHostname(),   // ホスト名
-		"%t": s.getTime(),       // 現在時刻
-		"%d": s.getDate(),       // 現在日付
-		"%w": s.getWeekday(),    // 曜日
-		"%%": "%",               // エスケープされた%
+	// 基本的な変数展開
+	variables := map[string]string{
+		"%s":   s.getShortPath(),
+		"%d":   s.getCurrentDir(),
+		"%u":   s.getUsername(),
+		"%h":   s.getHostname(),
+		"%t":   s.getTime(),
+		"%D":   s.getDate(),
+		"%w":   s.getWeekday(),
+		"%os":  s.getOSInfo(),
+		"%git": s.getGitBranch(),
+		"%gs":  s.getGitStatus(),
 	}
 
-	// 置換順序を固定することで map 順序の非決定性を排除
-	order := []string{"%s", "%S", "%u", "%h", "%t", "%d", "%w", "%%"}
-	for _, placeholder := range order {
-		result = strings.ReplaceAll(result, placeholder, replacements[placeholder])
+	for placeholder, value := range variables {
+		result = strings.ReplaceAll(result, placeholder, value)
+	}
+
+	// テーマの色設定を適用
+	if s.config != nil && s.config.Theme != "" {
+		result = themes.ApplyThemeColors(s.config.Theme, result)
 	}
 
 	return result
 }
 
 func (s *Shell) getShortPath() string {
-	current := s.getCurrentDir()
+	currentDir := s.getCurrentDir()
+	homeDir, err := os.UserHomeDir()
+	if err == nil && strings.HasPrefix(currentDir, homeDir) {
+		return "~" + currentDir[len(homeDir):]
+	}
 
-	// ホームディレクトリの場合は~で表示
-	if home, err := os.UserHomeDir(); err == nil {
-		if strings.HasPrefix(current, home) {
-			return "~" + current[len(home):]
+	// パスが長い場合は短縮
+	if len(currentDir) > 50 {
+		parts := strings.Split(currentDir, string(filepath.Separator))
+		if len(parts) > 3 {
+			return "..." + string(filepath.Separator) + strings.Join(parts[len(parts)-2:], string(filepath.Separator))
 		}
 	}
 
-	// 長いパスの場合は末尾のディレクトリ名のみ表示
-	if len(current) > 30 {
-		return "..." + filepath.Base(current)
-	}
-
-	return current
+	return currentDir
 }
 
 func (s *Shell) getUsername() string {
 	if username := os.Getenv("USER"); username != "" {
 		return username
 	}
-	if username := os.Getenv("USERNAME"); username != "" { // Windows
+	if username := os.Getenv("USERNAME"); username != "" {
 		return username
 	}
-	return "unknown"
+	return "user"
 }
 
 func (s *Shell) getHostname() string {
@@ -136,20 +132,19 @@ func (s *Shell) getDate() string {
 }
 
 func (s *Shell) getWeekday() string {
-	return time.Now().Format("Mon")
+	return time.Now().Format("Monday")
 }
 
 func (s *Shell) getOSInfo() string {
 	return runtime.GOOS + "/" + runtime.GOARCH
 }
 
-// Git情報を取得（将来の拡張用）
 func (s *Shell) getGitBranch() string {
-	// TODO: gitブランチ情報の取得実装
+	// 簡単なgitブランチ検出（実装は簡略化）
 	return ""
 }
 
 func (s *Shell) getGitStatus() string {
-	// TODO: git状態情報の取得実装
+	// 簡単なgitステータス検出（実装は簡略化）
 	return ""
 }

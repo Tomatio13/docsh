@@ -4,10 +4,10 @@ import (
 	"bufio"
 	"fmt"
 	"os"
-	"runtime"
 	"strings"
 
 	"cherrysh/config"
+	"cherrysh/i18n"
 	"cherrysh/themes"
 )
 
@@ -27,12 +27,6 @@ func NewShell() *Shell {
 		config: cfg,
 	}
 
-	// 実行環境の情報を表示
-	fmt.Printf("=== 🌸 Cherry Shell 🌸 ===\n")
-	fmt.Printf("Runtime OS: %s\n", runtime.GOOS)
-	fmt.Printf("Runtime ARCH: %s\n", runtime.GOARCH)
-	fmt.Printf("==========================\n")
-
 	// Windows環境の初期化
 	shell.initializeWindowsEnvironment()
 
@@ -41,14 +35,14 @@ func NewShell() *Shell {
 
 	// 設定ファイルを読み込み
 	if err := cfg.LoadConfigFile(); err != nil {
-		fmt.Printf("Warning: Could not load config file: %v\n", err)
+		fmt.Printf(i18n.T("shell.config_load_warning")+"\n", err)
 	}
 
 	return shell
 }
 
 func (s *Shell) Start() error {
-	fmt.Printf("\nWelcome to Cherry Shell! 🌸 Type 'exit' to quit.\n\n")
+	fmt.Printf(i18n.T("app.welcome"))
 
 	for {
 		s.showPrompt()
@@ -64,12 +58,12 @@ func (s *Shell) Start() error {
 		}
 
 		if input == "exit" {
-			fmt.Println("Goodbye!")
+			fmt.Println(i18n.T("app.goodbye"))
 			break
 		}
 
 		if err := s.executeCommand(input); err != nil {
-			fmt.Fprintf(os.Stderr, "Error: %v\n", err)
+			fmt.Fprintf(os.Stderr, i18n.T("app.error")+"\n", err)
 		}
 	}
 
@@ -108,6 +102,8 @@ func (s *Shell) executeCommand(input string) error {
 		return s.handleAliasCommand(args)
 	case "theme":
 		return s.handleThemeCommand(args)
+	case "lang":
+		return s.handleLangCommand(args)
 	case "git":
 		return s.handleGitCommand(args)
 	default:
@@ -121,7 +117,7 @@ func (s *Shell) executeCommand(input string) error {
 
 func (s *Shell) handleAliasCommand(args []string) error {
 	if s.config == nil {
-		return fmt.Errorf("config not initialized")
+		return fmt.Errorf(i18n.T("config.not_initialized"))
 	}
 
 	if len(args) == 0 {
@@ -140,20 +136,68 @@ func (s *Shell) handleThemeCommand(args []string) error {
 		// 利用可能なテーマ一覧を表示
 		themes.ListThemes()
 		if s.config != nil {
-			fmt.Printf("Current theme: %s\n", s.config.Theme)
+			fmt.Printf(i18n.T("theme.current_theme")+"\n", s.config.Theme)
 		}
 		return nil
 	}
 
 	themeName := args[0]
 	if _, exists := themes.GetTheme(themeName); !exists {
-		return fmt.Errorf("theme '%s' not found", themeName)
+		return fmt.Errorf(i18n.T("theme.not_found"), themeName)
 	}
 
 	if s.config != nil {
 		s.config.Theme = themeName
-		fmt.Printf("Theme changed to: %s\n", themeName)
+		fmt.Printf(i18n.T("theme.theme_changed")+"\n", themeName)
 	}
+
+	return nil
+}
+
+func (s *Shell) handleLangCommand(args []string) error {
+	if len(args) == 0 {
+		// 現在の言語設定を表示
+		currentLang := i18n.GetCurrentLanguage()
+		availableLangs := i18n.GetAvailableLanguages()
+
+		fmt.Printf(i18n.T("lang.current_language")+"\n", currentLang)
+		fmt.Printf(i18n.T("lang.available_languages") + "\n")
+		for _, lang := range availableLangs {
+			fmt.Printf("  %s\n", lang)
+		}
+		return nil
+	}
+
+	newLang := args[0]
+	availableLangs := i18n.GetAvailableLanguages()
+
+	// 指定された言語が利用可能かチェック
+	isValid := false
+	for _, lang := range availableLangs {
+		if lang == newLang {
+			isValid = true
+			break
+		}
+	}
+
+	if !isValid {
+		return fmt.Errorf(i18n.T("lang.invalid_language"), newLang)
+	}
+
+	// 設定ファイルに言語設定を保存
+	if s.config != nil {
+		if err := s.config.SetLanguage(newLang); err != nil {
+			return fmt.Errorf(i18n.T("lang.save_error"), err)
+		}
+	}
+
+	// i18nを再初期化
+	if err := i18n.Init(newLang); err != nil {
+		return fmt.Errorf(i18n.T("lang.init_error"), err)
+	}
+
+	fmt.Printf(i18n.T("lang.language_changed")+"\n", newLang)
+	fmt.Printf(i18n.T("lang.restart_notice") + "\n")
 
 	return nil
 }
@@ -186,6 +230,6 @@ func (s *Shell) handleGitCommand(args []string) error {
 		s.gitHelp()
 		return nil
 	default:
-		return fmt.Errorf("不明なGitコマンド: %s", subcommand)
+		return fmt.Errorf(i18n.T("git.unknown_command"), subcommand)
 	}
 }

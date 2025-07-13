@@ -3,8 +3,10 @@ package shell
 import (
 	"fmt"
 	"os"
+	"os/exec"
 	"strings"
-	"time"
+
+	"cherrysh/i18n"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -24,253 +26,234 @@ func (s *Shell) getRepository() (*git.Repository, error) {
 	return repo, nil
 }
 
-// gitStatus はGitリポジトリの状態を表示します
 func (s *Shell) gitStatus(args []string) error {
-	repo, err := s.getRepository()
+	repo, err := git.PlainOpen(".")
 	if err != nil {
 		return err
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("ワークツリーの取得に失敗しました: %v", err)
+		return err
 	}
 
 	status, err := worktree.Status()
 	if err != nil {
-		return fmt.Errorf("ステータスの取得に失敗しました: %v", err)
+		return err
 	}
 
 	if status.IsClean() {
-		fmt.Println("作業ディレクトリはクリーンです")
+		fmt.Println(i18n.T("git.clean_working_directory"))
 		return nil
 	}
 
-	fmt.Println("変更されたファイル:")
+	fmt.Println(i18n.T("git.changed_files"))
+
+	// ステータスの種類を日本語で表示
+	statusMap := map[git.StatusCode]string{
+		git.Modified:   "変更",
+		git.Added:      "追加",
+		git.Deleted:    "削除",
+		git.Renamed:    "名前変更",
+		git.Copied:     "コピー",
+		git.Untracked:  "未追跡",
+		git.Unmodified: "未変更",
+	}
+
 	for file, fileStatus := range status {
-		var statusText string
-		switch {
-		case fileStatus.Staging == git.Untracked:
-			statusText = "?? " // 未追跡
-		case fileStatus.Staging == git.Added:
-			statusText = "A  " // 追加（ステージング済み）
-		case fileStatus.Staging == git.Modified:
-			statusText = "M  " // 変更（ステージング済み）
-		case fileStatus.Worktree == git.Modified:
-			statusText = " M " // 変更（未ステージング）
-		case fileStatus.Worktree == git.Deleted:
-			statusText = " D " // 削除（未ステージング）
-		default:
-			statusText = "   "
+		var statusTexts []string
+
+		if fileStatus.Staging != git.Unmodified {
+			if text, exists := statusMap[fileStatus.Staging]; exists {
+				statusTexts = append(statusTexts, text)
+			}
 		}
+
+		if fileStatus.Worktree != git.Unmodified {
+			if text, exists := statusMap[fileStatus.Worktree]; exists {
+				statusTexts = append(statusTexts, text)
+			}
+		}
+
+		statusText := strings.Join(statusTexts, ", ")
 		fmt.Printf("%s %s\n", statusText, file)
 	}
+
 	return nil
 }
 
-// gitAdd はファイルをステージングエリアに追加します
 func (s *Shell) gitAdd(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("エラー: 追加するファイルを指定してください")
+		return fmt.Errorf("usage: git add <file>")
 	}
 
-	repo, err := s.getRepository()
+	repo, err := git.PlainOpen(".")
 	if err != nil {
 		return err
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("ワークツリーの取得に失敗しました: %v", err)
+		return err
 	}
 
 	for _, file := range args {
-		if file == "." {
-			err = worktree.AddGlob("*")
-		} else {
-			_, err = worktree.Add(file)
-		}
+		_, err := worktree.Add(file)
 		if err != nil {
-			fmt.Printf("エラー: ファイル '%s' を追加できませんでした: %v\n", file, err)
+			fmt.Printf(i18n.T("git.add_error")+"\n", file, err)
 			continue
 		}
-		fmt.Printf("ファイルを追加しました: %s\n", file)
+		fmt.Printf(i18n.T("git.add_success")+"\n", file)
 	}
+
 	return nil
 }
 
-// gitCommit は変更をコミットします
 func (s *Shell) gitCommit(args []string) error {
 	if len(args) < 2 || args[0] != "-m" {
-		return fmt.Errorf("エラー: コミットメッセージを指定してください\n使用法: git commit -m \"コミットメッセージ\"")
+		return fmt.Errorf("usage: git commit -m \"message\"")
 	}
 
-	repo, err := s.getRepository()
+	message := strings.Join(args[1:], " ")
+
+	repo, err := git.PlainOpen(".")
 	if err != nil {
 		return err
 	}
 
 	worktree, err := repo.Worktree()
 	if err != nil {
-		return fmt.Errorf("ワークツリーの取得に失敗しました: %v", err)
+		return err
 	}
 
-	commit, err := worktree.Commit(args[1], &git.CommitOptions{
+	commit, err := worktree.Commit(message, &git.CommitOptions{
 		Author: &object.Signature{
-			Name:  "Git CLI User",
-			Email: "user@git-cli.local",
-			When:  time.Now(),
+			Name:  "Cherry Shell User",
+			Email: "user@cherrysh.local",
 		},
 	})
 	if err != nil {
-		return fmt.Errorf("コミットに失敗しました: %v", err)
+		return err
 	}
 
-	fmt.Printf("コミットが作成されました: %s\n", commit.String()[:8])
+	fmt.Printf(i18n.T("git.commit_created")+"\n", commit.String()[:8])
 	return nil
 }
 
-// gitPush はリモートリポジトリにプッシュします
 func (s *Shell) gitPush(args []string) error {
-	repo, err := s.getRepository()
-	if err != nil {
+	// 外部のgitコマンドを使用
+	cmd := exec.Command("git", append([]string{"push"}, args...)...)
+	cmd.Dir = s.getCurrentDir()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 
-	err = repo.Push(&git.PushOptions{})
-	if err != nil {
-		if err == git.NoErrAlreadyUpToDate {
-			fmt.Println("既に最新の状態です")
-			return nil
-		}
-		return fmt.Errorf("プッシュに失敗しました: %v", err)
-	}
-
-	fmt.Println("プッシュが完了しました")
+	fmt.Println(i18n.T("git.already_up_to_date"))
 	return nil
 }
 
-// gitPull はリモートリポジトリから取得します
 func (s *Shell) gitPull(args []string) error {
-	repo, err := s.getRepository()
-	if err != nil {
+	// 外部のgitコマンドを使用
+	cmd := exec.Command("git", append([]string{"pull"}, args...)...)
+	cmd.Dir = s.getCurrentDir()
+	cmd.Stdout = os.Stdout
+	cmd.Stderr = os.Stderr
+
+	if err := cmd.Run(); err != nil {
 		return err
 	}
 
-	worktree, err := repo.Worktree()
-	if err != nil {
-		return fmt.Errorf("ワークツリーの取得に失敗しました: %v", err)
-	}
-
-	err = worktree.Pull(&git.PullOptions{
-		RemoteName: "origin",
-	})
-
-	if err != nil {
-		if err == git.NoErrAlreadyUpToDate {
-			fmt.Println("既に最新の状態です")
-			return nil
-		}
-		return fmt.Errorf("プルに失敗しました: %v", err)
-	}
-
-	fmt.Println("プルが完了しました")
+	fmt.Println(i18n.T("git.pull_completed"))
 	return nil
 }
 
-// gitLog はコミット履歴を表示します
 func (s *Shell) gitLog(args []string) error {
-	repo, err := s.getRepository()
+	repo, err := git.PlainOpen(".")
 	if err != nil {
 		return err
 	}
 
 	ref, err := repo.Head()
 	if err != nil {
-		return fmt.Errorf("HEADの取得に失敗しました: %v", err)
+		return err
 	}
 
 	commitIter, err := repo.Log(&git.LogOptions{From: ref.Hash()})
 	if err != nil {
-		return fmt.Errorf("ログの取得に失敗しました: %v", err)
+		return err
 	}
 
+	// 最新の10件のコミットを表示
 	count := 0
 	maxCount := 10
-	if len(args) > 0 && strings.Contains(args[0], "-") {
-		// 簡単なオプション解析（-n 数値形式のみ対応）
-		for i, arg := range args {
-			if arg == "-n" && i+1 < len(args) {
-				fmt.Sscanf(args[i+1], "%d", &maxCount)
-				break
-			}
-		}
+	if len(args) > 0 && args[0] == "-n" && len(args) > 1 {
+		// -n オプションで件数を指定
+		fmt.Sscanf(args[1], "%d", &maxCount)
 	}
 
 	err = commitIter.ForEach(func(c *object.Commit) error {
 		if count >= maxCount {
-			return fmt.Errorf("達成")
+			return fmt.Errorf("stop iteration")
 		}
+
 		fmt.Printf("%s %s\n", c.Hash.String()[:8], strings.Split(c.Message, "\n")[0])
 		count++
 		return nil
 	})
 
-	if err != nil && err.Error() != "達成" {
-		return fmt.Errorf("ログの表示に失敗しました: %v", err)
+	if err != nil && err.Error() != "stop iteration" {
+		return err
 	}
+
 	return nil
 }
 
-// gitClone はリポジトリをクローンします
 func (s *Shell) gitClone(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("エラー: クローンするリポジトリのURLを指定してください\n使用法: git clone https://github.com/user/repo.git")
+		return fmt.Errorf("usage: git clone <url> [directory]")
 	}
 
 	url := args[0]
-	var directory string
+	directory := ""
 
 	if len(args) > 1 {
 		directory = args[1]
 	} else {
-		// URLからリポジトリ名を抽出
+		// URLからディレクトリ名を推測
 		parts := strings.Split(url, "/")
-		repoName := parts[len(parts)-1]
-		if strings.HasSuffix(repoName, ".git") {
-			repoName = repoName[:len(repoName)-4]
+		if len(parts) > 0 {
+			directory = strings.TrimSuffix(parts[len(parts)-1], ".git")
 		}
-		directory = repoName
 	}
 
-	// ディレクトリが既に存在するかチェック
-	if _, err := os.Stat(directory); !os.IsNotExist(err) {
-		return fmt.Errorf("エラー: ディレクトリ '%s' は既に存在します", directory)
+	if directory == "" {
+		return fmt.Errorf("could not determine directory name")
 	}
 
-	fmt.Printf("リポジトリをクローンしています: %s -> %s\n", url, directory)
+	fmt.Printf(i18n.T("git.cloning_repository")+"\n", url, directory)
 
 	_, err := git.PlainClone(directory, false, &git.CloneOptions{
-		URL:      url,
-		Progress: os.Stdout,
+		URL: url,
 	})
 	if err != nil {
-		return fmt.Errorf("クローンに失敗しました: %v", err)
+		return err
 	}
 
-	fmt.Printf("クローンが完了しました: %s\n", directory)
+	fmt.Printf(i18n.T("git.clone_completed")+"\n", directory)
 	return nil
 }
 
-// gitHelp はGitコマンドのヘルプを表示します
 func (s *Shell) gitHelp() {
-	fmt.Println("利用可能なGitコマンド:")
-	fmt.Println("  git status           - 作業ディレクトリの状態を表示")
-	fmt.Println("  git add <ファイル>   - ファイルをステージングエリアに追加")
-	fmt.Println("  git commit -m <メッセージ> - 変更をコミット")
-	fmt.Println("  git push             - リモートリポジトリにプッシュ")
-	fmt.Println("  git pull             - リモートリポジトリから取得")
-	fmt.Println("  git log              - コミット履歴を表示")
-	fmt.Println("  git clone <URL>      - リポジトリをクローン")
-	fmt.Println("  git help             - このヘルプを表示")
+	fmt.Println(i18n.T("git.help_title"))
+	fmt.Println(i18n.T("git.help_status"))
+	fmt.Println(i18n.T("git.help_add"))
+	fmt.Println(i18n.T("git.help_commit"))
+	fmt.Println(i18n.T("git.help_push"))
+	fmt.Println(i18n.T("git.help_pull"))
+	fmt.Println(i18n.T("git.help_log"))
+	fmt.Println(i18n.T("git.help_clone"))
+	fmt.Println(i18n.T("git.help_help"))
 }

@@ -1,20 +1,24 @@
 @echo off
-REM Go-Zsh Windows 64bit Build Script
+REM CherryShell Windows Build Script
 
-echo Building Go-Zsh for Windows 64bit...
+echo Building CherryShell for Windows...
+
+REM Create Release directory if it doesn't exist
+if not exist "Release" mkdir Release
 
 REM 環境変数設定
 set GOOS=windows
 set GOARCH=amd64
 set CGO_ENABLED=0
 
-REM ビルド実行
-go build -ldflags="-s -w" -o go-zsh-windows-x64.exe .
+REM ビルド実行 (64bit)
+echo Building for Windows 64bit...
+go build -ldflags="-s -w" -o Release\cherrysh-windows-x64.exe .
 
 if %ERRORLEVEL% EQU 0 (
-    echo Build successful: go-zsh-windows-x64.exe
+    echo Build successful: Release\cherrysh-windows-x64.exe
     echo File size:
-    dir go-zsh-windows-x64.exe | findstr "go-zsh-windows-x64.exe"
+    dir Release\cherrysh-windows-x64.exe | findstr "cherrysh-windows-x64.exe"
 ) else (
     echo Build failed with error code %ERRORLEVEL%
     exit /b %ERRORLEVEL%
@@ -22,17 +26,19 @@ if %ERRORLEVEL% EQU 0 (
 
 REM 32bit版も作成（互換性のため）
 echo.
-echo Building Go-Zsh for Windows 32bit...
+echo Building for Windows 32bit...
 set GOARCH=386
-go build -ldflags="-s -w" -o go-zsh-windows-x86.exe .
+go build -ldflags="-s -w" -o Release\cherrysh-windows-x86.exe .
 
 if %ERRORLEVEL% EQU 0 (
-    echo Build successful: go-zsh-windows-x86.exe
+    echo Build successful: Release\cherrysh-windows-x86.exe
     echo File size:
-    dir go-zsh-windows-x86.exe | findstr "go-zsh-windows-x86.exe"
+    dir Release\cherrysh-windows-x86.exe | findstr "cherrysh-windows-x86.exe"
 ) else (
     echo 32bit build failed with error code %ERRORLEVEL%
 )
 
 echo.
-echo Build completed!
+echo Build completed! Available binaries in Release folder:
+echo Windows 64bit: Release\cherrysh-windows-x64.exe
+echo Windows 32bit: Release\cherrysh-windows-x86.exe

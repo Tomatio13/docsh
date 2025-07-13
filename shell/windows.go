@@ -2,372 +2,408 @@ package shell
 
 import (
 	"fmt"
-	"io/ioutil"
+	"io"
 	"os"
 	"path/filepath"
 	"runtime"
-	"sort"
 	"strings"
+
+	"cherrysh/i18n"
 )
 
+// isBuiltinCommand は内蔵コマンドかどうかを判定します
 func (s *Shell) isBuiltinCommand(command string) bool {
-	builtinCommands := map[string]bool{
-		"ls":     true,
-		"cat":    true,
-		"clear":  true,
-		"cp":     true,
-		"mv":     true,
-		"rm":     true,
-		"mkdir":  true,
-		"rmdir":  true,
-		"echo":   true,
-		"env":    true,
-		"which":  true,
+	builtinCommands := []string{
+		"dir", "ls", "cat", "type", "copy", "cp", "move", "mv",
+		"del", "rm", "mkdir", "md", "rmdir", "rd", "cls", "clear",
+		"echo", "set", "where", "which",
 	}
-	
-	return builtinCommands[strings.ToLower(command)]
+
+	for _, builtin := range builtinCommands {
+		if command == builtin {
+			return true
+		}
+	}
+	return false
 }
 
+// executeBuiltinCommand は内蔵コマンドを実行します
 func (s *Shell) executeBuiltinCommand(command string, args []string) error {
-	switch strings.ToLower(command) {
-	case "ls":
-		return s.unixLs(args)
-	case "cat":
-		return s.unixCat(args)
-	case "clear":
-		return s.unixClear()
-	case "cp":
-		return s.unixCp(args)
-	case "mv":
-		return s.unixMv(args)
-	case "rm":
-		return s.unixRm(args)
-	case "mkdir":
-		return s.unixMkdir(args)
-	case "rmdir":
-		return s.unixRmdir(args)
+	switch command {
+	case "dir", "ls":
+		return s.listDirectory(args)
+	case "cat", "type":
+		return s.catFile(args)
+	case "copy", "cp":
+		return s.copyFile(args)
+	case "move", "mv":
+		return s.moveFile(args)
+	case "del", "rm":
+		return s.deleteFile(args)
+	case "mkdir", "md":
+		return s.makeDirectory(args)
+	case "rmdir", "rd":
+		return s.removeDirectory(args)
+	case "cls", "clear":
+		return s.clearScreen()
 	case "echo":
-		return s.unixEcho(args)
-	case "env":
-		return s.unixEnv(args)
-	case "which":
-		return s.unixWhich(args)
+		return s.echoCommand(args)
+	case "set":
+		return s.setCommand(args)
+	case "where", "which":
+		return s.whereCommand(args)
 	default:
 		return fmt.Errorf("unknown builtin command: %s", command)
 	}
 }
 
-func (s *Shell) unixLs(args []string) error {
-	path := "."
-	showLong := false
+// listDirectory はディレクトリの内容を表示します
+func (s *Shell) listDirectory(args []string) error {
+	dir := "."
 	showAll := false
-	
-	// オプション解析
-	var paths []string
+	longFormat := false
+	sortByTime := false
+	reverseOrder := false
+
+	// 引数を解析
 	for _, arg := range args {
 		if strings.HasPrefix(arg, "-") {
-			if strings.Contains(arg, "l") {
-				showLong = true
-			}
-			if strings.Contains(arg, "a") {
-				showAll = true
+			// フラグを処理
+			for _, flag := range arg[1:] {
+				switch flag {
+				case 'a':
+					showAll = true
+				case 'l':
+					longFormat = true
+				case 't':
+					sortByTime = true
+				case 'r':
+					reverseOrder = true
+				}
 			}
 		} else {
-			paths = append(paths, arg)
+			// ディレクトリ名
+			dir = arg
 		}
 	}
-	
-	if len(paths) > 0 {
-		path = paths[0]
-	}
-	
-	// Windowsパス形式を正規化
-	if runtime.GOOS == "windows" {
-		path = s.normalizeWindowsPath(path)
-	}
-	
-	files, err := ioutil.ReadDir(path)
+
+	entries, err := os.ReadDir(dir)
 	if err != nil {
-		return fmt.Errorf("ls: cannot access '%s': %v", path, err)
+		return err
 	}
-	
-	// 隠しファイルのフィルタリング
+
+	// 隠しファイルをフィルタリング
 	if !showAll {
-		var visibleFiles []os.FileInfo
-		for _, file := range files {
-			if !strings.HasPrefix(file.Name(), ".") {
-				visibleFiles = append(visibleFiles, file)
+		var filteredEntries []os.DirEntry
+		for _, entry := range entries {
+			if !strings.HasPrefix(entry.Name(), ".") {
+				filteredEntries = append(filteredEntries, entry)
 			}
 		}
-		files = visibleFiles
+		entries = filteredEntries
 	}
-	
-	// ソート（名前順）
-	sort.Slice(files, func(i, j int) bool {
-		return strings.ToLower(files[i].Name()) < strings.ToLower(files[j].Name())
-	})
-	
-	if showLong {
-		// ls -l形式
-		for _, file := range files {
-			var perm string
-			if file.IsDir() {
-				perm = "d"
-			} else {
-				perm = "-"
+
+	// ソート処理
+	if sortByTime {
+		// 時間順でソート
+		for i := 0; i < len(entries)-1; i++ {
+			for j := i + 1; j < len(entries); j++ {
+				info1, _ := entries[i].Info()
+				info2, _ := entries[j].Info()
+				if info1.ModTime().Before(info2.ModTime()) {
+					entries[i], entries[j] = entries[j], entries[i]
+				}
 			}
-			
-			// 簡易的な権限表示
-			perm += "rwxrwxrwx" // Unix風の権限表示（簡略化）
-			
-			fmt.Printf("%s %8d %s %s\n",
-				perm,
-				file.Size(),
-				file.ModTime().Format("Jan 02 15:04"),
-				file.Name())
 		}
 	} else {
-		// 通常のls形式
-		var names []string
-		for _, file := range files {
-			name := file.Name()
-			if file.IsDir() {
-				name += "/"
+		// 名前順でソート（デフォルト）
+		for i := 0; i < len(entries)-1; i++ {
+			for j := i + 1; j < len(entries); j++ {
+				if entries[i].Name() > entries[j].Name() {
+					entries[i], entries[j] = entries[j], entries[i]
+				}
 			}
-			names = append(names, name)
-		}
-		
-		// 複数列で表示
-		cols := 4
-		for i, name := range names {
-			fmt.Printf("%-20s", name)
-			if (i+1)%cols == 0 {
-				fmt.Println()
-			}
-		}
-		if len(names)%cols != 0 {
-			fmt.Println()
 		}
 	}
-	
-	// 出力完了
-	
+
+	// 逆順にする
+	if reverseOrder {
+		for i := 0; i < len(entries)/2; i++ {
+			j := len(entries) - 1 - i
+			entries[i], entries[j] = entries[j], entries[i]
+		}
+	}
+
+	// 表示
+	if longFormat {
+		// 詳細表示
+		for _, entry := range entries {
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+
+			var typeStr string
+			var sizeStr string
+			if entry.IsDir() {
+				typeStr = "d"
+				sizeStr = fmt.Sprintf("%8s", "<DIR>")
+			} else {
+				typeStr = "-"
+				sizeStr = fmt.Sprintf("%8d", info.Size())
+			}
+
+			// 権限表示（簡易版）
+			mode := info.Mode()
+			perms := typeStr
+			if mode&0400 != 0 {
+				perms += "r"
+			} else {
+				perms += "-"
+			}
+			if mode&0200 != 0 {
+				perms += "w"
+			} else {
+				perms += "-"
+			}
+			if mode&0100 != 0 {
+				perms += "x"
+			} else {
+				perms += "-"
+			}
+			perms += "------" // 簡易版なので他のユーザー権限は省略
+
+			fmt.Printf("%s %s %s %s\n",
+				perms,
+				info.ModTime().Format("Jan 02 15:04"),
+				sizeStr,
+				entry.Name())
+		}
+	} else {
+		// 簡易表示
+		for _, entry := range entries {
+			info, err := entry.Info()
+			if err != nil {
+				continue
+			}
+
+			var sizeStr string
+			if entry.IsDir() {
+				sizeStr = "<DIR>"
+			} else {
+				sizeStr = fmt.Sprintf("%d", info.Size())
+			}
+
+			fmt.Printf("%s %8s %s %s\n",
+				info.ModTime().Format("2006-01-02 15:04"),
+				sizeStr,
+				"",
+				entry.Name())
+		}
+	}
+
 	return nil
 }
 
-func (s *Shell) unixCat(args []string) error {
+// catFile はファイルの内容を表示します
+func (s *Shell) catFile(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("cat: missing file argument")
+		return fmt.Errorf("usage: cat <file>")
 	}
-	
-	for _, filename := range args {
-		filename = s.normalizeWindowsPath(filename)
-		
-		content, err := ioutil.ReadFile(filename)
+
+	for i, filename := range args {
+		file, err := os.Open(filename)
 		if err != nil {
-			fmt.Fprintf(os.Stderr, "cat: cannot read '%s': %v\n", filename, err)
+			fmt.Fprintf(os.Stderr, i18n.T("windows.cat_error")+"\n", filename, err)
 			continue
 		}
-		
-		// Windows形式の改行に対応
+		defer file.Close()
+
+		content, err := io.ReadAll(file)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, i18n.T("windows.cat_error")+"\n", filename, err)
+			continue
+		}
+
 		contentStr := string(content)
-		contentStr = strings.ReplaceAll(contentStr, "\r\n", "\n")
 		fmt.Print(contentStr)
-		
-		if len(args) > 1 {
+
+		// 複数ファイルの場合は改行を追加
+		if i < len(args)-1 {
 			fmt.Println() // 複数ファイルの場合は改行を追加
 		}
 	}
-	
+
 	return nil
 }
 
-func (s *Shell) unixClear() error {
-	// ANSI エスケープシーケンスでクリア
+// clearScreen は画面をクリアします
+func (s *Shell) clearScreen() error {
 	fmt.Print("\033[2J\033[H")
 	return nil
 }
 
-func (s *Shell) unixCp(args []string) error {
+// copyFile はファイルをコピーします
+func (s *Shell) copyFile(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("cp: missing source or destination")
+		return fmt.Errorf("usage: copy <source> <destination>")
 	}
-	
-	src := s.normalizeWindowsPath(args[0])
-	dst := s.normalizeWindowsPath(args[1])
-	
-	data, err := ioutil.ReadFile(src)
+
+	source := args[0]
+	destination := args[1]
+
+	sourceFile, err := os.Open(source)
 	if err != nil {
-		return fmt.Errorf("cp: cannot read '%s': %v", src, err)
+		return err
 	}
-	
-	if err := ioutil.WriteFile(dst, data, 0644); err != nil {
-		return fmt.Errorf("cp: cannot write '%s': %v", dst, err)
+	defer sourceFile.Close()
+
+	destFile, err := os.Create(destination)
+	if err != nil {
+		return err
 	}
-	
-	fmt.Printf("        1 file(s) copied.\n")
+	defer destFile.Close()
+
+	_, err = io.Copy(destFile, sourceFile)
+	if err != nil {
+		return err
+	}
+
+	fmt.Printf(i18n.T("windows.files_copied") + "\n")
 	return nil
 }
 
-func (s *Shell) unixMv(args []string) error {
+// moveFile はファイルを移動します
+func (s *Shell) moveFile(args []string) error {
 	if len(args) < 2 {
-		return fmt.Errorf("mv: missing source or destination")
+		return fmt.Errorf("usage: move <source> <destination>")
 	}
-	
-	src := s.normalizeWindowsPath(args[0])
-	dst := s.normalizeWindowsPath(args[1])
-	
-	if err := os.Rename(src, dst); err != nil {
-		return fmt.Errorf("mv: cannot move '%s' to '%s': %v", src, dst, err)
+
+	source := args[0]
+	destination := args[1]
+
+	err := os.Rename(source, destination)
+	if err != nil {
+		return err
 	}
-	
-	fmt.Printf("        1 file(s) moved.\n")
+
+	fmt.Printf(i18n.T("windows.files_moved") + "\n")
 	return nil
 }
 
-func (s *Shell) unixRm(args []string) error {
+// deleteFile はファイルを削除します
+func (s *Shell) deleteFile(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("rm: missing file argument")
+		return fmt.Errorf("usage: del <file>")
 	}
-	
+
 	deletedCount := 0
 	for _, filename := range args {
-		filename = s.normalizeWindowsPath(filename)
-		
-		if err := os.Remove(filename); err != nil {
-			fmt.Fprintf(os.Stderr, "rm: cannot delete '%s': %v\n", filename, err)
+		err := os.Remove(filename)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, i18n.T("windows.rm_error")+"\n", filename, err)
 			continue
 		}
 		deletedCount++
 	}
-	
+
 	if deletedCount > 0 {
-		fmt.Printf("        %d file(s) deleted.\n", deletedCount)
+		fmt.Printf(i18n.T("windows.files_deleted")+"\n", deletedCount)
 	}
-	
+
 	return nil
 }
 
-func (s *Shell) unixMkdir(args []string) error {
+// makeDirectory はディレクトリを作成します
+func (s *Shell) makeDirectory(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("mkdir: missing directory argument")
+		return fmt.Errorf("usage: mkdir <directory>")
 	}
-	
+
 	for _, dirname := range args {
-		dirname = s.normalizeWindowsPath(dirname)
-		
-		if err := os.MkdirAll(dirname, 0755); err != nil {
-			return fmt.Errorf("mkdir: cannot create directory '%s': %v", dirname, err)
+		err := os.MkdirAll(dirname, 0755)
+		if err != nil {
+			return err
 		}
 	}
-	
+
 	return nil
 }
 
-func (s *Shell) unixRmdir(args []string) error {
+// removeDirectory はディレクトリを削除します
+func (s *Shell) removeDirectory(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("rmdir: missing directory argument")
+		return fmt.Errorf("usage: rmdir <directory>")
 	}
-	
+
 	for _, dirname := range args {
-		dirname = s.normalizeWindowsPath(dirname)
-		
-		if err := os.Remove(dirname); err != nil {
-			return fmt.Errorf("rmdir: cannot remove directory '%s': %v", dirname, err)
+		err := os.Remove(dirname)
+		if err != nil {
+			return err
 		}
 	}
-	
+
 	return nil
 }
 
-func (s *Shell) unixEcho(args []string) error {
-	// Unix風のecho（改行あり）
+// echoCommand はテキストを表示します
+func (s *Shell) echoCommand(args []string) error {
 	fmt.Println(strings.Join(args, " "))
 	return nil
 }
 
-func (s *Shell) unixEnv(args []string) error {
+// setCommand は環境変数を表示または設定します
+func (s *Shell) setCommand(args []string) error {
 	if len(args) == 0 {
-		// 全環境変数を表示（ソート済み）
-		envVars := os.Environ()
-		sort.Strings(envVars)
-		for _, env := range envVars {
+		// 全環境変数を表示
+		for _, env := range os.Environ() {
 			fmt.Println(env)
 		}
 		return nil
 	}
-	
-	// Unix風のenv: 単一変数の表示は行わない
-	// 引数がある場合は設定として扱う
-	for _, arg := range args {
-		if strings.Contains(arg, "=") {
-			parts := strings.SplitN(arg, "=", 2)
-			os.Setenv(parts[0], parts[1])
-		} else {
-			return fmt.Errorf("env: invalid argument '%s'", arg)
-		}
+
+	// 環境変数の設定は実装が複雑なため、表示のみサポート
+	varName := args[0]
+	if value, exists := os.LookupEnv(varName); exists {
+		fmt.Printf("%s=%s\n", varName, value)
 	}
-	
+
 	return nil
 }
 
-func (s *Shell) unixWhich(args []string) error {
+// whereCommand はコマンドのパスを表示します
+func (s *Shell) whereCommand(args []string) error {
 	if len(args) == 0 {
-		return fmt.Errorf("which: missing command argument")
+		return fmt.Errorf("usage: where <command>")
 	}
-	
+
 	command := args[0]
-	
-	// PATH環境変数から検索
-	pathEnv := os.Getenv("PATH")
-	var pathSeparator string
+
+	// PATH環境変数からコマンドを検索
+	path := os.Getenv("PATH")
+	pathDirs := strings.Split(path, string(os.PathListSeparator))
+
+	var extensions []string
 	if runtime.GOOS == "windows" {
-		pathSeparator = ";"
-	} else {
-		pathSeparator = ":"
-	}
-	paths := strings.Split(pathEnv, pathSeparator)
-	
-	found := false
-	for _, path := range paths {
-		if path == "" {
-			continue
-		}
-		
-		var extensions []string
-		if runtime.GOOS == "windows" {
-			extensions = []string{"", ".exe", ".com", ".bat", ".cmd"}
+		pathext := os.Getenv("PATHEXT")
+		if pathext != "" {
+			extensions = strings.Split(strings.ToLower(pathext), ";")
 		} else {
-			extensions = []string{""}
+			extensions = []string{".exe", ".cmd", ".bat"}
 		}
-		
+	} else {
+		extensions = []string{""}
+	}
+
+	for _, dir := range pathDirs {
 		for _, ext := range extensions {
-			fullPath := filepath.Join(path, command+ext)
+			fullPath := filepath.Join(dir, command+ext)
 			if _, err := os.Stat(fullPath); err == nil {
 				fmt.Println(fullPath)
-				found = true
-				break // Unixのwhichは最初の一つだけ表示
+				return nil
 			}
 		}
-		if found {
-			break
-		}
 	}
-	
-	if !found {
-		return fmt.Errorf("%s not found", command)
-	}
-	
-	return nil
-}
 
-func (s *Shell) normalizeWindowsPath(path string) string {
-	if runtime.GOOS != "windows" {
-		return path
-	}
-	
-	// バックスラッシュをスラッシュに統一（Goが自動変換）
-	path = strings.ReplaceAll(path, "\\", "/")
-	
-	return path
+	return fmt.Errorf("command not found: %s", command)
 }
