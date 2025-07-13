@@ -31,6 +31,8 @@
   "git.commit_success": "Committed: %s",
   "git.push_success": "Pushed successfully",
   "git.pull_success": "Pulled successfully",
+  "git.cloning_repository": "Cloning repository: %s → %s",
+  "git.clone_completed": "Clone completed: %s",
   "git.clone_success": "Cloned to: %s",
   "git.unknown_command": "unknown git command: %s",
   "git.help_header": "Git Commands:",

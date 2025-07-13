@@ -22,6 +22,7 @@ yarn-error.log*
 .env.development
 .env.production
 .env.local.org
+.cherryshrc
 
 # vercel
 .vercel
@@ -34,6 +35,12 @@ tmp/
 # public
 /public/images/
 
+# assets (keep directory structure but ignore large files)
+assets/*.gif
+assets/*.mp4
+assets/*.mov
+assets/theme-screenshots/
+
 # cursor
 .cursor/
 .claude/
@@ -41,3 +48,4 @@ tmp/
 cherrysh
 cherrysh-windows-x64.exe
 cherrysh*
+

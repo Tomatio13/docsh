@@ -1,18 +1,39 @@
-# 🌸 Cherry Shell - Beautiful & Simple Shell 🌸
+<h1 align="center">🌸 Cherry Shell - Beautiful & Simple Shell 🌸</h1>
 
-Cherry Shell is a beautiful and simple shell named after the cherry blossom shell (Sakura-gai). Small but beautiful, it provides an elegant command-line experience.
+<p align="center">
+    <img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge" alt="Platform">
+    <img src="https://img.shields.io/badge/i18n-English%20%7C%20Japanese-blue?style=for-the-badge" alt="i18n">
+</p>
 
-## Features
+<p align="center">
+    <a href="README.md"><img src="https://img.shields.io/badge/english-document-white.svg" alt="EN doc"></a>
+    <a href="README_ja.md"><img src="https://img.shields.io/badge/ドキュメント-日本語-white.svg" alt="JA doc"/></a>
+</p>
 
-- **Beautiful Design**: Elegant prompt with cherry blossom theme
-- **Cross-platform**: Works on Windows, macOS, and Linux
-- **Built-in Commands**: Essential commands like `ls`, `cat`, `cp`, `mv`, etc.
-- **Git Integration**: Built-in git commands for version control
-- **Theme Support**: Multiple themes to customize your shell appearance
-- **Alias Support**: Create custom command shortcuts
-- **Internationalization**: Supports English and Japanese languages
+<p align="center">
+    <img src="assets/cherry-shell-logo.png" alt="Cherry Shell Demo" width="600">
+</p>
 
-## Installation
+<p align="center">
+Cherry Shell is a beautiful and simple shell named after the cherry blossom shell (Sakura-gai).<br>
+Small but beautiful, it provides an elegant command-line experience.
+</p>
+
+## ✨ Features
+<p align="center">
+    <img src="assets/cherry-shell-demo_en.png" alt="Cherry Shell Demo" width="600">
+</p>
+
+- **🌸 Beautiful Design**: Elegant prompt with cherry blossom theme
+- **🌍 Cross-platform**: Works on Windows, macOS, and Linux
+- **⚡ Built-in Commands**: Essential commands like `ls`, `cat`, `cp`, `mv`, etc.
+- **🔧 Git Integration**: Built-in git commands for version control
+- **🎨 Theme Support**: Multiple themes to customize your shell appearance
+- **🔗 Alias Support**: Create custom command shortcuts
+- **🌐 Internationalization**: Supports English and Japanese languages
+
+## 📦 Installation
 
 ### From Source
 
@@ -26,7 +47,7 @@ go build -o cherrysh main.go
 
 Download the latest binary from the releases page.
 
-## Usage
+## 🚀 Usage
 
 ### Basic Commands
 
@@ -62,7 +83,7 @@ alias                # List aliases
 alias ll='ls -la'    # Create alias
 ```
 
-## Language Support
+## 🌐 Language Support
 
 Cherry Shell supports multiple languages. You can set the language using:
 
@@ -82,13 +103,16 @@ export CHERRYSH_LANG=ja    # Japanese
 ### System Locale
 Cherry Shell automatically detects your system locale. If `LANG` environment variable is set to `ja_JP.UTF-8` or similar, it will use Japanese.
 
-## Configuration
+## ⚙️ Configuration
 
 Cherry Shell uses a configuration file located at `~/.cherryshrc`:
 
 ```bash
 # Theme setting
 theme default
+
+# Language setting
+LANG="en"
 
 # Aliases
 alias ll="ls -la"
@@ -97,9 +121,15 @@ alias l="ls -l"
 alias grep="grep --color=auto"
 alias ..="cd .."
 alias ...="cd ../.."
+
+# GitHub Authentication Settings
+GITHUB_TOKEN="ghp_your_token_here"
+GITHUB_USER="your_username"
 ```
 
-## Available Themes
+> 💡 **Tip**: You can customize your settings by referring to the `.cherryshrc.example` file.
+
+## 🎨 Available Themes
 
 - **default**: Cherry blossom theme with elegant prompt
 - **minimal**: Clean and minimal design
@@ -107,12 +137,12 @@ alias ...="cd ../.."
 - **agnoster**: Powerline-style theme
 - **pure**: Pure and simple theme
 
-## Supported Languages
+## 🌍 Supported Languages
 
-- **English (en)**: Full support
-- **Japanese (ja)**: Full support
+- **🇺🇸 English (en)**: Full support
+- **🇯🇵 Japanese (ja)**: Full support
 
-## Development
+## 🛠️ Development
 
 ### Building
 
@@ -121,7 +151,7 @@ alias ...="cd ../.."
 go build -o cherrysh main.go
 
 # Build for all platforms
-make build-all
+./build.sh
 
 # Run tests
 go test ./...
@@ -134,7 +164,7 @@ go test ./...
 3. Add the language code to `GetAvailableLanguages()` in `i18n/i18n.go`
 4. Update the language detection logic if needed
 
-### Project Structure
+### 📁 Project Structure
 
 ```
 cherryshell/
@@ -157,7 +187,7 @@ cherryshell/
     └── theme.go        # Theme definitions
 ```
 
-## Contributing
+## 🤝 Contributing
 
 1. Fork the repository
 2. Create a feature branch
@@ -165,11 +195,11 @@ cherryshell/
 4. Add tests if applicable
 5. Submit a pull request
 
-## License
+## 📄 License
 
 This project is licensed under the MIT License.
 
-## Acknowledgments
+## 🙏 Acknowledgments
 
 - Named after the cherry blossom shell (Sakura-gai)
 - Inspired by the beauty of simplicity
@@ -177,4 +207,6 @@ This project is licensed under the MIT License.
 
 ---
 
-🌸 **Cherry Shell** - Small but beautiful, just like the cherry blossom shell. 
+<p align="center">
+🌸 <strong>Cherry Shell</strong> - Small but beautiful, just like the cherry blossom shell.
+</p> 

@@ -17,9 +17,8 @@ type Shell struct {
 	config *config.Config
 }
 
-func NewShell() *Shell {
+func NewShell(cfg *config.Config) *Shell {
 	cwd, _ := os.Getwd()
-	cfg := config.NewConfig()
 
 	shell := &Shell{
 		reader: bufio.NewReader(os.Stdin),
@@ -42,7 +41,12 @@ func NewShell() *Shell {
 }
 
 func (s *Shell) Start() error {
-	fmt.Printf(i18n.T("app.welcome"))
+	// 設定ファイルを再読み込み
+	if err := s.config.LoadConfigFile(); err != nil {
+		fmt.Printf(i18n.T("shell.config_load_warning"), err)
+	}
+
+	fmt.Print(i18n.T("app.welcome"))
 
 	for {
 		s.showPrompt()
@@ -63,7 +67,7 @@ func (s *Shell) Start() error {
 		}
 
 		if err := s.executeCommand(input); err != nil {
-			fmt.Fprintf(os.Stderr, i18n.T("app.error")+"\n", err)
+			fmt.Printf(i18n.T("app.error")+"\n", err)
 		}
 	}
 
@@ -106,6 +110,18 @@ func (s *Shell) executeCommand(input string) error {
 		return s.handleLangCommand(args)
 	case "git":
 		return s.handleGitCommand(args)
+	case "config":
+		if len(args) > 0 {
+			switch args[0] {
+			case "show":
+				s.showConfig()
+			default:
+				fmt.Printf("不明なconfigコマンド: %s\n", args[0])
+			}
+		} else {
+			fmt.Println("使用方法: config show")
+		}
+		return nil
 	default:
 		// 内蔵コマンドかチェック
 		if s.isBuiltinCommand(command) {
@@ -231,5 +247,29 @@ func (s *Shell) handleGitCommand(args []string) error {
 		return nil
 	default:
 		return fmt.Errorf(i18n.T("git.unknown_command"), subcommand)
+	}
+}
+
+func (s *Shell) showConfig() {
+	fmt.Println("=== Cherry Shell 設定 ===")
+	fmt.Printf("テーマ: %s\n", s.config.Theme)
+	fmt.Printf("言語: %s\n", s.config.Language)
+
+	if s.config.GitHubUser != "" {
+		fmt.Printf("GitHubユーザー: %s\n", s.config.GitHubUser)
+	}
+
+	if s.config.GitHubToken != "" {
+		fmt.Printf("GitHubトークン: %s...\n", s.config.GitHubToken[:10])
+	} else {
+		fmt.Println("GitHubトークン: 未設定")
+	}
+
+	fmt.Printf("エイリアス数: %d\n", len(s.config.Aliases))
+	if len(s.config.Aliases) > 0 {
+		fmt.Println("エイリアス:")
+		for name, command := range s.config.Aliases {
+			fmt.Printf("  %s = %s\n", name, command)
+		}
 	}
 }

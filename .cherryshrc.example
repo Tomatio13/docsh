@@ -1,0 +1,84 @@
+# Cherry Shell Configuration File Example
+# 🌸 Cherry Shell - Beautiful & Simple Shell 🌸
+# 
+# このファイルを ~/.cherryshrc にコピーして使用してください
+# Copy this file to ~/.cherryshrc to use it
+
+# ====================
+# プロンプト設定 / Prompt Settings
+# ====================
+# プロンプトの形式を指定します
+# Specify the prompt format
+PROMPT="cherry:%s$ "
+
+# ====================
+# テーマ設定 / Theme Settings
+# ====================
+# 利用可能なテーマ: default, minimal, robbyrussell, agnoster, pure
+# Available themes: default, minimal, robbyrussell, agnoster, pure
+THEME="robbyrussell"
+
+# ====================
+# 言語設定 / Language Settings
+# ====================
+# 対応言語: en (English), ja (Japanese)
+# Supported languages: en (English), ja (Japanese)
+LANG="ja"
+
+# ====================
+# エイリアス設定 / Alias Settings
+# ====================
+# 基本的なエイリアス / Basic aliases
+alias ll='ls -la'
+alias la='ls -la'
+alias l='ls -l'
+alias grep='grep --color=auto'
+
+# ディレクトリ移動 / Directory navigation
+alias ..='cd ..'
+alias ...='cd ../..'
+alias ....='cd ../../..'
+
+# Git エイリアス / Git aliases
+alias gs='git status'
+alias ga='git add'
+alias gc='git commit'
+alias gp='git push'
+alias gl='git pull'
+alias glog='git log --oneline --graph'
+
+# システムコマンド / System commands
+alias h='history'
+alias c='clear'
+alias q='exit'
+
+# Windows固有のエイリアス / Windows-specific aliases
+# (Windows環境で使用する場合のみ有効化してください)
+# (Enable only when using in Windows environment)
+# alias dir='ls'
+# alias type='cat'
+# alias cls='clear'
+
+# ====================
+# カスタム環境変数 / Custom Environment Variables
+# ====================
+# お好みのエディタを設定 / Set your preferred editor
+# EDITOR="vim"
+# EDITOR="nano"
+# EDITOR="code"
+
+# お好みのブラウザを設定 / Set your preferred browser
+# BROWSER="firefox"
+# BROWSER="chrome"
+# BROWSER="edge"
+
+# ====================
+# GitHub認証設定 / GitHub Authentication Settings
+# ====================
+# GitHubパーソナルアクセストークンを設定
+# Set your GitHub Personal Access Token
+# トークンの取得方法: https://github.com/settings/tokens
+# How to get token: https://github.com/settings/tokens
+# GITHUB_TOKEN="ghp_your_token_here"
+# GITHUB_USER="your_username"
+

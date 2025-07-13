@@ -11,9 +11,11 @@ import (
 )
 
 type Config struct {
-	Aliases  map[string]string
-	Theme    string
-	Language string
+	Aliases     map[string]string
+	Theme       string
+	Language    string
+	GitHubToken string
+	GitHubUser  string
 }
 
 func NewConfig() *Config {
@@ -60,9 +62,13 @@ func (c *Config) LoadConfigFile() error {
 
 				switch key {
 				case "LANG":
-					c.Language = value
+					c.Language = strings.Trim(value, "\"'")
 				case "THEME":
-					c.Theme = value
+					c.Theme = strings.Trim(value, "\"'")
+				case "GITHUB_TOKEN":
+					c.GitHubToken = strings.Trim(value, "\"'")
+				case "GITHUB_USER":
+					c.GitHubUser = strings.Trim(value, "\"'")
 				}
 			}
 		}

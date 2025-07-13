@@ -31,6 +31,8 @@
   "git.commit_success": "コミットしました: %s",
   "git.push_success": "プッシュが完了しました",
   "git.pull_success": "プルが完了しました",
+  "git.cloning_repository": "リポジトリをクローンしています: %s → %s",
+  "git.clone_completed": "クローンが完了しました: %s",
   "git.clone_success": "クローンしました: %s",
   "git.unknown_command": "不明なgitコマンド: %s",
   "git.help_header": "Gitコマンド:",

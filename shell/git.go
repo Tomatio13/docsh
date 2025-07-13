@@ -10,6 +10,7 @@ import (
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
+	"github.com/go-git/go-git/v5/plumbing/transport/http"
 )
 
 // getRepository は現在のディレクトリのGitリポジトリを取得します
@@ -233,16 +234,32 @@ func (s *Shell) gitClone(args []string) error {
 		return fmt.Errorf("could not determine directory name")
 	}
 
-	fmt.Printf(i18n.T("git.cloning_repository")+"\n", url, directory)
+	fmt.Printf(i18n.T("git.cloning_repository"), url, directory)
 
-	_, err := git.PlainClone(directory, false, &git.CloneOptions{
+	// Clone options
+	cloneOptions := &git.CloneOptions{
 		URL: url,
-	})
-	if err != nil {
-		return err
 	}
 
-	fmt.Printf(i18n.T("git.clone_completed")+"\n", directory)
+	// GitHub認証の設定
+	if s.config != nil && s.config.GitHubToken != "" {
+		// GitHubトークンを使用した認証
+		cloneOptions.Auth = &http.BasicAuth{
+			Username: s.config.GitHubUser, // GitHubの場合、ユーザー名は任意（トークンが重要）
+			Password: s.config.GitHubToken,
+		}
+	}
+
+	_, err := git.PlainClone(directory, false, cloneOptions)
+	if err != nil {
+		// 認証エラーの場合は適切なメッセージを表示
+		if strings.Contains(err.Error(), "authentication required") {
+			return fmt.Errorf("認証が必要です。.cherryshrcにGITHUB_TOKENを設定するか、SSH鍵を使用してください: %v", err)
+		}
+		return fmt.Errorf("クローンに失敗しました: %v", err)
+	}
+
+	fmt.Printf(i18n.T("git.clone_completed"), directory)
 	return nil
 }
 

@@ -1,18 +1,40 @@
-# 🌸 Cherry Shell - 美しくシンプルなシェル 🌸
+<h1 align="center">🌸 Cherry Shell - 美しくシンプルなシェル 🌸</h1>
 
-Cherry Shell は桜貝（Sakura-gai）にちなんで名付けられた美しくシンプルなシェルです。小さくても美しく、エレガントなコマンドライン体験を提供します。
+<p align="center">
+    <img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
+    <img src="https://img.shields.io/badge/Platform-Windows%20%7C%20macOS%20%7C%20Linux-lightgrey?style=for-the-badge" alt="Platform">
+    <img src="https://img.shields.io/badge/i18n-English%20%7C%20Japanese-blue?style=for-the-badge" alt="i18n">
+</p>
 
-## 機能
+<p align="center">
+    <a href="README.md"><img src="https://img.shields.io/badge/english-document-white.svg" alt="EN doc"></a>
+    <a href="README_ja.md"><img src="https://img.shields.io/badge/ドキュメント-日本語-white.svg" alt="JA doc"/></a>
+</p>
 
-- **美しいデザイン**: 桜のテーマを使用したエレガントなプロンプト
-- **クロスプラットフォーム**: Windows、macOS、Linuxで動作
-- **組み込みコマンド**: `ls`、`cat`、`cp`、`mv`などの必須コマンド
-- **Git統合**: バージョン管理のための組み込みgitコマンド
-- **テーマサポート**: シェルの外観をカスタマイズする複数のテーマ
-- **エイリアスサポート**: カスタムコマンドショートカットの作成
-- **国際化**: 英語と日本語をサポート
+<p align="center">
+    <img src="assets/cherry-shell-logo.png" alt="Cherry Shell Demo" width="600">
+</p>
 
-## インストール
+<p align="center">
+Cherry Shell は桜貝（Sakura-gai）にちなんで名付けられた美しくシンプルなシェルです。<br>
+小さくても美しく、エレガントなコマンドライン体験を提供します。
+</p>
+
+## ✨ 機能
+
+<p align="center">
+    <img src="assets/cherry-shell-demo_ja.png" alt="Cherry Shell Demo" width="600">
+</p>
+
+- **🌸 美しいデザイン**: 桜のテーマを使用したエレガントなプロンプト
+- **🌍 クロスプラットフォーム**: Windows、macOS、Linuxで動作
+- **⚡ 組み込みコマンド**: `ls`、`cat`、`cp`、`mv`などの必須コマンド
+- **🔧 Git統合**: バージョン管理のための組み込みgitコマンド
+- **🎨 テーマサポート**: シェルの外観をカスタマイズする複数のテーマ
+- **🔗 エイリアスサポート**: カスタムコマンドショートカットの作成
+- **🌐 国際化**: 英語と日本語をサポート
+
+## 📦 インストール
 
 ### ソースから
 
@@ -26,7 +48,7 @@ go build -o cherrysh main.go
 
 リリースページから最新のバイナリをダウンロードしてください。
 
-## 使用方法
+## 🚀 使用方法
 
 ### 基本コマンド
 
@@ -62,7 +84,7 @@ alias                # エイリアスを表示
 alias ll='ls -la'    # エイリアスを作成
 ```
 
-## 言語サポート
+## 🌐 言語サポート
 
 Cherry Shell は複数の言語をサポートしています。以下の方法で言語を設定できます：
 
@@ -82,13 +104,16 @@ export CHERRYSH_LANG=ja    # 日本語
 ### システムロケール
 Cherry Shell は自動的にシステムロケールを検出します。`LANG` 環境変数が `ja_JP.UTF-8` などに設定されている場合、日本語を使用します。
 
-## 設定
+## ⚙️ 設定
 
 Cherry Shell は `~/.cherryshrc` にある設定ファイルを使用します：
 
 ```bash
 # テーマ設定
 theme default
+
+# 言語設定
+LANG="ja"
 
 # エイリアス
 alias ll="ls -la"
@@ -97,9 +122,15 @@ alias l="ls -l"
 alias grep="grep --color=auto"
 alias ..="cd .."
 alias ...="cd ../.."
+
+# GitHub認証設定 
+GITHUB_TOKEN="ghp_your_token_here"
+GITHUB_USER="your_username"
 ```
 
-## 利用可能なテーマ
+> 💡 **ヒント**: `.cherryshrc.example` ファイルを参考にして設定をカスタマイズできます。
+
+## 🎨 利用可能なテーマ
 
 - **default**: エレガントなプロンプトを持つ桜のテーマ
 - **minimal**: クリーンでミニマルなデザイン
@@ -107,12 +138,12 @@ alias ...="cd ../.."
 - **agnoster**: Powerline スタイルのテーマ
 - **pure**: ピュアでシンプルなテーマ
 
-## サポートされている言語
+## 🌍 サポートされている言語
 
-- **英語 (en)**: 完全サポート
-- **日本語 (ja)**: 完全サポート
+- **🇺🇸 English (en)**: 完全サポート
+- **🇯🇵 日本語 (ja)**: 完全サポート
 
-## 開発
+## 🛠️ 開発
 
 ### ビルド
 
@@ -121,7 +152,7 @@ alias ...="cd ../.."
 go build -o cherrysh main.go
 
 # 全プラットフォーム用にビルド
-make build-all
+./build.sh
 
 # テストを実行
 go test ./...
@@ -134,7 +165,7 @@ go test ./...
 3. `i18n/i18n.go` の `GetAvailableLanguages()` に言語コードを追加
 4. 必要に応じて言語検出ロジックを更新
 
-### プロジェクト構造
+### 📁 プロジェクト構造
 
 ```
 cherryshell/
@@ -157,7 +188,7 @@ cherryshell/
     └── theme.go        # テーマ定義
 ```
 
-## 貢献
+## 🤝 貢献
 
 1. リポジトリをフォーク
 2. 機能ブランチを作成
@@ -165,11 +196,11 @@ cherryshell/
 4. 該当する場合はテストを追加
 5. プルリクエストを送信
 
-## ライセンス
+## 📄 ライセンス
 
 このプロジェクトはMITライセンスの下でライセンスされています。
 
-## 謝辞
+## 🙏 謝辞
 
 - 桜貝（Sakura-gai）にちなんで名付けられました
 - シンプルさの美しさにインスパイアされました
@@ -177,4 +208,39 @@ cherryshell/
 
 ---
 
-🌸 **Cherry Shell** - 桜貝のように小さくても美しい。 
+<p align="center">
+🌸 <strong>Cherry Shell</strong> - 桜貝のように小さくても美しい。
+</p>
+
+## GitHub認証設定
+
+プライベートリポジトリのクローンやプッシュを行うには、GitHubパーソナルアクセストークンを設定する必要があります。
+
+### 1. GitHubパーソナルアクセストークンの取得
+
+1. GitHubにログインし、[Settings > Developer settings > Personal access tokens](https://github.com/settings/tokens)に移動
+2. "Generate new token (classic)"をクリック
+3. 適切なスコープを選択（リポジトリアクセスには`repo`スコープが必要）
+4. トークンをコピー
+
+### 2. .cherryshrcファイルの設定
+
+```bash
+# GitHub認証設定
+GITHUB_TOKEN="ghp_your_token_here"
+GITHUB_USER="your_username"
+```
+
+### 3. 設定の確認
+
+```bash
+config show
+```
+
+### 4. プライベートリポジトリのクローン
+
+```bash
+git clone https://github.com/username/private-repo.git
+```
+
+これで認証が必要なリポジトリも正常にクローンできるようになります。 

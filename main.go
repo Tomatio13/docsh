@@ -37,6 +37,6 @@ func main() {
 	// fmt.Println(i18n.T("shell.runtime_separator"))
 
 	// シェルを開始
-	s := shell.NewShell()
+	s := shell.NewShell(cfg)
 	s.Start()
 }
