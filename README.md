@@ -39,20 +39,20 @@ Small but beautiful, it provides an elegant command-line experience.
 
 Download the latest pre-built binary for your platform:
 
-[![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases)
+[![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
 
 > **Note**: Visit the [Releases page](https://github.com/your-username/cherryshell/releases) to download the latest version. If no releases are available yet, you can build from source below.
 
 #### Windows
-- **64-bit**: [Download cherrysh-windows-x64.zip](https://github.com/your-username/cherryshell/releases)
-- **32-bit**: [Download cherrysh-windows-x86.zip](https://github.com/your-username/cherryshell/releases)
+- **64-bit**: [Download cherrysh-windows-x64.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-windows-x64.zip)
+- **32-bit**: [Download cherrysh-windows-x86.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-windows-x86.zip)
 
 #### Linux
-- **64-bit**: [Download cherrysh-linux-x64.tar.gz](https://github.com/your-username/cherryshell/releases)
+- **64-bit**: [Download cherrysh-linux-x64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-linux-x64.tar.gz)
 
 #### macOS
-- **Intel**: [Download cherrysh-macos-x64.tar.gz](https://github.com/your-username/cherryshell/releases)
-- **Apple Silicon**: [Download cherrysh-macos-arm64.tar.gz](https://github.com/your-username/cherryshell/releases)
+- **Intel**: [Download cherrysh-macos-x64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-macos-x64.tar.gz)
+- **Apple Silicon**: [Download cherrysh-macos-arm64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-macos-arm64.tar.gz)
 
 ### 📋 Installation Steps
 
@@ -64,7 +64,7 @@ Download the latest pre-built binary for your platform:
 
 #### Linux / macOS
 1. Download the appropriate `.tar.gz` file for your system
-2. Extract: `tar -xzf cherrysh-*.tar.gz`
+2. Extract: `tar -xzf cherrysh-v0.0.5-*.tar.gz`
 3. Make executable: `chmod +x cherrysh-*`
 4. Move to PATH: `sudo mv cherrysh-* /usr/local/bin/cherrysh`
 5. Run: `cherrysh`
