@@ -40,18 +40,20 @@ Cherry Shell は桜貝（Sakura-gai）にちなんで名付けられた美しく
 
 お使いのプラットフォーム用の最新のビルド済みバイナリをダウンロード：
 
-[![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell/releases?style=for-the-badge)](https://github.com/your-username/cherryshell/releases)
+
+> **注意**: [リリースページ](https://github.com/your-username/cherryshell/releases)にアクセスして最新バージョンをダウンロードしてください。まだリリースが作成されていない場合は、下記のソースからビルドしてください。
 
 #### Windows
-- **64-bit**: [cherrysh-windows-x64.zip をダウンロード](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-windows-x64.zip)
-- **32-bit**: [cherrysh-windows-x86.zip をダウンロード](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-windows-x86.zip)
+- **64-bit**: [cherrysh-windows-x64.zip をダウンロード](https://github.com/your-username/cherryshell/releases)
+- **32-bit**: [cherrysh-windows-x86.zip をダウンロード](https://github.com/your-username/cherryshell/releases)
 
 #### Linux
-- **64-bit**: [cherrysh-linux-x64.tar.gz をダウンロード](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-linux-x64.tar.gz)
+- **64-bit**: [cherrysh-linux-x64.tar.gz をダウンロード](https://github.com/your-username/cherryshell/releases)
 
 #### macOS
-- **Intel**: [cherrysh-macos-x64.tar.gz をダウンロード](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-macos-x64.tar.gz)
-- **Apple Silicon**: [cherrysh-macos-arm64.tar.gz をダウンロード](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-latest-macos-arm64.tar.gz)
+- **Intel**: [cherrysh-macos-x64.tar.gz をダウンロード](https://github.com/your-username/cherryshell/releases)
+- **Apple Silicon**: [cherrysh-macos-arm64.tar.gz をダウンロード](https://github.com/your-username/cherryshell/releases)
 
 ### 📋 インストール手順
 
