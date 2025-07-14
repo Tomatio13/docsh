@@ -35,39 +35,13 @@ Small but beautiful, it provides an elegant command-line experience.
 
 ## 📦 Installation
 
-### 🚀 Quick Install (Recommended)
+### 🚀 Binary Download
 
-Download the latest pre-built binary for your platform:
+Download the latest release:
 
-[![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/tomatio13/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
 
-> **📥 [Download from Releases Page](https://github.com/your-username/cherryshell/releases)** - Get the latest v0.0.5 or browse all versions
-
-#### Windows
-- **64-bit**: [Download cherrysh-windows-x64.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-windows-x64.zip)
-- **32-bit**: [Download cherrysh-windows-x86.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-windows-x86.zip)
-
-#### Linux
-- **64-bit**: [Download cherrysh-linux-x64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-linux-x64.tar.gz)
-
-#### macOS
-- **Intel**: [Download cherrysh-macos-x64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-macos-x64.tar.gz)
-- **Apple Silicon**: [Download cherrysh-macos-arm64.tar.gz](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-macos-arm64.tar.gz)
-
-### 📋 Installation Steps
-
-#### Windows
-1. Download the appropriate `.zip` file for your system
-2. Extract the archive to a folder (e.g., `C:\cherrysh\`)
-3. Add the folder to your PATH environment variable
-4. Run `cherrysh-windows-x64.exe` in Command Prompt or PowerShell
-
-#### Linux / macOS
-1. Download the appropriate `.tar.gz` file for your system
-2. Extract: `tar -xzf cherrysh-v0.0.5-*.tar.gz`
-3. Make executable: `chmod +x cherrysh-*`
-4. Move to PATH: `sudo mv cherrysh-* /usr/local/bin/cherrysh`
-5. Run: `cherrysh`
+> **📥 [Releases Page](https://github.com/your-username/cherryshell/releases)** - Download the latest version
 
 ### 🛠️ Build from Source
 
@@ -75,20 +49,6 @@ Download the latest pre-built binary for your platform:
 git clone https://github.com/your-username/cherryshell.git
 cd cherryshell
 go build -o cherrysh main.go
-```
-
-### 🔨 Development Build
-
-```bash
-# Clone the repository
-git clone https://github.com/your-username/cherryshell.git
-cd cherryshell
-
-# Build for all platforms
-./build.sh
-
-# Or build for specific platform
-GOOS=windows GOARCH=amd64 go build -o cherrysh.exe main.go
 ```
 
 ## 🚀 Usage
