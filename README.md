@@ -41,7 +41,7 @@ Download the latest pre-built binary for your platform:
 
 [![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
 
-> **Note**: Visit the [Releases page](https://github.com/your-username/cherryshell/releases) to download the latest version. If no releases are available yet, you can build from source below.
+> **📥 [Download from Releases Page](https://github.com/your-username/cherryshell/releases)** - Get the latest v0.0.5 or browse all versions
 
 #### Windows
 - **64-bit**: [Download cherrysh-windows-x64.zip](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-windows-x64.zip)

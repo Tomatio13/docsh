@@ -42,7 +42,7 @@ Cherry Shell は桜貝（Sakura-gai）にちなんで名付けられた美しく
 
 [![Latest Release](https://img.shields.io/github/v/release/your-username/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
 
-> **注意**: [リリースページ](https://github.com/your-username/cherryshell/releases)にアクセスして最新バージョンをダウンロードしてください。まだリリースが作成されていない場合は、下記のソースからビルドしてください。
+> **📥 [リリースページからダウンロード](https://github.com/your-username/cherryshell/releases)** - 最新版v0.0.5または全バージョンを閲覧
 
 #### Windows
 - **64-bit**: [cherrysh-windows-x64.zip をダウンロード](https://github.com/your-username/cherryshell/releases/latest/download/cherrysh-v0.0.5-windows-x64.zip)
