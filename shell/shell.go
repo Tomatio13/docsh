@@ -1,7 +1,6 @@
 package shell
 
 import (
-	"bufio"
 	"fmt"
 	"os"
 	"strings"
@@ -9,21 +8,23 @@ import (
 	"cherrysh/config"
 	"cherrysh/i18n"
 	"cherrysh/themes"
+
+	"github.com/c-bata/go-prompt"
 )
 
 type Shell struct {
-	reader *bufio.Reader
-	cwd    string
-	config *config.Config
+	cwd     string
+	config  *config.Config
+	history []string
 }
 
 func NewShell(cfg *config.Config) *Shell {
 	cwd, _ := os.Getwd()
 
 	shell := &Shell{
-		reader: bufio.NewReader(os.Stdin),
-		cwd:    cwd,
-		config: cfg,
+		cwd:     cwd,
+		config:  cfg,
+		history: []string{},
 	}
 
 	// Windows環境の初期化
@@ -48,30 +49,51 @@ func (s *Shell) Start() error {
 
 	fmt.Print(i18n.T("app.welcome"))
 
-	for {
-		s.showPrompt()
+	// go-promptを使用したインタラクティブプロンプト
+	p := prompt.New(
+		s.executor,
+		s.Completer,
+		prompt.OptionTitle("🌸 Cherry Shell"),
+		prompt.OptionHistory(s.history),
+		prompt.OptionLivePrefix(s.getLivePrefix),
+		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
+		prompt.OptionSelectedSuggestionBGColor(prompt.LightGray),
+		prompt.OptionSuggestionBGColor(prompt.DarkGray),
+		prompt.OptionDescriptionBGColor(prompt.Black),
+		prompt.OptionDescriptionTextColor(prompt.White),
+		prompt.OptionScrollbarThumbColor(prompt.DarkGray),
+		prompt.OptionScrollbarBGColor(prompt.Black),
+		prompt.OptionMaxSuggestion(16),
+	)
+	p.Run()
 
-		input, err := s.reader.ReadString('\n')
-		if err != nil {
-			return err
-		}
+	return nil
+}
 
-		input = strings.TrimSpace(input)
-		if input == "" {
-			continue
-		}
+// executor はコマンド実行を処理します
+func (s *Shell) executor(input string) {
+	input = strings.TrimSpace(input)
+	if input == "" {
+		return
+	}
 
-		if input == "exit" {
-			fmt.Println(i18n.T("app.goodbye"))
-			break
-		}
-
-		if err := s.executeCommand(input); err != nil {
-			fmt.Printf(i18n.T("app.error")+"\n", err)
+	// 履歴に追加（重複を避ける）
+	if len(s.history) == 0 || s.history[len(s.history)-1] != input {
+		s.history = append(s.history, input)
+		// 履歴の上限を設定（例：1000件）
+		if len(s.history) > 1000 {
+			s.history = s.history[1:]
 		}
 	}
 
-	return nil
+	if input == "exit" {
+		fmt.Println(i18n.T("app.goodbye"))
+		os.Exit(0)
+	}
+
+	if err := s.executeCommand(input); err != nil {
+		fmt.Printf(i18n.T("app.error")+"\n", err)
+	}
 }
 
 func (s *Shell) getCurrentDir() string {
@@ -272,4 +294,9 @@ func (s *Shell) showConfig() {
 			fmt.Printf(i18n.T("config.show_alias_item")+"\n", name, command)
 		}
 	}
+}
+
+// getLivePrefix は動的なプロンプトプレフィックスを返します
+func (s *Shell) getLivePrefix() (string, bool) {
+	return s.buildPrompt(), true
 }
