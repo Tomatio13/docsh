@@ -1,0 +1,179 @@
+messages:
+  welcome: "🐳 Welcome to Docknaut - Docker Command Mapping Shell"
+  command_not_found: "Command not found: %s"
+  mapping_found: "Mapping found: %s -> %s"
+  executing_command: "Executing command: %s"
+  docker_not_available: "Docker is not available. Please ensure Docker daemon is running"
+  goodbye: "👋 Thank you for using Docknaut"
+  error: "Error: %s"
+  success: "Success: %s"
+  warning: "Warning: %s"
+
+help:
+  usage: "Usage"
+  examples: "Examples"
+  options: "Options"
+  description: "Description"
+  notes: "Notes"
+  warnings: "Warnings"
+  
+categories:
+  list-operations: "List Operations"
+  process-management: "Process Management"
+  file-operations: "File Operations"
+  logs-monitoring: "Logs & Monitoring"
+  system-information: "System Information"
+  network: "Network"
+
+commands:
+  help_title: "🐳 Docknaut Help"
+  help_description: "Welcome to Docknaut Docker Command Mapping Shell. It converts Linux commands to Docker commands."
+  docker_only_help_title: "🐳 Docknaut - Docker-Only Command Shell"
+  docker_only_help_description: "A specialized shell for Docker operations with Linux command mappings."
+  
+  # Mapping commands
+  mapping_help: "mapping [list|search|show] <args>  Manage command mappings"
+  mapping_list: "mapping list [category]           List mappings by category"
+  mapping_search: "mapping search <query>           Search mappings"
+  mapping_show: "mapping show <command>            Show specific mapping details"
+  
+  # Shell commands
+  alias_help: "alias <name>=<command>              Set alias"
+  unalias_help: "unalias <name>                    Remove alias"
+  history_help: "history [search <query>]          Show/search history"
+  theme_help: "theme [name]                       Set theme"
+  lang_help: "lang [language]                    Set language"
+  config_help: "config [show|set]                 Manage configuration"
+  
+  # Basic commands
+  exit_help: "exit                              Exit shell"
+  clear_help: "clear                             Clear screen"
+  version_help: "version                           Show version info"
+  
+  # Docker-only specific
+  docker_only_mappings_title: "🔄 Command Mappings (Linux -> Docker):"
+  docker_only_docker_commands_title: "🐳 Docker Commands:"
+  docker_only_builtin_commands_title: "🔧 Built-in Commands:"
+  docker_only_more_info_title: "🔍 For more information:"
+  docker_only_note_title: "⚠️  Note:"
+  docker_only_note_message: "This is a Docker-only shell. Regular Linux commands\n    are only available if they have Docker mappings."
+
+examples:
+  basic_usage: "Basic Usage:"
+  linux_to_docker: "Enter Linux commands and they will be automatically converted to Docker commands:"
+  mapping_examples: "Mapping Examples:"
+  
+config:
+  not_initialized: "Configuration not initialized"
+  parse_error: "Line %d: Configuration parse error: %s"
+  unknown_command: "Unknown configuration command: %s"
+  usage: "Usage: config [show|set <key> <value>]"
+  show_header: "🐳 Docknaut Configuration"
+  show_theme: "Theme: %s"
+  show_language: "Language: %s"
+  show_github_user: "GitHub User: %s"
+  show_github_token: "GitHub Token: %s***"
+  show_github_token_not_set: "GitHub Token: Not set"
+  show_aliases_count: "Aliases count: %d"
+  show_aliases_header: "Configured Aliases:"
+  show_alias_item: "  %s = %s"
+  docker_only_mode_enabled: "🐳 Docker-Only Shell Mode: ENABLED"
+  docker_available: "✅ Docker is available"
+  docker_not_available: "❌ Docker is not available"
+  total_mappings: "Total command mappings: %d"
+  available_categories: "Categories: %s"
+  linux_commands_disabled: "⚠️  Regular Linux commands are disabled in Docker-only mode."
+
+alias:
+  no_aliases: "No aliases configured"
+  defined_aliases: "Configured aliases:"
+  alias_format: "  %s = %s"
+  alias_added: "Alias added: %s = %s"
+  alias_removed: "Alias removed: %s"
+  alias_not_found: "Alias not found: %s"
+
+theme:
+  available_themes: "Available themes:"
+  current_theme: "Current theme: %s"
+  theme_changed: "Theme changed to: %s"
+  not_found: "Theme not found: %s"
+
+lang:
+  current_language: "Current language: %s"
+  available_languages: "Available languages:"
+  language_changed: "Language changed to: %s"
+  restart_notice: "Note: Some changes will take effect after shell restart"
+  invalid_language: "Invalid language: %s"
+  save_error: "Failed to save language setting: %s"
+  init_error: "Failed to initialize language: %s"
+
+git:
+  clean_working_directory: "Working directory is clean"
+  changed_files: "Changed files:"
+  add_error: "Failed to add file (%s): %s"
+  add_success: "Added file: %s"
+  commit_created: "Commit created: %s"
+  already_up_to_date: "Already up to date"
+  pull_completed: "Pull completed"
+  cloning_repository: "Cloning repository: %s -> %s"
+  clone_completed: "Clone completed: %s"
+  help_title: "🐳 Docknaut Git Commands"
+  help_status: "  git status                       Show working directory status"
+  help_add: "  git add <file>                   Add file to staging area"
+  help_commit: "  git commit -m \"message\"        Create commit"
+  help_push: "  git push                         Push to remote repository"
+  help_pull: "  git pull                         Pull from remote repository"
+  help_log: "  git log [-n <count>]             Show commit history"
+  help_clone: "  git clone <url> [dir]            Clone repository"
+  help_help: "  git help                         Show this help"
+  unknown_command: "Unknown git command: %s"
+
+windows:
+  cat_error: "File read error (%s): %s"
+  files_copied: "Files copied"
+  files_moved: "Files moved"
+  rm_error: "File deletion error (%s): %s"
+  files_deleted: "%d files deleted"
+
+shell:
+  config_load_warning: "Configuration file load warning: %s"
+  runtime_separator: "=================================="
+  runtime_info: "🐳 Docknaut Runtime Information"
+  runtime_os: "OS: %s"
+  runtime_arch: "Architecture: %s"
+
+app:
+  title: "🐳 Docknaut - Docker Command Mapping Shell"
+  description: "A convenient shell that converts Linux commands to Docker commands"
+  exit_instruction: "Type 'exit' to quit"
+  welcome: "🐳 Welcome to Docknaut! Docker Command Mapping Shell.\nType 'help' for help, 'exit' to quit.\n"
+  goodbye: "👋 Thank you for using Docknaut!"
+  error: "❌ Error: %s"
+  docker_only_welcome: "🐳 Welcome to Docknaut! Docker-Only Command Shell.\nType 'help' for available commands, 'exit' to quit."
+  docker_only_mode: "Docker-Only Mode"
+  docker_only_error: "Command '%s' is not supported in Docker-only mode. Use 'mapping search %s' to find available Docker commands."
+  docker_only_available_commands: "🐳 This is a Docker-only shell. Available commands:"
+  docker_only_commands_list: "   - Docker commands: docker ps, docker run, docker exec, etc.\n   - Mapped commands: ls, ps, kill, rm, tail, cp, etc.\n   - Built-in commands: help, mapping, alias, theme, config, exit"
+  docker_only_mapping_help: "   Use 'mapping list' to see all available command mappings."
+  docker_only_version: "🐳 Docknaut version 1.0.0 (Docker-Only Mode)"
+
+mappings:
+  not_found: "Mapping not found: %s"
+  category_not_found: "Category not found: %s"
+  search_no_results: "No search results found: %s"
+  loading_error: "Error loading mapping data: %s"
+  
+context:
+  container_not_found: "Container not found: %s"
+  container_set: "Current container set: %s"
+  container_cleared: "Current container cleared"
+  no_container_set: "No current container set"
+  
+history:
+  no_history: "No history available"
+  search_no_results: "No search results found: %s"
+  cleared: "History cleared"
+  
+completion:
+  no_suggestions: "No suggestions available"
+  loading_error: "Error loading completion data: %s"

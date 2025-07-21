@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"cherrysh/themes"
+	"docknaut/themes"
 )
 
 func (s *Shell) showPrompt() {
@@ -29,7 +29,7 @@ func (s *Shell) buildPrompt() string {
 
 	// プロンプトが設定されていない場合はデフォルト
 	if prompt == "" {
-		prompt = "🌸 %s $ "
+		prompt = "🐳 %s $ "
 	}
 
 	// 変数展開とクリーンアップ

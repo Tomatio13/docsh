@@ -3,15 +3,30 @@ package main
 import (
 	"fmt"
 	"os"
+	"path/filepath"
 
-	"cherrysh/config"
-	"cherrysh/i18n"
-	"cherrysh/shell"
+	"docknaut/config"
+	"docknaut/i18n"
+	"docknaut/shell"
 )
 
 func main() {
+	// データパスを設定（実行ファイルからの相対パス）
+	execPath, err := os.Executable()
+	if err != nil {
+		fmt.Printf("Warning: Could not determine executable path: %v\n", err)
+		execPath = "."
+	}
+	dataPath := filepath.Join(filepath.Dir(execPath), "data")
+	
+	// データディレクトリが存在しない場合はカレントディレクトリの data を使用
+	if _, err := os.Stat(dataPath); os.IsNotExist(err) {
+		dataPath = "data"
+	}
+
 	// 設定を読み込む
 	cfg := config.NewConfig()
+	cfg.DataPath = dataPath
 	if err := cfg.LoadConfigFile(); err != nil {
 		fmt.Printf("Warning: Could not load config file: %v\n", err)
 	}
@@ -37,6 +52,6 @@ func main() {
 	// fmt.Println(i18n.T("shell.runtime_separator"))
 
 	// シェルを開始
-	s := shell.NewShell(cfg)
+	s := shell.NewShell(cfg, dataPath)
 	s.Start()
 }

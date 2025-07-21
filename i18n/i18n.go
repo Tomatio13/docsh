@@ -1,11 +1,11 @@
 package i18n
 
 import (
-	"encoding/json"
 	"fmt"
 	"os"
 	"path/filepath"
 	"strings"
+	"gopkg.in/yaml.v2"
 )
 
 // Localizer はメッセージの国際化を管理する構造体
@@ -261,12 +261,12 @@ func (l *Localizer) loadMessages() error {
 	execDir := filepath.Dir(execPath)
 
 	// メッセージファイルのパスを構築
-	messageFile := filepath.Join(execDir, "i18n", "messages", l.language+".json")
+	messageFile := filepath.Join(execDir, "data", "locales", l.language+".yaml")
 
 	// ファイルが存在しない場合は、プロジェクトディレクトリから読み込む
 	if _, err := os.Stat(messageFile); os.IsNotExist(err) {
 		// 開発環境用のパス
-		messageFile = filepath.Join("i18n", "messages", l.language+".json")
+		messageFile = filepath.Join("data", "locales", l.language+".yaml")
 	}
 
 	// ファイルを読み込む
@@ -275,12 +275,64 @@ func (l *Localizer) loadMessages() error {
 		return fmt.Errorf("failed to read message file %s: %w", messageFile, err)
 	}
 
-	// JSONをパース
-	if err := json.Unmarshal(data, &l.messages); err != nil {
+	// YAMLをパース
+	var yamlData map[string]interface{}
+	if err := yaml.Unmarshal(data, &yamlData); err != nil {
 		return fmt.Errorf("failed to parse message file %s: %w", messageFile, err)
 	}
 
+	// 階層的なYAMLデータをフラットなマップに変換
+	l.messages = make(map[string]string)
+	
+	// 各トップレベルセクションを処理
+	for sectionName, sectionData := range yamlData {
+		if sectionMap, ok := sectionData.(map[interface{}]interface{}); ok {
+			flattenYAMLInterface(sectionMap, sectionName, l.messages)
+		} else if sectionMap, ok := sectionData.(map[string]interface{}); ok {
+			flattenYAML(sectionMap, sectionName, l.messages)
+		}
+	}
+
 	return nil
+}
+
+// flattenYAML は階層的なYAMLデータをフラットなマップに変換する
+func flattenYAML(data map[string]interface{}, prefix string, result map[string]string) {
+	for key, value := range data {
+		newKey := key
+		if prefix != "" {
+			newKey = prefix + "." + key
+		}
+		
+		switch v := value.(type) {
+		case map[string]interface{}:
+			flattenYAML(v, newKey, result)
+		case string:
+			result[newKey] = v
+		default:
+			result[newKey] = fmt.Sprintf("%v", v)
+		}
+	}
+}
+
+// flattenYAMLInterface は interface{}キーの階層的なYAMLデータをフラットなマップに変換する
+func flattenYAMLInterface(data map[interface{}]interface{}, prefix string, result map[string]string) {
+	for key, value := range data {
+		keyStr := fmt.Sprintf("%v", key)
+		newKey := keyStr
+		if prefix != "" {
+			newKey = prefix + "." + keyStr
+		}
+		
+		switch v := value.(type) {
+		case map[interface{}]interface{}:
+			flattenYAMLInterface(v, newKey, result)
+		case string:
+			result[newKey] = v
+		default:
+			result[newKey] = fmt.Sprintf("%v", v)
+		}
+	}
 }
 
 // GetAvailableLanguages は利用可能な言語のリストを返す

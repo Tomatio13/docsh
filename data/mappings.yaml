@@ -1,0 +1,480 @@
+mappings:
+  - id: "ls-docker-images"
+    linux_command: "ls"
+    docker_command: "docker images"
+    category: "list-operations"
+    description: "リスト表示 - 利用可能なイメージを表示"
+    linux_example: "ls -la"
+    docker_example: "docker images -a"
+    notes:
+      - "docker imagesはDockerイメージを表示"
+      - "-aオプションで中間イメージも表示"
+    localized_description:
+      en: "List display - Show available images"
+      ja: "リスト表示 - 利用可能なイメージを表示"
+    localized_notes:
+      en:
+        - "docker images shows Docker images"
+        - "-a option shows intermediate images too"
+      ja:
+        - "docker imagesはDockerイメージを表示"
+        - "-aオプションで中間イメージも表示"
+
+  - id: "ps-docker-ps"
+    linux_command: "ps"
+    docker_command: "docker ps"
+    category: "process-management"
+    description: "プロセス一覧表示"
+    linux_example: "ps aux"
+    docker_example: "docker ps -a"
+    notes:
+      - "psは全プロセス、docker psはコンテナのみ"
+    localized_description:
+      en: "Process list display"
+      ja: "プロセス一覧表示"
+    localized_notes:
+      en:
+        - "ps shows all processes, docker ps shows containers only"
+      ja:
+        - "psは全プロセス、docker psはコンテナのみ"
+
+  - id: "kill-docker-stop"
+    linux_command: "kill"
+    docker_command: "docker stop"
+    category: "process-management"
+    description: "プロセス停止"
+    linux_example: "kill 1234"
+    docker_example: "docker stop container_name"
+    notes:
+      - "killはPID、docker stopはコンテナ名またはID"
+    warnings:
+      - "docker stopは強制終了ではない、docker killを使用する場合は注意"
+    localized_description:
+      en: "Stop process"
+      ja: "プロセス停止"
+    localized_notes:
+      en:
+        - "kill uses PID, docker stop uses container name or ID"
+      ja:
+        - "killはPID、docker stopはコンテナ名またはID"
+
+  - id: "kill-9-docker-kill"
+    linux_command: "kill -9"
+    docker_command: "docker kill"
+    category: "process-management"
+    description: "プロセス強制終了"
+    linux_example: "kill -9 1234"
+    docker_example: "docker kill container_name"
+    notes:
+      - "kill -9は強制終了、docker killも同様"
+    warnings:
+      - "強制終了は予期しない問題を引き起こす可能性があります"
+    localized_description:
+      en: "Force kill process"
+      ja: "プロセス強制終了"
+
+  - id: "rm-docker-rm"
+    linux_command: "rm"
+    docker_command: "docker rm"
+    category: "file-operations"
+    description: "ファイル/コンテナ削除"
+    linux_example: "rm file.txt"
+    docker_example: "docker rm container_name"
+    notes:
+      - "rmはファイル削除、docker rmはコンテナ削除"
+    warnings:
+      - "実行中のコンテナは削除できません。先にstopが必要です"
+    localized_description:
+      en: "Remove files/containers"
+      ja: "ファイル/コンテナ削除"
+    localized_notes:
+      en:
+        - "rm removes files, docker rm removes containers"
+      ja:
+        - "rmはファイル削除、docker rmはコンテナ削除"
+
+  - id: "rm-rf-docker-rm-f"
+    linux_command: "rm -rf"
+    docker_command: "docker rm -f"
+    category: "file-operations"
+    description: "強制削除"
+    linux_example: "rm -rf directory"
+    docker_example: "docker rm -f container_name"
+    notes:
+      - "-fオプションで強制削除"
+    warnings:
+      - "強制削除は取り消せません。注意して使用してください"
+    localized_description:
+      en: "Force remove"
+      ja: "強制削除"
+
+  - id: "tail-f-docker-logs-f"
+    linux_command: "tail -f"
+    docker_command: "docker logs -f"
+    category: "logs-monitoring"
+    description: "ログをリアルタイムで表示"
+    linux_example: "tail -f /var/log/app.log"
+    docker_example: "docker logs -f container_name"
+    notes:
+      - "tailはファイル、docker logsはコンテナのログ"
+    localized_description:
+      en: "Display logs in real-time"
+      ja: "ログをリアルタイムで表示"
+    localized_notes:
+      en:
+        - "tail shows file content, docker logs shows container logs"
+      ja:
+        - "tailはファイル、docker logsはコンテナのログ"
+
+  - id: "tail-n-docker-logs-tail"
+    linux_command: "tail -n"
+    docker_command: "docker logs --tail"
+    category: "logs-monitoring"
+    description: "ログの最後のN行を表示"
+    linux_example: "tail -n 100 /var/log/app.log"
+    docker_example: "docker logs --tail 100 container_name"
+    notes:
+      - "最新のログ行数を指定して表示"
+    localized_description:
+      en: "Display last N lines of logs"
+      ja: "ログの最後のN行を表示"
+
+  - id: "head-n-docker-logs-tail"
+    linux_command: "head -n"
+    docker_command: "docker logs --tail"
+    category: "logs-monitoring"
+    description: "ログの最初のN行を表示"
+    linux_example: "head -n 100 /var/log/app.log"
+    docker_example: "docker logs --tail 100 container_name"
+    notes:
+      - "docker logsには--headオプションがないため、--tailを使用"
+    localized_description:
+      en: "Display first N lines of logs"
+      ja: "ログの最初のN行を表示"
+
+  - id: "grep-docker-logs-grep"
+    linux_command: "grep"
+    docker_command: "docker logs"
+    category: "logs-monitoring"
+    description: "ログから特定のパターンを検索"
+    linux_example: "grep 'ERROR' /var/log/app.log"
+    docker_example: "docker logs container_name | grep 'ERROR'"
+    notes:
+      - "docker logsの出力をgrepでフィルタリング"
+    localized_description:
+      en: "Search for patterns in logs"
+      ja: "ログから特定のパターンを検索"
+
+  - id: "cp-docker-cp"
+    linux_command: "cp"
+    docker_command: "docker cp"
+    category: "file-operations"
+    description: "ファイルコピー"
+    linux_example: "cp file.txt /dest/"
+    docker_example: "docker cp container_name:/file.txt /dest/"
+    notes:
+      - "docker cpはコンテナとホスト間でファイル転送"
+    localized_description:
+      en: "Copy files"
+      ja: "ファイルコピー"
+    localized_notes:
+      en:
+        - "docker cp transfers files between container and host"
+      ja:
+        - "docker cpはコンテナとホスト間でファイル転送"
+
+  - id: "mv-docker-exec-mv"
+    linux_command: "mv"
+    docker_command: "docker exec"
+    category: "file-operations"
+    description: "ファイル移動/名前変更"
+    linux_example: "mv file.txt newname.txt"
+    docker_example: "docker exec container_name mv file.txt newname.txt"
+    notes:
+      - "コンテナ内でのファイル移動はexecを使用"
+    localized_description:
+      en: "Move/rename files"
+      ja: "ファイル移動/名前変更"
+
+  - id: "cd-docker-exec-bash"
+    linux_command: "cd"
+    docker_command: "docker exec -it"
+    category: "file-operations"
+    description: "ディレクトリ変更/コンテナ内に入る"
+    linux_example: "cd /path/to/dir"
+    docker_example: "docker exec -it container_name /bin/bash"
+    notes:
+      - "コンテナ名を指定した場合は自動的にdocker execを実行"
+      - "通常のディレクトリ名の場合は従来通りcdコマンドを実行"
+      - "コンテナが実行中でない場合はエラーを表示"
+    warnings:
+      - "コンテナが存在しない場合は通常のディレクトリとして扱われます"
+    localized_description:
+      en: "Change directory/enter container"
+      ja: "ディレクトリ変更/コンテナ内に入る"
+    localized_notes:
+      en:
+        - "Automatically executes docker exec when container name is specified"
+        - "Executes normal cd command for regular directory names"
+        - "Shows error if container is not running"
+      ja:
+        - "コンテナ名を指定した場合は自動的にdocker execを実行"
+        - "通常のディレクトリ名の場合は従来通りcdコマンドを実行"
+        - "コンテナが実行中でない場合はエラーを表示"
+
+  - id: "vi-docker-exec-vi"
+    linux_command: "vi"
+    docker_command: "docker exec -it"
+    category: "file-operations"
+    description: "ファイル編集"
+    linux_example: "vi file.txt"
+    docker_example: "docker exec -it container_name vi file.txt"
+    notes:
+      - "コンテナ内でのファイル編集はexecを使用"
+    localized_description:
+      en: "Edit files"
+      ja: "ファイル編集"
+
+  - id: "nano-docker-exec-nano"
+    linux_command: "nano"
+    docker_command: "docker exec -it"
+    category: "file-operations"
+    description: "ファイル編集（nano）"
+    linux_example: "nano file.txt"
+    docker_example: "docker exec -it container_name nano file.txt"
+    notes:
+      - "コンテナ内でのファイル編集はexecを使用"
+    localized_description:
+      en: "Edit files (nano)"
+      ja: "ファイル編集（nano）"
+
+  - id: "mkdir-docker-exec-mkdir"
+    linux_command: "mkdir"
+    docker_command: "docker exec"
+    category: "file-operations"
+    description: "ディレクトリ作成"
+    linux_example: "mkdir /new/dir"
+    docker_example: "docker exec container_name mkdir /new/dir"
+    notes:
+      - "コンテナ内でのディレクトリ作成はexecを使用"
+    localized_description:
+      en: "Create directory"
+      ja: "ディレクトリ作成"
+
+  - id: "df-docker-system-df"
+    linux_command: "df"
+    docker_command: "docker system df"
+    category: "system-information"
+    description: "ディスク使用量表示"
+    linux_example: "df -h"
+    docker_example: "docker system df"
+    notes:
+      - "docker system dfはDockerのディスク使用量を表示"
+    localized_description:
+      en: "Display disk usage"
+      ja: "ディスク使用量表示"
+    localized_notes:
+      en:
+        - "docker system df shows Docker disk usage"
+      ja:
+        - "docker system dfはDockerのディスク使用量を表示"
+
+  - id: "du-docker-system-df"
+    linux_command: "du"
+    docker_command: "docker system df"
+    category: "system-information"
+    description: "ディスク使用量詳細表示"
+    linux_example: "du -sh /path"
+    docker_example: "docker system df -v"
+    notes:
+      - "-vオプションで詳細表示"
+    localized_description:
+      en: "Display detailed disk usage"
+      ja: "ディスク使用量詳細表示"
+
+  - id: "free-docker-stats-no-stream"
+    linux_command: "free"
+    docker_command: "docker stats --no-stream"
+    category: "system-information"
+    description: "メモリ使用量表示"
+    linux_example: "free -h"
+    docker_example: "docker stats --no-stream"
+    notes:
+      - "docker statsでコンテナのメモリ使用量を表示"
+    localized_description:
+      en: "Display memory usage"
+      ja: "メモリ使用量表示"
+
+  - id: "top-docker-stats"
+    linux_command: "top"
+    docker_command: "docker stats"
+    category: "system-information"
+    description: "リアルタイムシステム情報"
+    linux_example: "top"
+    docker_example: "docker stats"
+    notes:
+      - "topはシステム全体、docker statsはコンテナの統計情報"
+    localized_description:
+      en: "Real-time system information"
+      ja: "リアルタイムシステム情報"
+    localized_notes:
+      en:
+        - "top shows system-wide info, docker stats shows container statistics"
+      ja:
+        - "topはシステム全体、docker statsはコンテナの統計情報"
+
+  - id: "htop-docker-stats"
+    linux_command: "htop"
+    docker_command: "docker stats"
+    category: "system-information"
+    description: "リアルタイムシステム情報（htop）"
+    linux_example: "htop"
+    docker_example: "docker stats"
+    notes:
+      - "htopの代替としてdocker statsを使用"
+    localized_description:
+      en: "Real-time system information (htop)"
+      ja: "リアルタイムシステム情報（htop）"
+
+  - id: "uname-docker-version"
+    linux_command: "uname"
+    docker_command: "docker version"
+    category: "system-information"
+    description: "システム情報表示"
+    linux_example: "uname -a"
+    docker_example: "docker version"
+    notes:
+      - "docker versionでDockerのバージョン情報を表示"
+    localized_description:
+      en: "Display system information"
+      ja: "システム情報表示"
+
+  - id: "netstat-docker-port"
+    linux_command: "netstat"
+    docker_command: "docker port"
+    category: "network"
+    description: "ネットワーク接続表示"
+    linux_example: "netstat -tuln"
+    docker_example: "docker port container_name"
+    notes:
+      - "docker portでコンテナのポートマッピングを表示"
+    localized_description:
+      en: "Display network connections"
+      ja: "ネットワーク接続表示"
+
+  - id: "ss-docker-port"
+    linux_command: "ss"
+    docker_command: "docker port"
+    category: "network"
+    description: "ソケット統計表示"
+    linux_example: "ss -tuln"
+    docker_example: "docker port container_name"
+    notes:
+      - "docker portでコンテナのポートマッピングを表示"
+    localized_description:
+      en: "Display socket statistics"
+      ja: "ソケット統計表示"
+
+  - id: "ping-docker-exec-ping"
+    linux_command: "ping"
+    docker_command: "docker exec"
+    category: "network"
+    description: "ネットワーク接続テスト"
+    linux_example: "ping google.com"
+    docker_example: "docker exec container_name ping google.com"
+    notes:
+      - "コンテナ内からpingを実行"
+    localized_description:
+      en: "Test network connectivity"
+      ja: "ネットワーク接続テスト"
+
+  - id: "curl-docker-exec-curl"
+    linux_command: "curl"
+    docker_command: "docker exec"
+    category: "network"
+    description: "HTTP リクエスト送信"
+    linux_example: "curl https://api.example.com"
+    docker_example: "docker exec container_name curl https://api.example.com"
+    notes:
+      - "コンテナ内からcurlを実行"
+    localized_description:
+      en: "Send HTTP requests"
+      ja: "HTTP リクエスト送信"
+
+  - id: "wget-docker-exec-wget"
+    linux_command: "wget"
+    docker_command: "docker exec"
+    category: "network"
+    description: "ファイルダウンロード"
+    linux_example: "wget https://example.com/file.txt"
+    docker_example: "docker exec container_name wget https://example.com/file.txt"
+    notes:
+      - "コンテナ内からwgetを実行"
+    localized_description:
+      en: "Download files"
+      ja: "ファイルダウンロード"
+
+  - id: "find-docker-exec-find"
+    linux_command: "find"
+    docker_command: "docker exec"
+    category: "file-operations"
+    description: "ファイル検索"
+    linux_example: "find /path -name '*.txt'"
+    docker_example: "docker exec container_name find /path -name '*.txt'"
+    notes:
+      - "コンテナ内でファイル検索を実行"
+    localized_description:
+      en: "Search for files"
+      ja: "ファイル検索"
+
+  - id: "locate-docker-exec-find"
+    linux_command: "locate"
+    docker_command: "docker exec"
+    category: "file-operations"
+    description: "ファイル高速検索"
+    linux_example: "locate filename"
+    docker_example: "docker exec container_name find / -name '*filename*'"
+    notes:
+      - "locateの代替としてfindを使用"
+    localized_description:
+      en: "Fast file search"
+      ja: "ファイル高速検索"
+
+  - id: "which-docker-exec-which"
+    linux_command: "which"
+    docker_command: "docker exec"
+    category: "system-information"
+    description: "コマンドパス表示"
+    linux_example: "which python"
+    docker_example: "docker exec container_name which python"
+    notes:
+      - "コンテナ内でコマンドパスを確認"
+    localized_description:
+      en: "Display command path"
+      ja: "コマンドパス表示"
+
+  - id: "whoami-docker-exec-whoami"
+    linux_command: "whoami"
+    docker_command: "docker exec"
+    category: "system-information"
+    description: "現在のユーザー表示"
+    linux_example: "whoami"
+    docker_example: "docker exec container_name whoami"
+    notes:
+      - "コンテナ内の現在のユーザーを確認"
+    localized_description:
+      en: "Display current user"
+      ja: "現在のユーザー表示"
+
+  - id: "id-docker-exec-id"
+    linux_command: "id"
+    docker_command: "docker exec"
+    category: "system-information"
+    description: "ユーザーID表示"
+    linux_example: "id"
+    docker_example: "docker exec container_name id"
+    notes:
+      - "コンテナ内のユーザーIDを確認"
+    localized_description:
+      en: "Display user ID"
+      ja: "ユーザーID表示"

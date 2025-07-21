@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"cherrysh/i18n"
+	"docknaut/i18n"
 )
 
 // isBuiltinCommand は内蔵コマンドかどうかを判定します

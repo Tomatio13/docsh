@@ -1,0 +1,110 @@
+shell:
+  prompt: "🐳 docknaut> "
+  history_size: 1000
+  auto_complete: true
+  dry_run_mode: false
+  show_mappings: true
+  
+mapping:
+  data_file: "data/mappings.yaml"
+  cache_enabled: true
+  auto_suggest: true
+  
+docker:
+  default_options: []
+  timeout: 30
+  auto_detect: true
+  
+display:
+  show_warnings: true
+  color_output: true
+  verbose_mode: false
+  show_examples: true
+  show_descriptions: true
+
+i18n:
+  default_language: "ja"
+  supported_languages: ["ja", "en"]
+  locale_dir: "data/locales"
+  fallback_language: "en"
+
+features:
+  aliases: true
+  context_management: true
+  history: true
+  completion: true
+  command_mapping: true
+  git_integration: true
+
+aliases:
+  # Standard aliases
+  ll: "ls -la"
+  la: "ls -a"
+  h: "history"
+  
+  # Docker aliases
+  dps: "docker ps"
+  dpa: "docker ps -a"
+  di: "docker images"
+  dlog: "docker logs"
+  dlogf: "docker logs -f"
+  dexec: "docker exec -it"
+  dstart: "docker start"
+  dstop: "docker stop"
+  drm: "docker rm"
+  drmi: "docker rmi"
+  dstats: "docker stats"
+  
+  # System aliases
+  df: "docker system df"
+  du: "docker system df -v"
+  free: "docker stats --no-stream"
+  top: "docker stats"
+  
+context:
+  current_container: ""
+  recent_containers: []
+  auto_switch: true
+  show_in_prompt: true
+
+history:
+  max_entries: 1000
+  save_to_file: true
+  search_enabled: true
+  duplicate_handling: "ignore"
+
+completion:
+  enabled: true
+  container_names: true
+  image_names: true
+  command_options: true
+  file_paths: true
+  max_suggestions: 16
+
+themes:
+  default: "docknaut"
+  available:
+    - name: "docknaut"
+      prompt: "🐳 %s $ "
+      colors:
+        directory: "cyan"
+        prompt: "blue"
+        error: "red"
+        warning: "yellow"
+        success: "green"
+    - name: "minimal"
+      prompt: "%s > "
+      colors:
+        directory: "blue"
+        prompt: "white"
+        error: "red"
+        warning: "yellow"
+        success: "green"
+    - name: "docker"
+      prompt: "🐳 docker:%s $ "
+      colors:
+        directory: "cyan"
+        prompt: "blue"
+        error: "red"
+        warning: "yellow"
+        success: "green"

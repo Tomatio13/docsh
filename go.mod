@@ -1,10 +1,11 @@
-module cherrysh
+module docknaut
 
 go 1.22.2
 
 require (
 	github.com/c-bata/go-prompt v0.2.6
 	github.com/go-git/go-git/v5 v5.11.0
+	gopkg.in/yaml.v2 v2.2.4
 )
 
 require (

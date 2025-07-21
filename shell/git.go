@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"cherrysh/i18n"
+	"docknaut/i18n"
 
 	"github.com/go-git/go-git/v5"
 	"github.com/go-git/go-git/v5/plumbing/object"
@@ -254,7 +254,7 @@ func (s *Shell) gitClone(args []string) error {
 	if err != nil {
 		// 認証エラーの場合は適切なメッセージを表示
 		if strings.Contains(err.Error(), "authentication required") {
-			return fmt.Errorf("認証が必要です。.cherryshrcにGITHUB_TOKENを設定するか、SSH鍵を使用してください: %v", err)
+			return fmt.Errorf("認証が必要です。.docknautrcにGITHUB_TOKENを設定するか、SSH鍵を使用してください: %v", err)
 		}
 		return fmt.Errorf("クローンに失敗しました: %v", err)
 	}

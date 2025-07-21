@@ -21,6 +21,16 @@ func (s *Shell) changeDirectory(args []string) error {
 	} else {
 		target = args[0]
 
+		// Dockerコンテナ名かどうかをチェック
+		if s.shellExecutor.IsDockerAvailable() {
+			isContainer, err := s.isDockerContainer(target)
+			if err == nil && isContainer {
+				// Dockerコンテナに入る
+				fmt.Printf("Entering Docker container: %s\n", target)
+				return s.enterContainer(target)
+			}
+		}
+
 		// Windows特有のパス処理
 		if runtime.GOOS == "windows" {
 			target = s.expandWindowsEnvironmentVariable(target)

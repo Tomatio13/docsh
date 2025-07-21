@@ -7,7 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"cherrysh/i18n"
+	"docknaut/i18n"
 )
 
 type Config struct {
@@ -16,6 +16,7 @@ type Config struct {
 	Language    string
 	GitHubToken string
 	GitHubUser  string
+	DataPath    string
 }
 
 func NewConfig() *Config {
@@ -23,16 +24,33 @@ func NewConfig() *Config {
 		Aliases:  make(map[string]string),
 		Theme:    "default",
 		Language: "", // 空の場合は自動検出
+		DataPath: "data",
 	}
 }
 
 func (c *Config) LoadConfigFile() error {
+	// Load traditional config file first
+	err := c.loadTraditionalConfig()
+	if err != nil {
+		return err
+	}
+	
+	// Load YAML config file if exists
+	err = c.LoadYAMLConfig(c.DataPath)
+	if err != nil {
+		return err
+	}
+	
+	return nil
+}
+
+func (c *Config) loadTraditionalConfig() error {
 	homeDir, err := os.UserHomeDir()
 	if err != nil {
 		return err
 	}
 
-	configPath := filepath.Join(homeDir, ".cherryshrc")
+	configPath := filepath.Join(homeDir, ".docknautrc")
 	file, err := os.Open(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -97,7 +115,7 @@ func (c *Config) SaveConfigFile() error {
 		return err
 	}
 
-	configPath := filepath.Join(homeDir, ".cherryshrc")
+	configPath := filepath.Join(homeDir, ".docknautrc")
 	file, err := os.Create(configPath)
 	if err != nil {
 		return err
@@ -105,8 +123,8 @@ func (c *Config) SaveConfigFile() error {
 	defer file.Close()
 
 	// ヘッダーコメントを追加
-	fmt.Fprintln(file, "# Cherry Shell Configuration File")
-	fmt.Fprintln(file, "# 🌸 Cherry Shell - Beautiful & Simple Shell 🌸")
+	fmt.Fprintln(file, "# Docknaut Configuration File")
+	fmt.Fprintln(file, "# 🐳 Docknaut - Docker Command Mapping Shell 🐳")
 	fmt.Fprintln(file, "")
 
 	// 言語設定を保存

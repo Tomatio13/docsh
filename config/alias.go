@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"cherrysh/i18n"
+	"docknaut/i18n"
 )
 
 func (c *Config) AddAlias(name, command string) {
