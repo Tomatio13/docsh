@@ -185,13 +185,14 @@ mappings:
 
   - id: "mv-docker-exec-mv"
     linux_command: "mv"
-    docker_command: "docker exec"
+    docker_command: "docker exec {container} mv"
     category: "file-operations"
     description: "ファイル移動/名前変更"
     linux_example: "mv file.txt newname.txt"
     docker_example: "docker exec container_name mv file.txt newname.txt"
     notes:
       - "コンテナ内でのファイル移動はexecを使用"
+      - "第1引数をコンテナ名、第2引数以降をファイルパスとして扱います"
     localized_description:
       en: "Move/rename files"
       ja: "ファイル移動/名前変更"
@@ -222,44 +223,6 @@ mappings:
         - "通常のディレクトリ名の場合は従来通りcdコマンドを実行"
         - "コンテナが実行中でない場合はエラーを表示"
 
-  - id: "vi-docker-exec-vi"
-    linux_command: "vi"
-    docker_command: "docker exec -it"
-    category: "file-operations"
-    description: "ファイル編集"
-    linux_example: "vi file.txt"
-    docker_example: "docker exec -it container_name vi file.txt"
-    notes:
-      - "コンテナ内でのファイル編集はexecを使用"
-    localized_description:
-      en: "Edit files"
-      ja: "ファイル編集"
-
-  - id: "nano-docker-exec-nano"
-    linux_command: "nano"
-    docker_command: "docker exec -it"
-    category: "file-operations"
-    description: "ファイル編集（nano）"
-    linux_example: "nano file.txt"
-    docker_example: "docker exec -it container_name nano file.txt"
-    notes:
-      - "コンテナ内でのファイル編集はexecを使用"
-    localized_description:
-      en: "Edit files (nano)"
-      ja: "ファイル編集（nano）"
-
-  - id: "mkdir-docker-exec-mkdir"
-    linux_command: "mkdir"
-    docker_command: "docker exec"
-    category: "file-operations"
-    description: "ディレクトリ作成"
-    linux_example: "mkdir /new/dir"
-    docker_example: "docker exec container_name mkdir /new/dir"
-    notes:
-      - "コンテナ内でのディレクトリ作成はexecを使用"
-    localized_description:
-      en: "Create directory"
-      ja: "ディレクトリ作成"
 
   - id: "df-docker-system-df"
     linux_command: "df"
@@ -362,119 +325,117 @@ mappings:
       en: "Display network connections"
       ja: "ネットワーク接続表示"
 
-  - id: "ss-docker-port"
-    linux_command: "ss"
-    docker_command: "docker port"
-    category: "network"
-    description: "ソケット統計表示"
-    linux_example: "ss -tuln"
-    docker_example: "docker port container_name"
-    notes:
-      - "docker portでコンテナのポートマッピングを表示"
-    localized_description:
-      en: "Display socket statistics"
-      ja: "ソケット統計表示"
 
-  - id: "ping-docker-exec-ping"
-    linux_command: "ping"
-    docker_command: "docker exec"
-    category: "network"
-    description: "ネットワーク接続テスト"
-    linux_example: "ping google.com"
-    docker_example: "docker exec container_name ping google.com"
+  - id: "pull-docker-pull"
+    linux_command: "pull"
+    docker_command: "docker pull"
+    category: "container-management"
+    description: "Dockerイメージダウンロード"
+    linux_example: "pull nginx:latest"
+    docker_example: "docker pull nginx:latest"
     notes:
-      - "コンテナ内からpingを実行"
+      - "Docker Hubや他のレジストリからイメージをダウンロード"
+      - "イメージ名とタグを指定して取得"
     localized_description:
-      en: "Test network connectivity"
-      ja: "ネットワーク接続テスト"
+      en: "Download Docker image"
+      ja: "Dockerイメージダウンロード"
+    localized_notes:
+      en:
+        - "Download images from Docker Hub or other registries"
+        - "Specify image name and tag to retrieve"
+      ja:
+        - "Docker Hubや他のレジストリからイメージをダウンロード"
+        - "イメージ名とタグを指定して取得"
 
-  - id: "curl-docker-exec-curl"
-    linux_command: "curl"
-    docker_command: "docker exec"
-    category: "network"
-    description: "HTTP リクエスト送信"
-    linux_example: "curl https://api.example.com"
-    docker_example: "docker exec container_name curl https://api.example.com"
+  - id: "start-docker-start"
+    linux_command: "start"
+    docker_command: "docker start"
+    category: "container-management"
+    description: "Dockerコンテナ開始"
+    linux_example: "start my_container"
+    docker_example: "docker start my_container"
     notes:
-      - "コンテナ内からcurlを実行"
+      - "停止中のコンテナを開始"
+      - "コンテナ名またはIDを指定"
     localized_description:
-      en: "Send HTTP requests"
-      ja: "HTTP リクエスト送信"
+      en: "Start Docker container"
+      ja: "Dockerコンテナ開始"
+    localized_notes:
+      en:
+        - "Start stopped containers"
+        - "Specify container name or ID"
+      ja:
+        - "停止中のコンテナを開始"
+        - "コンテナ名またはIDを指定"
 
-  - id: "wget-docker-exec-wget"
-    linux_command: "wget"
-    docker_command: "docker exec"
-    category: "network"
-    description: "ファイルダウンロード"
-    linux_example: "wget https://example.com/file.txt"
-    docker_example: "docker exec container_name wget https://example.com/file.txt"
+  - id: "stop-docker-stop"
+    linux_command: "stop"
+    docker_command: "docker stop"
+    category: "container-management"
+    description: "Dockerコンテナ停止"
+    linux_example: "stop my_container"
+    docker_example: "docker stop my_container"
     notes:
-      - "コンテナ内からwgetを実行"
+      - "実行中のコンテナを停止"
+      - "コンテナ名またはIDを指定"
+      - "グレースフルシャットダウンを実行"
     localized_description:
-      en: "Download files"
-      ja: "ファイルダウンロード"
+      en: "Stop Docker container"
+      ja: "Dockerコンテナ停止"
+    localized_notes:
+      en:
+        - "Stop running containers"
+        - "Specify container name or ID"
+        - "Performs graceful shutdown"
+      ja:
+        - "実行中のコンテナを停止"
+        - "コンテナ名またはIDを指定"
+        - "グレースフルシャットダウンを実行"
 
-  - id: "find-docker-exec-find"
-    linux_command: "find"
-    docker_command: "docker exec"
-    category: "file-operations"
-    description: "ファイル検索"
-    linux_example: "find /path -name '*.txt'"
-    docker_example: "docker exec container_name find /path -name '*.txt'"
+  - id: "rmi-docker-rmi"
+    linux_command: "rmi"
+    docker_command: "docker rmi"
+    category: "container-management"
+    description: "Dockerイメージ削除"
+    linux_example: "rmi nginx:latest"
+    docker_example: "docker rmi nginx:latest"
     notes:
-      - "コンテナ内でファイル検索を実行"
+      - "Dockerイメージを削除"
+      - "イメージ名またはIDを指定"
+      - "--forceオプションで強制削除可能"
     localized_description:
-      en: "Search for files"
-      ja: "ファイル検索"
+      en: "Remove Docker image"
+      ja: "Dockerイメージ削除"
+    localized_notes:
+      en:
+        - "Remove Docker images"
+        - "Specify image name or ID"
+        - "Use --force option for forced removal"
+      ja:
+        - "Dockerイメージを削除"
+        - "イメージ名またはIDを指定"
+        - "--forceオプションで強制削除可能"
 
-  - id: "locate-docker-exec-find"
-    linux_command: "locate"
+  - id: "exec-docker-exec"
+    linux_command: "exec"
     docker_command: "docker exec"
-    category: "file-operations"
-    description: "ファイル高速検索"
-    linux_example: "locate filename"
-    docker_example: "docker exec container_name find / -name '*filename*'"
+    category: "container-management"
+    description: "コンテナ内でコマンド実行"
+    linux_example: "exec my_container ls -la"
+    docker_example: "docker exec my_container ls -la"
     notes:
-      - "locateの代替としてfindを使用"
+      - "実行中のコンテナ内でコマンドを実行"
+      - "第1引数にコンテナ名、第2引数以降にコマンド"
+      - "-itオプションでインタラクティブモード"
     localized_description:
-      en: "Fast file search"
-      ja: "ファイル高速検索"
-
-  - id: "which-docker-exec-which"
-    linux_command: "which"
-    docker_command: "docker exec"
-    category: "system-information"
-    description: "コマンドパス表示"
-    linux_example: "which python"
-    docker_example: "docker exec container_name which python"
-    notes:
-      - "コンテナ内でコマンドパスを確認"
-    localized_description:
-      en: "Display command path"
-      ja: "コマンドパス表示"
-
-  - id: "whoami-docker-exec-whoami"
-    linux_command: "whoami"
-    docker_command: "docker exec"
-    category: "system-information"
-    description: "現在のユーザー表示"
-    linux_example: "whoami"
-    docker_example: "docker exec container_name whoami"
-    notes:
-      - "コンテナ内の現在のユーザーを確認"
-    localized_description:
-      en: "Display current user"
-      ja: "現在のユーザー表示"
-
-  - id: "id-docker-exec-id"
-    linux_command: "id"
-    docker_command: "docker exec"
-    category: "system-information"
-    description: "ユーザーID表示"
-    linux_example: "id"
-    docker_example: "docker exec container_name id"
-    notes:
-      - "コンテナ内のユーザーIDを確認"
-    localized_description:
-      en: "Display user ID"
-      ja: "ユーザーID表示"
+      en: "Execute command in container"
+      ja: "コンテナ内でコマンド実行"
+    localized_notes:
+      en:
+        - "Execute commands in running containers"
+        - "First argument is container name, rest are command"
+        - "Use -it option for interactive mode"
+      ja:
+        - "実行中のコンテナ内でコマンドを実行"
+        - "第1引数にコンテナ名、第2引数以降にコマンド"
+        - "-itオプションでインタラクティブモード"

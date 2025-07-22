@@ -136,6 +136,11 @@ func (s *Shell) getCurrentDir() string {
 	return s.cwd
 }
 
+// ExecuteCommand exposes the executeCommand method for external use
+func (s *Shell) ExecuteCommand(input string) error {
+	return s.executeCommand(input)
+}
+
 func (s *Shell) executeCommand(input string) error {
 	// エイリアス展開
 	if s.config != nil {
@@ -188,6 +193,59 @@ func (s *Shell) executeCommand(input string) error {
 	case "clear", "cls":
 		fmt.Print("\033[2J\033[H")
 		return nil
+	// Docker lifecycle commands
+	case "pull":
+		if len(args) == 0 {
+			return fmt.Errorf(i18n.T("docker.image_name_required"))
+		}
+		return s.pullImage(args[0])
+	case "start":
+		if len(args) == 0 {
+			return fmt.Errorf(i18n.T("docker.container_name_required"))
+		}
+		return s.startContainer(args[0])
+	case "exec":
+		if len(args) < 2 {
+			return fmt.Errorf(i18n.T("docker.container_name_required") + " and " + i18n.T("docker.command_required"))
+		}
+		return s.execInContainer(args[0], args[1:])
+	case "stop":
+		if len(args) == 0 {
+			return fmt.Errorf(i18n.T("docker.container_name_required"))
+		}
+		return s.stopContainer(args[0])
+	case "rm":
+		if len(args) == 0 {
+			return fmt.Errorf(i18n.T("docker.container_name_required"))
+		}
+		// Check for --force flag
+		force := false
+		containerName := args[0]
+		if len(args) > 1 {
+			for _, arg := range args[1:] {
+				if arg == "--force" || arg == "-f" {
+					force = true
+					break
+				}
+			}
+		}
+		return s.removeContainer(containerName, force)
+	case "rmi":
+		if len(args) == 0 {
+			return fmt.Errorf(i18n.T("docker.image_name_required"))
+		}
+		// Check for --force flag
+		force := false
+		imageName := args[0]
+		if len(args) > 1 {
+			for _, arg := range args[1:] {
+				if arg == "--force" || arg == "-f" {
+					force = true
+					break
+				}
+			}
+		}
+		return s.removeImage(imageName, force)
 	default:
 		// Docker専用シェルモードでコマンド実行
 		// ストリーミングコマンドの場合は特別な処理を行う
@@ -603,6 +661,14 @@ func (s *Shell) showHelp() {
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_docker_commands_title"))
 	fmt.Println("  docker ps, docker run, docker exec, docker logs, etc.")
+	fmt.Println()
+	fmt.Println("🐳 Docker Lifecycle Commands:")
+	fmt.Println("  pull <image>            Pull image from registry")
+	fmt.Println("  start <container>       Start stopped container")
+	fmt.Println("  stop <container>        Stop running container")
+	fmt.Println("  exec <container> <cmd>  Execute command in container")
+	fmt.Println("  rm [--force] <container> Remove container")
+	fmt.Println("  rmi [--force] <image>   Remove image")
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_builtin_commands_title"))
 	fmt.Println("  help                    Show this help")

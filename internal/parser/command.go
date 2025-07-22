@@ -34,9 +34,10 @@ func NewCommandParser() CommandParser {
 	return &DefaultCommandParser{
 		linuxCommands: []string{
 			"ls", "ps", "kill", "rm", "cp", "mv", "cd", "pwd", "cat", "grep", "find",
-			"tail", "head", "top", "df", "du", "free", "which", "whoami", "uname",
+			"tail", "head", "top", "df", "du", "free", "uname",
 			"chmod", "chown", "mkdir", "rmdir", "touch", "ln", "tar", "gzip", "gunzip",
-			"wget", "curl", "ping", "netstat", "ssh", "scp", "rsync", "cron", "history",
+			"netstat", "ssh", "scp", "rsync", "cron", "history",
+			"vi", "vim", "nano", "emacs", "ed", "locate", "htop",
 		},
 		dockerCommands: []string{
 			"docker", "run", "build", "pull", "push", "ps", "images", "rmi", "rm",

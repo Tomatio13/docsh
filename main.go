@@ -51,7 +51,28 @@ func main() {
 	// fmt.Printf(i18n.T("shell.runtime_arch")+"\n", runtime.GOARCH)
 	// fmt.Println(i18n.T("shell.runtime_separator"))
 
-	// シェルを開始
+	// シェルを初期化
 	s := shell.NewShell(cfg, dataPath)
+	
+	// コマンドライン引数が渡された場合は直接実行
+	if len(os.Args) > 1 {
+		// 引数を結合してコマンドとして実行
+		command := ""
+		for i, arg := range os.Args[1:] {
+			if i > 0 {
+				command += " "
+			}
+			command += arg
+		}
+		
+		// 直接コマンドを実行
+		if err := s.ExecuteCommand(command); err != nil {
+			fmt.Printf("Error: %v\n", err)
+			os.Exit(1)
+		}
+		return
+	}
+	
+	// インタラクティブモードでシェルを開始
 	s.Start()
 }

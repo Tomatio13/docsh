@@ -78,14 +78,14 @@ func (executor *DefaultShellExecutor) Execute(ctx context.Context, cmd *parser.P
 		mapping, err := executor.mappingEngine.FindByLinuxCommandWithOptions(cmd.Command, cmd.Options)
 		if err == nil {
 			result.Mapping = mapping
-			return executor.ExecuteWithMapping(ctx, mapping, cmd.Args)
+			return executor.ExecuteWithMappingAndOptions(ctx, mapping, cmd.Args, cmd.Options)
 		}
 		
 		// Fallback to exact command match
 		mapping, err = executor.mappingEngine.FindByLinuxCommand(cmd.Command)
 		if err == nil {
 			result.Mapping = mapping
-			return executor.ExecuteWithMapping(ctx, mapping, cmd.Args)
+			return executor.ExecuteWithMappingAndOptions(ctx, mapping, cmd.Args, cmd.Options)
 		}
 		
 		// Docker-only mode: reject unmapped Linux commands
@@ -108,6 +108,11 @@ func (executor *DefaultShellExecutor) Execute(ctx context.Context, cmd *parser.P
 
 // ExecuteWithMapping executes a command using a specific mapping
 func (executor *DefaultShellExecutor) ExecuteWithMapping(ctx context.Context, mapping *engine.CommandMapping, args []string) (*ExecutionResult, error) {
+	return executor.ExecuteWithMappingAndOptions(ctx, mapping, args, nil)
+}
+
+// ExecuteWithMappingAndOptions executes a command with mapping, args, and options
+func (executor *DefaultShellExecutor) ExecuteWithMappingAndOptions(ctx context.Context, mapping *engine.CommandMapping, args []string, options map[string]string) (*ExecutionResult, error) {
 	start := time.Now()
 	result := &ExecutionResult{
 		Command: mapping.DockerCommand,
@@ -129,8 +134,36 @@ func (executor *DefaultShellExecutor) ExecuteWithMapping(ctx context.Context, ma
 
 	// Parse the Docker command
 	dockerCmd := strings.Fields(mapping.DockerCommand)
+	
+	// Add options first (they usually come before positional arguments)
+	if options != nil {
+		for key, value := range options {
+			if value == "true" {
+				// Boolean flag option
+				if len(key) == 1 {
+					dockerCmd = append(dockerCmd, "-"+key)
+				} else {
+					dockerCmd = append(dockerCmd, "--"+key)
+				}
+			} else {
+				// Option with value
+				if len(key) == 1 {
+					dockerCmd = append(dockerCmd, "-"+key, value)
+				} else {
+					dockerCmd = append(dockerCmd, "--"+key, value)
+				}
+			}
+		}
+	}
+	
+	// Add positional arguments
 	if len(args) > 0 {
 		dockerCmd = append(dockerCmd, args...)
+	}
+
+	// Special handling for ps command without options - use docker ps -a to show all containers
+	if mapping.LinuxCommand == "ps" && len(options) == 0 {
+		dockerCmd = []string{"docker", "ps", "-a"}
 	}
 
 	// Check if this is a streaming command
@@ -144,7 +177,12 @@ func (executor *DefaultShellExecutor) ExecuteWithMapping(ctx context.Context, ma
 	cmd := exec.CommandContext(ctx, dockerCmd[0], dockerCmd[1:]...)
 	output, err := cmd.CombinedOutput()
 
-	result.Output = string(output)
+	// Apply simple formatting for ps command without options
+	if mapping.LinuxCommand == "ps" && len(options) == 0 {
+		result.Output = executor.formatSimplePsOutput(string(output))
+	} else {
+		result.Output = string(output)
+	}
 	result.Duration = time.Since(start)
 
 	if err != nil {
@@ -269,7 +307,13 @@ func (executor *DefaultShellExecutor) executeDockerCommand(ctx context.Context, 
 	execCmd := exec.CommandContext(ctx, "docker", args...)
 	output, err := execCmd.CombinedOutput()
 
-	result.Output = string(output)
+	// Special handling for ps command without options
+	if (cmd.Command == "ps" || (cmd.Command == "docker" && len(args) > 0 && args[0] == "ps")) && len(cmd.Options) == 0 {
+		result.Output = executor.formatSimplePsOutput(string(output))
+	} else {
+		result.Output = string(output)
+	}
+
 	result.Duration = time.Since(start)
 
 	if err != nil {
@@ -766,4 +810,124 @@ func (executor *DefaultShellExecutor) isTTYAvailable() bool {
 		return (fileInfo.Mode() & os.ModeCharDevice) != 0
 	}
 	return false
+}
+
+// formatSimplePsOutput formats docker ps output to show only STATUS, NAME, and PORT
+func (executor *DefaultShellExecutor) formatSimplePsOutput(output string) string {
+	lines := strings.Split(strings.TrimSpace(output), "\n")
+	if len(lines) == 0 {
+		return output
+	}
+
+	// Skip if there's no header (likely an error message)
+	if len(lines) < 2 {
+		return output
+	}
+
+	// Parse header to get column positions
+	header := lines[0]
+	statusPos := strings.Index(header, "STATUS")
+	portsPos := strings.Index(header, "PORTS")
+	namesPos := strings.Index(header, "NAMES")
+
+	var result strings.Builder
+	
+	// Process each container line (skip header)
+	for i := 1; i < len(lines); i++ {
+		line := lines[i]
+		if strings.TrimSpace(line) == "" {
+			continue
+		}
+
+		var status, name, ports string
+		
+		// Extract fields based on column positions
+		if statusPos >= 0 && statusPos < len(line) {
+			// Extract STATUS field
+			statusEnd := portsPos
+			if statusEnd == -1 || statusEnd > len(line) {
+				statusEnd = len(line)
+			}
+			status = strings.TrimSpace(line[statusPos:statusEnd])
+		}
+		
+		// Extract NAME (last field)
+		if namesPos >= 0 && namesPos < len(line) {
+			name = strings.TrimSpace(line[namesPos:])
+		}
+		
+		// Extract PORTS field
+		if portsPos >= 0 && portsPos < len(line) && namesPos > portsPos {
+			ports = strings.TrimSpace(line[portsPos:namesPos])
+		}
+		
+		// Clean up status (remove extra info, keep main status)
+		status = executor.cleanStatus(status)
+		
+		// Clean up ports (remove empty or "-" entries)
+		ports = executor.cleanPorts(ports)
+		
+		// Format output: STATUS NAME PORT
+		if ports != "" {
+			result.WriteString(fmt.Sprintf("%-10s %-20s %s\n", status, name, ports))
+		} else {
+			result.WriteString(fmt.Sprintf("%-10s %s\n", status, name))
+		}
+	}
+
+	return result.String()
+}
+
+// cleanStatus extracts the main status from docker ps status field and applies color coding
+func (executor *DefaultShellExecutor) cleanStatus(status string) string {
+	status = strings.TrimSpace(status)
+	if status == "" {
+		return "unknown"
+	}
+	
+	// Extract main status word (Up, Exited, Created, etc.)
+	words := strings.Fields(status)
+	if len(words) > 0 {
+		mainStatus := words[0]
+		// Handle special cases with color coding
+		switch strings.ToLower(mainStatus) {
+		case "up":
+			return "\033[32mrunning\033[0m" // Green color for running
+		case "exited":
+			// Keep exit code if available: "Exited (0)"
+			if len(words) > 1 && strings.Contains(words[1], "(") {
+				return "\033[33mexited" + words[1] + "\033[0m" // Orange color for exited
+			}
+			return "\033[33mexited\033[0m" // Orange color for exited
+		default:
+			return strings.ToLower(mainStatus)
+		}
+	}
+	
+	return strings.ToLower(status)
+}
+
+// cleanPorts cleans and formats port information
+func (executor *DefaultShellExecutor) cleanPorts(ports string) string {
+	ports = strings.TrimSpace(ports)
+	if ports == "" || ports == "-" {
+		return ""
+	}
+	
+	// Split by comma and clean up each port mapping
+	portList := strings.Split(ports, ", ")
+	var cleanPorts []string
+	
+	for _, port := range portList {
+		port = strings.TrimSpace(port)
+		if port != "" && port != "-" {
+			cleanPorts = append(cleanPorts, port)
+		}
+	}
+	
+	if len(cleanPorts) == 0 {
+		return ""
+	}
+	
+	return strings.Join(cleanPorts, ", ")
 }

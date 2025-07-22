@@ -16,7 +16,7 @@ func (s *Shell) isBuiltinCommand(command string) bool {
 	builtinCommands := []string{
 		"dir", "ls", "cat", "type", "copy", "cp", "move", "mv",
 		"del", "rm", "mkdir", "md", "rmdir", "rd", "cls", "clear",
-		"echo", "set", "where", "which",
+		"echo", "set", "where",
 	}
 
 	for _, builtin := range builtinCommands {
@@ -50,7 +50,7 @@ func (s *Shell) executeBuiltinCommand(command string, args []string) error {
 		return s.echoCommand(args)
 	case "set":
 		return s.setCommand(args)
-	case "where", "which":
+	case "where":
 		return s.whereCommand(args)
 	default:
 		return fmt.Errorf("unknown builtin command: %s", command)
