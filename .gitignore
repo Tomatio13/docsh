@@ -53,3 +53,9 @@ cherrysh-*
 *.zip
 *.tar.gz
 
+serena/
+docsh
+docsh.exe
+docsh-*
+docsh.zip
+docsh.tar.gz

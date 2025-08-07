@@ -108,26 +108,7 @@ lang:
   save_error: "言語設定の保存に失敗しました: %s"
   init_error: "言語初期化に失敗しました: %s"
 
-git:
-  clean_working_directory: "作業ディレクトリはクリーンです"
-  changed_files: "変更されたファイル:"
-  add_error: "ファイルの追加に失敗しました (%s): %s"
-  add_success: "ファイルを追加しました: %s"
-  commit_created: "コミットを作成しました: %s"
-  already_up_to_date: "すでに最新です"
-  pull_completed: "プルが完了しました"
-  cloning_repository: "リポジトリをクローンしています: %s -> %s"
-  clone_completed: "クローンが完了しました: %s"
-  help_title: "🐳 Docsh Git コマンド"
-  help_status: "  git status                       作業ディレクトリの状態を表示"
-  help_add: "  git add <file>                   ファイルをステージングエリアに追加"
-  help_commit: "  git commit -m \"message\"        コミットを作成"
-  help_push: "  git push                         リモートリポジトリにプッシュ"
-  help_pull: "  git pull                         リモートリポジトリからプル"
-  help_log: "  git log [-n <count>]             コミット履歴を表示"
-  help_clone: "  git clone <url> [dir]            リポジトリをクローン"
-  help_help: "  git help                         このヘルプを表示"
-  unknown_command: "不明なgitコマンド: %s"
+ 
 
 windows:
   cat_error: "ファイルの読み込みエラー (%s): %s"
@@ -150,7 +131,7 @@ app:
   welcome: "🐳 Docsh へようこそ！Docker コマンドマッピングシェルです。\n'help' でヘルプを表示、'exit' で終了します。\n"
   goodbye: "👋 Docsh をご利用いただき、ありがとうございました！"
   error: "❌ エラー: %s"
-  docker_only_welcome: "🐳 Docsh へようこそ！Docker専用コマンドシェルです。\n'help' でヘルプを表示、'exit' で終了します。"
+  docker_only_welcome: "🐳 Docsh へようこそ！Docker専用コマンドシェルです。\n'help' でヘルプを表示、'exit' で終了します。\n"
   docker_only_mode: "Docker専用モード"
   docker_only_error: "コマンド '%s' はDocker専用モードではサポートされていません。'mapping search %s' で利用可能なDockerコマンドを確認してください。"
   docker_only_available_commands: "🐳 これはDocker専用シェルです。利用可能なコマンド:"

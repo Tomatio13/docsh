@@ -54,7 +54,6 @@ func (s *Shell) Completer(d prompt.Document) []prompt.Suggest {
 		currentArg = words[len(words)-1]
 	}
 
-	
 	switch command {
 	case "cd":
 		// Docker専用シェルでは cd はコンテナへのログイン
@@ -89,22 +88,22 @@ func (s *Shell) Completer(d prompt.Document) []prompt.Suggest {
 	case "kill":
 		// Docker専用シェルでは kill は docker stop（コンテナ停止）
 		return s.completeDockerContainers(currentArg, true)
-	
+
 	// ログ系コマンド - コンテナ名を指定
 	case "tail", "head", "grep":
 		// tail -> docker logs, head -> docker logs --tail, grep -> docker logs | grep
 		return s.completeDockerContainers(currentArg, false) // 全てのコンテナ
-	
+
 	// ファイル操作系コマンド - コンテナ内実行なので実行中コンテナのみ
 	case "vi", "nano", "mkdir", "find", "locate":
 		// docker exec -it が必要なコマンド
 		return s.completeDockerContainers(currentArg, true) // 実行中コンテナのみ
-	
+
 	// ネットワーク系コマンド
 	case "netstat":
 		// docker port コマンド（コンテナ名指定）
 		return s.completeDockerContainers(currentArg, false) // 全てのコンテナ
-	
+
 	// システム情報系コマンド - 引数不要または補完無効
 	case "free", "top", "htop", "uname":
 		// docker stats, docker version などは引数不要
@@ -112,12 +111,7 @@ func (s *Shell) Completer(d prompt.Document) []prompt.Suggest {
 	case "df", "du":
 		// docker system df は引数不要
 		return []prompt.Suggest{}
-	
-	case "git":
-		if len(words) == 2 && !strings.HasSuffix(beforeCursor, " ") {
-			return s.completeGitSubcommands(currentArg)
-		}
-		return s.completeFilesAndDirectories(currentArg)
+
 	case "docker":
 		return s.completeDockerCommand(words, currentArg, beforeCursor)
 	case "theme":
@@ -155,22 +149,22 @@ func (s *Shell) completeCommands(prefix string) []prompt.Suggest {
 		{Text: "stop", Description: "Dockerコンテナを停止"},
 		{Text: "exec", Description: "Dockerコンテナ内でコマンド実行"},
 		{Text: "pull", Description: "Dockerイメージをプル"},
-		
+
 		// ログ系コマンド
 		{Text: "tail", Description: "ログ表示 (docker logs)"},
 		{Text: "head", Description: "ログ先頭表示 (docker logs --tail)"},
 		{Text: "grep", Description: "ログ検索 (docker logs | grep)"},
-		
+
 		// ファイル操作系コマンド（コンテナ内実行）
 		{Text: "vi", Description: "ファイル編集 (docker exec vi)"},
 		{Text: "nano", Description: "ファイル編集 (docker exec nano)"},
 		{Text: "mkdir", Description: "ディレクトリ作成 (docker exec mkdir)"},
 		{Text: "find", Description: "ファイル検索 (docker exec find)"},
 		{Text: "locate", Description: "ファイル検索 (docker exec find)"},
-		
+
 		// ネットワーク系コマンド
 		{Text: "netstat", Description: "ポート表示 (docker port)"},
-		
+
 		// システム情報系コマンド
 		{Text: "free", Description: "メモリ使用量 (docker stats)"},
 		{Text: "top", Description: "リアルタイム統計 (docker stats)"},
@@ -180,7 +174,7 @@ func (s *Shell) completeCommands(prefix string) []prompt.Suggest {
 		{Text: "uname", Description: "システム情報 (docker version)"},
 
 		// システムコマンド
-		{Text: "git", Description: "Git バージョン管理"},
+
 		{Text: "docker", Description: "Docker コンテナ管理"},
 		{Text: "theme", Description: "テーマを変更"},
 		{Text: "lang", Description: "言語を変更"},
@@ -287,22 +281,6 @@ func (s *Shell) completeFileSystem(prefix string, includeDirs, includeFiles bool
 	return suggests
 }
 
-// completeGitSubcommands はGitサブコマンドの補完を提供します
-func (s *Shell) completeGitSubcommands(prefix string) []prompt.Suggest {
-	suggests := []prompt.Suggest{
-		{Text: "status", Description: "作業ディレクトリの状態を表示"},
-		{Text: "add", Description: "ファイルをステージングエリアに追加"},
-		{Text: "commit", Description: "変更をコミット"},
-		{Text: "push", Description: "リモートリポジトリにプッシュ"},
-		{Text: "pull", Description: "リモートリポジトリからプル"},
-		{Text: "log", Description: "コミット履歴を表示"},
-		{Text: "clone", Description: "リポジトリをクローン"},
-		{Text: "help", Description: "ヘルプを表示"},
-	}
-
-	return prompt.FilterHasPrefix(suggests, prefix, true)
-}
-
 // completeThemes はテーマの補完を提供します
 func (s *Shell) completeThemes(prefix string) []prompt.Suggest {
 	suggests := []prompt.Suggest{
@@ -331,12 +309,12 @@ func (s *Shell) completeLanguages(prefix string) []prompt.Suggest {
 // completeDockerContainers はDockerコンテナ名の補完を提供します
 func (s *Shell) completeDockerContainers(prefix string, running bool) []prompt.Suggest {
 	containers := s.getDockerContainers(running)
-	
+
 	// Docker から取得できなかった場合は補完無効
 	if len(containers) == 0 {
 		return []prompt.Suggest{}
 	}
-	
+
 	var suggests []prompt.Suggest
 	for _, container := range containers {
 		var description string
@@ -357,12 +335,12 @@ func (s *Shell) completeDockerContainers(prefix string, running bool) []prompt.S
 // completeDockerImages はDockerイメージ名の補完を提供します
 func (s *Shell) completeDockerImages(prefix string) []prompt.Suggest {
 	images := s.getDockerImages()
-	
+
 	// Docker から取得できなかった場合は補完無効
 	if len(images) == 0 {
 		return []prompt.Suggest{}
 	}
-	
+
 	var suggests []prompt.Suggest
 	for _, image := range images {
 		suggests = append(suggests, prompt.Suggest{
@@ -377,12 +355,12 @@ func (s *Shell) completeDockerImages(prefix string) []prompt.Suggest {
 // completeDockerNetworks はDockerネットワーク名の補完を提供します
 func (s *Shell) completeDockerNetworks(prefix string) []prompt.Suggest {
 	networks := s.getDockerNetworks()
-	
+
 	// Docker から取得できなかった場合は補完無効
 	if len(networks) == 0 {
 		return []prompt.Suggest{}
 	}
-	
+
 	var suggests []prompt.Suggest
 	for _, network := range networks {
 		suggests = append(suggests, prompt.Suggest{
@@ -397,12 +375,12 @@ func (s *Shell) completeDockerNetworks(prefix string) []prompt.Suggest {
 // completeDockerVolumes はDockerボリューム名の補完を提供します
 func (s *Shell) completeDockerVolumes(prefix string) []prompt.Suggest {
 	volumes := s.getDockerVolumes()
-	
+
 	// Docker から取得できなかった場合は補完無効
 	if len(volumes) == 0 {
 		return []prompt.Suggest{}
 	}
-	
+
 	var suggests []prompt.Suggest
 	for _, volume := range volumes {
 		suggests = append(suggests, prompt.Suggest{

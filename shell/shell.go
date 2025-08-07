@@ -369,38 +369,6 @@ func (s *Shell) handleLangCommand(args []string) error {
 	return nil
 }
 
-func (s *Shell) handleGitCommand(args []string) error {
-	if len(args) == 0 {
-		s.gitHelp()
-		return nil
-	}
-
-	subcommand := args[0]
-	subArgs := args[1:]
-
-	switch subcommand {
-	case "status":
-		return s.gitStatus(subArgs)
-	case "add":
-		return s.gitAdd(subArgs)
-	case "commit":
-		return s.gitCommit(subArgs)
-	case "push":
-		return s.gitPush(subArgs)
-	case "pull":
-		return s.gitPull(subArgs)
-	case "log":
-		return s.gitLog(subArgs)
-	case "clone":
-		return s.gitClone(subArgs)
-	case "help", "-h", "--help":
-		s.gitHelp()
-		return nil
-	default:
-		return fmt.Errorf(i18n.T("git.unknown_command"), subcommand)
-	}
-}
-
 func (s *Shell) showConfig() {
 	fmt.Println(i18n.T("config.show_header"))
 	fmt.Printf(i18n.T("config.show_theme")+"\n", s.config.Theme)

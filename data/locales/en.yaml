@@ -108,26 +108,7 @@ lang:
   save_error: "Failed to save language setting: %s"
   init_error: "Failed to initialize language: %s"
 
-git:
-  clean_working_directory: "Working directory is clean"
-  changed_files: "Changed files:"
-  add_error: "Failed to add file (%s): %s"
-  add_success: "Added file: %s"
-  commit_created: "Commit created: %s"
-  already_up_to_date: "Already up to date"
-  pull_completed: "Pull completed"
-  cloning_repository: "Cloning repository: %s -> %s"
-  clone_completed: "Clone completed: %s"
-  help_title: "🐳 Docsh Git Commands"
-  help_status: "  git status                       Show working directory status"
-  help_add: "  git add <file>                   Add file to staging area"
-  help_commit: "  git commit -m \"message\"        Create commit"
-  help_push: "  git push                         Push to remote repository"
-  help_pull: "  git pull                         Pull from remote repository"
-  help_log: "  git log [-n <count>]             Show commit history"
-  help_clone: "  git clone <url> [dir]            Clone repository"
-  help_help: "  git help                         Show this help"
-  unknown_command: "Unknown git command: %s"
+ 
 
 windows:
   cat_error: "File read error (%s): %s"
@@ -150,7 +131,7 @@ app:
   welcome: "🐳 Welcome to Docsh! Docker Command Mapping Shell.\nType 'help' for help, 'exit' to quit.\n"
   goodbye: "👋 Thank you for using Docsh!"
   error: "❌ Error: %s"
-  docker_only_welcome: "🐳 Welcome to Docsh! Docker-Only Command Shell.\nType 'help' for available commands, 'exit' to quit."
+  docker_only_welcome: "🐳 Welcome to Docsh! Docker-Only Command Shell.\nType 'help' for available commands, 'exit' to quit.\n"
   docker_only_mode: "Docker-Only Mode"
   docker_only_error: "Command '%s' is not supported in Docker-only mode. Use 'mapping search %s' to find available Docker commands."
   docker_only_available_commands: "🐳 This is a Docker-only shell. Available commands:"

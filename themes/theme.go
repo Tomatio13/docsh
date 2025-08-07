@@ -18,7 +18,7 @@ type Theme struct {
 var themes = map[string]Theme{
 	"default": {
 		Name:   "Default",
-		Prompt: "🌸 %s $ ",
+		Prompt: "🐳 %s $ ",
 		Colors: map[string]string{
 			"directory": "cyan",
 			"prompt":    "green",
