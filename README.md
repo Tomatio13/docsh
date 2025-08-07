@@ -1,4 +1,4 @@
-<h1 align="center">🌸 Cherry Shell - Beautiful & Simple Shell 🌸</h1>
+# 🐳 docsh - Docker Command Mapping Shell
 
 <p align="center">
     <img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
@@ -11,27 +11,18 @@
     <a href="README_ja.md"><img src="https://img.shields.io/badge/ドキュメント-日本語-white.svg" alt="JA doc"/></a>
 </p>
 
-<p align="center">
-    <img src="assets/cherry-shell-logo.png" alt="Cherry Shell Demo" width="600">
-</p>
-
-<p align="center">
-Cherry Shell is a beautiful and simple shell named after the cherry blossom shell (Sakura-gai).<br>
-Small but beautiful, it provides an elegant command-line experience.
-</p>
+**docsh** is a Docker command mapping shell that simplifies Docker operations by providing intuitive command mappings and an interactive shell environment. Formerly known as "docknaut", this tool helps you manage Docker containers and images more efficiently.
 
 ## ✨ Features
-<p align="center">
-    <img src="assets/cherry-shell-demo_en.png" alt="Cherry Shell Demo" width="600">
-</p>
 
-- **🌸 Beautiful Design**: Elegant prompt with cherry blossom theme
+- **🐳 Docker Command Mapping**: Simplified and intuitive Docker command aliases
 - **🌍 Cross-platform**: Works on Windows, macOS, and Linux
-- **⚡ Built-in Commands**: Essential commands like `ls`, `cat`, `cp`, `mv`, etc.
-- **🔧 Git Integration**: Built-in git commands for version control
-- **🎨 Theme Support**: Multiple themes to customize your shell appearance
+- **⚡ Interactive Shell**: Built-in interactive command-line interface
+- **🔧 Configurable**: YAML-based configuration with extensive customization
 - **🔗 Alias Support**: Create custom command shortcuts
-- **🌐 Internationalization**: Supports English and Japanese languages
+- **🌐 Internationalization**: English and Japanese language support
+- **📜 Command History**: Persistent command history
+- **🎨 Customizable Prompts**: Personalize your shell experience
 
 ## 📦 Installation
 
@@ -39,112 +30,166 @@ Small but beautiful, it provides an elegant command-line experience.
 
 Download the latest release:
 
-[![Latest Release](https://img.shields.io/github/v/release/tomatio13/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/your-username/docsh?style=for-the-badge)](https://github.com/your-username/docsh/releases/latest)
 
-> **📥 [Releases Page](https://github.com/your-username/cherryshell/releases)** - Download the latest version
+> **📥 Download from [Releases Page](https://github.com/your-username/docsh/releases)**
 
 ### 🛠️ Build from Source
 
 ```bash
-git clone https://github.com/your-username/cherryshell.git
-cd cherryshell
-go build -o cherrysh main.go
+git clone https://github.com/your-username/docsh.git
+cd docsh
+go build -o docsh main.go
+```
+
+Or use the build script for all platforms:
+
+```bash
+./build.sh
 ```
 
 ## 🚀 Usage
 
-### Basic Commands
+### Interactive Mode
 
 ```bash
-# Start Cherry Shell
-./cherrysh
+# Start docsh interactive shell
+./docsh
+```
 
-# Basic file operations
-ls                    # List directory contents
-cat file.txt         # Display file contents
-cp source dest       # Copy files
-mv source dest       # Move files
-rm file.txt          # Delete files
-mkdir dirname        # Create directory
-cd dirname           # Change directory
-pwd                  # Print working directory
+### Direct Command Execution
 
-# Git commands
-git status           # Show git status
-git add file.txt     # Add file to staging
-git commit -m "msg"  # Commit changes
-git push             # Push to remote
-git pull             # Pull from remote
-git log              # Show commit history
-git clone <URL>      # Clone repository
+```bash
+# Execute commands directly
+./docsh ps                    # Docker ps
+./docsh images               # Docker images
+./docsh run nginx           # Docker run nginx
+```
 
-# Theme management
-theme                # List available themes
-theme <name>         # Set theme
+### Basic Docker Commands
 
-# Alias management
-alias                # List aliases
-alias ll='ls -la'    # Create alias
+```bash
+# Container management
+ps                          # List running containers
+psa                         # List all containers
+images                      # List images
+logs <container>            # Show container logs
+exec <container> <command>  # Execute command in container
+stop <container>            # Stop container
+rm <container>             # Remove container
+rmi <image>                # Remove image
+
+# System commands
+system prune               # Clean up unused resources
+network ls                 # List networks
+volume ls                  # List volumes
+```
+
+### Built-in Aliases
+
+```bash
+# Standard aliases
+ll                         # ls -la
+la                         # ls -a
+h                          # history
+
+# Docker aliases
+dps                        # docker ps
+dpa                        # docker ps -a
+di                         # docker images
+dlog                       # docker logs
+dlogf                      # docker logs -f
 ```
 
 ## 🌐 Language Support
 
-Cherry Shell supports multiple languages. You can set the language using:
+docsh supports multiple languages with automatic detection:
 
-### Command Line Option
+### Command Line Options
 ```bash
-./cherrysh --lang en    # English
-./cherrysh --lang ja    # Japanese
+./docsh --lang en          # English
+./docsh --lang ja          # Japanese
 ```
 
-### Environment Variable
+### Environment Variables
 ```bash
-export CHERRYSH_LANG=en    # English
-export CHERRYSH_LANG=ja    # Japanese
-./cherrysh
+export DOCSH_LANG=en       # English
+export DOCSH_LANG=ja       # Japanese
+./docsh
 ```
 
 ### System Locale
-Cherry Shell automatically detects your system locale. If `LANG` environment variable is set to `ja_JP.UTF-8` or similar, it will use Japanese.
+docsh automatically detects your system locale. If `LANG` environment variable is set to `ja_JP.UTF-8` or similar, it will use Japanese.
 
 ## ⚙️ Configuration
 
-Cherry Shell uses a configuration file located at `~/.cherryshrc`:
+docsh uses a YAML configuration file located at `data/config.yaml`:
+
+```yaml
+shell:
+  prompt: "🐳 docsh> "
+  history_size: 1000
+  auto_complete: true
+  dry_run_mode: false
+  show_mappings: true
+  
+mapping:
+  data_file: "data/mappings.yaml"
+  cache_enabled: true
+  auto_suggest: true
+  
+docker:
+  default_options: []
+  timeout: 30
+  auto_detect: true
+  
+display:
+  show_warnings: true
+  color_output: true
+  verbose_mode: false
+  show_examples: true
+  show_descriptions: true
+
+i18n:
+  default_language: "ja"
+  supported_languages: ["ja", "en"]
+  locale_dir: "data/locales"
+  fallback_language: "en"
+
+features:
+  aliases: true
+  context_management: true
+  history: true
+  completion: true
+  command_mapping: true
+  git_integration: true
+
+aliases:
+  ll: "ls -la"
+  la: "ls -a"
+  h: "history"
+  dps: "docker ps"
+  dpa: "docker ps -a"
+  di: "docker images"
+```
+
+### User Configuration
+
+You can also use a traditional configuration file at `~/.docknautrc`:
 
 ```bash
-# Theme setting
-theme default
-
 # Language setting
 LANG="en"
 
-# Aliases
-alias ll="ls -la"
-alias la="ls -la"
-alias l="ls -l"
-alias grep="grep --color=auto"
-alias ..="cd .."
-alias ...="cd ../.."
-
-# GitHub Authentication Settings
+# GitHub authentication (for git operations)
 GITHUB_TOKEN="ghp_your_token_here"
 GITHUB_USER="your_username"
+
+# Custom aliases
+alias ll="ls -la"
+alias la="ls -la"
+alias myapp="docker run -d myapp:latest"
 ```
-
-> 💡 **Tip**: You can customize your settings by referring to the `.cherryshrc.example` file.
-
-## 🎨 Available Themes
-
-- **default**: Cherry blossom theme with elegant prompt
-- **minimal**: Clean and minimal design
-- **robbyrussell**: Oh-my-zsh robbyrussell style
-- **agnoster**: Powerline-style theme
-- **pure**: Pure and simple theme
-
-## 🌍 Supported Languages
-
-- **🇺🇸 English (en)**: Full support
-- **🇯🇵 Japanese (ja)**: Full support
 
 ## 🛠️ Development
 
@@ -152,7 +197,7 @@ GITHUB_USER="your_username"
 
 ```bash
 # Build for current platform
-go build -o cherrysh main.go
+go build -o docsh main.go
 
 # Build for all platforms
 ./build.sh
@@ -163,33 +208,39 @@ go test ./...
 
 ### Adding New Languages
 
-1. Create a new message file in `i18n/messages/<lang>.json`
+1. Create a new message file at `data/locales/<lang>.yaml`
 2. Translate all message keys
-3. Add the language code to `GetAvailableLanguages()` in `i18n/i18n.go`
-4. Update the language detection logic if needed
+3. Add the language code to `i18n/i18n.go`
+4. Update language detection logic if needed
 
 ### 📁 Project Structure
 
 ```
-cherryshell/
-├── main.go              # Entry point
-├── i18n/                # Internationalization
-│   ├── i18n.go         # i18n management
-│   └── messages/        # Translation files
-│       ├── en.json     # English messages
-│       └── ja.json     # Japanese messages
-├── shell/               # Shell implementation
-│   ├── shell.go        # Main shell logic
-│   ├── command.go      # Command handling
-│   ├── git.go          # Git integration
-│   ├── prompt.go       # Prompt generation
-│   └── windows.go      # Windows-specific commands
-├── config/              # Configuration
-│   ├── config.go       # Config management
-│   └── alias.go        # Alias handling
-└── themes/              # Theme system
-    └── theme.go        # Theme definitions
+docsh/
+├── main.go                 # Entry point
+├── config/                 # Configuration management
+│   ├── config.go          # Main config logic
+│   ├── alias.go           # Alias handling
+│   └── yaml.go            # YAML configuration
+├── i18n/                   # Internationalization
+│   └── i18n.go            # i18n management
+├── shell/                  # Shell implementation
+│   ├── shell.go           # Main shell logic
+│   ├── command.go         # Command processing
+│   └── prompt.go          # Prompt generation
+├── tui/                    # Terminal UI components
+├── data/                   # Configuration and data files
+│   ├── config.yaml        # Main configuration
+│   ├── mappings.yaml      # Docker command mappings
+│   └── locales/           # Translation files
+└── themes/                 # Theme system
+    └── theme.go           # Theme definitions
 ```
+
+## 🌍 Supported Languages
+
+- **🇺🇸 English (en)**: Full support
+- **🇯🇵 Japanese (ja)**: Full support
 
 ## 🤝 Contributing
 
@@ -205,12 +256,12 @@ This project is licensed under the MIT License.
 
 ## 🙏 Acknowledgments
 
-- Named after the cherry blossom shell (Sakura-gai)
-- Inspired by the beauty of simplicity
+- Inspired by the simplicity and elegance of command-line tools
 - Built with Go for cross-platform compatibility
+- Docker community for continuous innovation
 
 ---
 
 <p align="center">
-🌸 <strong>Cherry Shell</strong> - Small but beautiful, just like the cherry blossom shell.
-</p> 
+🐳 <strong>docsh</strong> - Simplifying Docker operations, one command at a time.
+</p>

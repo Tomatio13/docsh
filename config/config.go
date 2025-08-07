@@ -34,13 +34,13 @@ func (c *Config) LoadConfigFile() error {
 	if err != nil {
 		return err
 	}
-	
+
 	// Load YAML config file if exists
 	err = c.LoadYAMLConfig(c.DataPath)
 	if err != nil {
 		return err
 	}
-	
+
 	return nil
 }
 
@@ -50,7 +50,7 @@ func (c *Config) loadTraditionalConfig() error {
 		return err
 	}
 
-	configPath := filepath.Join(homeDir, ".docknautrc")
+	configPath := filepath.Join(homeDir, ".docshrc")
 	file, err := os.Open(configPath)
 	if err != nil {
 		if os.IsNotExist(err) {
@@ -115,7 +115,7 @@ func (c *Config) SaveConfigFile() error {
 		return err
 	}
 
-	configPath := filepath.Join(homeDir, ".docknautrc")
+	configPath := filepath.Join(homeDir, ".docshrc")
 	file, err := os.Create(configPath)
 	if err != nil {
 		return err
@@ -123,8 +123,8 @@ func (c *Config) SaveConfigFile() error {
 	defer file.Close()
 
 	// ヘッダーコメントを追加
-	fmt.Fprintln(file, "# Docknaut Configuration File")
-	fmt.Fprintln(file, "# 🐳 Docknaut - Docker Command Mapping Shell 🐳")
+	fmt.Fprintln(file, "# Docsh Configuration File")
+	fmt.Fprintln(file, "# 🐳 Docsh - Docker Command Mapping Shell 🐳")
 	fmt.Fprintln(file, "")
 
 	// 言語設定を保存

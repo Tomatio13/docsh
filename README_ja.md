@@ -1,4 +1,4 @@
-<h1 align="center">🌸 Cherry Shell - 美しくシンプルなシェル 🌸</h1>
+<h1 align="center">🐳 docsh - Docker Command Mapping Shell</h1>
 
 <p align="center">
     <img src="https://img.shields.io/badge/Go-1.22+-00ADD8?style=for-the-badge&logo=go&logoColor=white" alt="Go">
@@ -12,18 +12,18 @@
 </p>
 
 <p align="center">
-    <img src="assets/cherry-shell-logo.png" alt="Cherry Shell Demo" width="600">
+    <img src="assets/cherry-shell-logo.png" alt="docsh" width="600">
 </p>
 
 <p align="center">
-Cherry Shell は桜貝（Sakura-gai）にちなんで名付けられた美しくシンプルなシェルです。<br>
-小さくても美しく、エレガントなコマンドライン体験を提供します。
+docsh は Docker コマンドを直感的に扱えるようにするマッピングシェルです。<br>
+Docker 操作のエイリアスや補助機能を提供します。
 </p>
 
 ## ✨ 機能
 
 <p align="center">
-    <img src="assets/cherry-shell-demo_ja.png" alt="Cherry Shell Demo" width="600">
+    <img src="assets/cherry-shell-demo_ja.png" alt="docsh Demo" width="600">
 </p>
 
 - **🌸 美しいデザイン**: 桜のテーマを使用したエレガントなプロンプト
@@ -40,16 +40,16 @@ Cherry Shell は桜貝（Sakura-gai）にちなんで名付けられた美しく
 
 最新のリリース版をダウンロード：
 
-[![Latest Release](https://img.shields.io/github/v/release/tomatio13/cherryshell?style=for-the-badge)](https://github.com/your-username/cherryshell/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/your-username/docsh?style=for-the-badge)](https://github.com/your-username/docsh/releases/latest)
 
-> **📥 [リリースページ](https://github.com/your-username/cherryshell/releases)** から最新版をダウンロードしてください
+> **📥 [リリースページ](https://github.com/your-username/docsh/releases)** から最新版をダウンロードしてください
 
 ### 🛠️ ソースからビルド
 
 ```bash
-git clone https://github.com/your-username/cherryshell.git
-cd cherryshell
-go build -o cherrysh main.go
+git clone https://github.com/your-username/docsh.git
+cd docsh
+go build -o docsh main.go
 ```
 
 ## 🚀 使用方法
@@ -57,8 +57,8 @@ go build -o cherrysh main.go
 ### 基本コマンド
 
 ```bash
-# Cherry Shell を起動
-./cherrysh
+# docsh を起動
+./docsh
 
 # 基本的なファイル操作
 ls                    # ディレクトリ内容を表示
@@ -90,27 +90,27 @@ alias ll='ls -la'    # エイリアスを作成
 
 ## 🌐 言語サポート
 
-Cherry Shell は複数の言語をサポートしています。以下の方法で言語を設定できます：
+docsh は複数の言語をサポートしています。以下の方法で言語を設定できます：
 
 ### コマンドラインオプション
 ```bash
-./cherrysh --lang en    # 英語
-./cherrysh --lang ja    # 日本語
+./docsh --lang en    # 英語
+./docsh --lang ja    # 日本語
 ```
 
 ### 環境変数
 ```bash
-export CHERRYSH_LANG=en    # 英語
-export CHERRYSH_LANG=ja    # 日本語
-./cherrysh
+export DOCSH_LANG=en    # 英語
+export DOCSH_LANG=ja    # 日本語
+./docsh
 ```
 
 ### システムロケール
-Cherry Shell は自動的にシステムロケールを検出します。`LANG` 環境変数が `ja_JP.UTF-8` などに設定されている場合、日本語を使用します。
+docsh は自動的にシステムロケールを検出します。`LANG` 環境変数が `ja_JP.UTF-8` などに設定されている場合、日本語を使用します。
 
 ## ⚙️ 設定
 
-Cherry Shell は `~/.cherryshrc` にある設定ファイルを使用します：
+docsh は `~/.docknautrc` にある設定ファイルを使用します：
 
 ```bash
 # テーマ設定
@@ -132,7 +132,7 @@ GITHUB_TOKEN="ghp_your_token_here"
 GITHUB_USER="your_username"
 ```
 
-> 💡 **ヒント**: `.cherryshrc.example` ファイルを参考にして設定をカスタマイズできます。
+> 💡 **ヒント**: `.docknautrc` の例は `config.SaveConfigFile()` が出力する形式を参照してください。
 
 ## 🎨 利用可能なテーマ
 
@@ -153,7 +153,7 @@ GITHUB_USER="your_username"
 
 ```bash
 # 現在のプラットフォーム用にビルド
-go build -o cherrysh main.go
+go build -o docsh main.go
 
 # 全プラットフォーム用にビルド
 ./build.sh
@@ -164,7 +164,7 @@ go test ./...
 
 ### 新しい言語の追加
 
-1. `i18n/messages/<lang>.json` に新しいメッセージファイルを作成
+1. `data/locales/<lang>.yaml` に新しいメッセージファイルを作成
 2. すべてのメッセージキーを翻訳
 3. `i18n/i18n.go` の `GetAvailableLanguages()` に言語コードを追加
 4. 必要に応じて言語検出ロジックを更新
@@ -172,7 +172,7 @@ go test ./...
 ### 📁 プロジェクト構造
 
 ```
-cherryshell/
+docsh/
 ├── main.go              # エントリーポイント
 ├── i18n/                # 国際化
 │   ├── i18n.go         # i18n 管理
@@ -213,7 +213,7 @@ cherryshell/
 ---
 
 <p align="center">
-🌸 <strong>Cherry Shell</strong> - 桜貝のように小さくても美しい。
+🐳 <strong>docsh</strong> - Docker をもっと直感的に。
 </p>
 
 ## GitHub認証設定
@@ -227,7 +227,7 @@ cherryshell/
 3. 適切なスコープを選択（リポジトリアクセスには`repo`スコープが必要）
 4. トークンをコピー
 
-### 2. .cherryshrcファイルの設定
+### 2. .docknautrcファイルの設定
 
 ```bash
 # GitHub認証設定

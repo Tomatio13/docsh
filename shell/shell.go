@@ -22,13 +22,13 @@ import (
 )
 
 type Shell struct {
-	cwd             string
-	config          *config.Config
-	history         []string
-	mappingEngine   engine.MappingEngine
-	commandParser   parser.CommandParser
-	shellExecutor   executor.ShellExecutor
-	dataPath        string
+	cwd           string
+	config        *config.Config
+	history       []string
+	mappingEngine engine.MappingEngine
+	commandParser parser.CommandParser
+	shellExecutor executor.ShellExecutor
+	dataPath      string
 }
 
 func NewShell(cfg *config.Config, dataPath string) *Shell {
@@ -85,7 +85,7 @@ func (s *Shell) Start() error {
 	p := prompt.New(
 		s.executor,
 		s.Completer,
-		prompt.OptionTitle("🐳 Docknaut (Docker-Only)"),
+		prompt.OptionTitle("🐳 Docsh (Docker-Only)"),
 		prompt.OptionHistory(s.history),
 		prompt.OptionLivePrefix(s.getLivePrefix),
 		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
@@ -253,11 +253,11 @@ func (s *Shell) executeCommand(input string) error {
 		if isStreaming {
 			return s.executeStreamingCommandDirectly(parsedCmd)
 		}
-		
+
 		// 通常のコマンド実行
 		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
 		defer cancel()
-		
+
 		result, err := s.shellExecutor.Execute(ctx, parsedCmd)
 		if err != nil {
 			// Docker専用シェルのエラーメッセージを表示
@@ -267,17 +267,17 @@ func (s *Shell) executeCommand(input string) error {
 			fmt.Println(i18n.T("app.docker_only_mapping_help"))
 			return nil
 		}
-		
+
 		// 結果を表示
 		if result.Output != "" {
 			fmt.Print(result.Output)
 		}
-		
+
 		// マッピング情報を表示
 		if result.Mapping != nil {
 			fmt.Printf("✅ %s -> %s\n", result.Mapping.LinuxCommand, result.Mapping.DockerCommand)
 		}
-		
+
 		return nil
 	}
 }
@@ -438,7 +438,7 @@ func (s *Shell) showConfig() {
 	fmt.Printf("\n"+i18n.T("config.total_mappings")+"\n", len(mappings))
 	categories := s.mappingEngine.GetCategories()
 	fmt.Printf(i18n.T("config.available_categories")+"\n", strings.Join(categories, ", "))
-	fmt.Println("\n"+i18n.T("config.linux_commands_disabled"))
+	fmt.Println("\n" + i18n.T("config.linux_commands_disabled"))
 }
 
 // getLivePrefix は動的なプロンプトプレフィックスを返します
@@ -480,7 +480,7 @@ func (s *Shell) handleMappingCommand(args []string) error {
 func (s *Shell) listAllMappings() {
 	fmt.Println(i18n.T("commands.mapping_help"))
 	fmt.Println()
-	
+
 	categories := s.mappingEngine.GetCategories()
 	for _, category := range categories {
 		fmt.Printf("=== %s ===\n", i18n.T("categories."+category))
@@ -588,10 +588,10 @@ func isStreamingCommand(parsedCmd *parser.ParsedCommand) bool {
 		// top は docker stats にマッピングされる（ストリーミング）
 		return true
 	}
-	
+
 	// ParsedCommandをDockerコマンド配列に変換
 	var dockerCmd []string
-	
+
 	// tail -f などのLinuxコマンドをDockerコマンドに変換してチェック
 	if parsedCmd.Command == "tail" {
 		if _, hasF := parsedCmd.Options["f"]; hasF {
@@ -606,7 +606,7 @@ func isStreamingCommand(parsedCmd *parser.ParsedCommand) bool {
 		// その他のコマンドの場合、基本的にストリーミングではない
 		return false
 	}
-	
+
 	// executor packageのisStreamingCommand関数を利用
 	if len(dockerCmd) >= 2 {
 		// docker logs -f のチェック
@@ -617,12 +617,12 @@ func isStreamingCommand(parsedCmd *parser.ParsedCommand) bool {
 				}
 			}
 		}
-		
+
 		// docker attach のチェック
 		if dockerCmd[1] == "attach" {
 			return true
 		}
-		
+
 		// docker exec with interactive/tty flags のチェック
 		if dockerCmd[1] == "exec" {
 			for _, arg := range dockerCmd[2:] {
@@ -631,7 +631,7 @@ func isStreamingCommand(parsedCmd *parser.ParsedCommand) bool {
 				}
 			}
 		}
-		
+
 		// docker stats のチェック (--no-stream がない場合はストリーミング)
 		if dockerCmd[1] == "stats" {
 			for _, arg := range dockerCmd[2:] {
@@ -642,7 +642,7 @@ func isStreamingCommand(parsedCmd *parser.ParsedCommand) bool {
 			return true // デフォルトのdocker statsはストリーミング
 		}
 	}
-	
+
 	return false
 }
 
@@ -691,7 +691,7 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 	// マッピングを解決
 	var dockerCmd []string
 	var mapping *engine.CommandMapping
-	
+
 	if parsedCmd.Command == "tail" && parsedCmd.Options["f"] == "true" {
 		// tail -f をdocker logs -f にマッピング
 		var err error
@@ -708,43 +708,43 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 	} else {
 		return fmt.Errorf("unsupported streaming command: %s", parsedCmd.Command)
 	}
-	
+
 	fmt.Printf("🚀 Executing: %s\n", strings.Join(dockerCmd, " "))
 	if mapping != nil {
 		fmt.Printf("✅ %s -> %s\n", mapping.LinuxCommand, mapping.DockerCommand)
 	}
 	fmt.Println("💡 Press Ctrl+C to stop, or type 'exit' + Enter")
-	
+
 	// コンテキストでgoroutineの協調的終了を制御
 	ctx, cancel := context.WithCancel(context.Background())
 	defer cancel()
-	
+
 	// Dockerコマンドを作成
 	cmd := exec.CommandContext(ctx, dockerCmd[0], dockerCmd[1:]...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setpgid: true,
 	}
-	
+
 	// パイプを作成してstdin/stdout/stderrを制御
 	stdin, err := cmd.StdinPipe()
 	if err != nil {
 		return fmt.Errorf("failed to create stdin pipe: %w", err)
 	}
-	
+
 	cmd.Stdout = os.Stdout
 	cmd.Stderr = os.Stderr
-	
+
 	// コマンドを開始
 	if err := cmd.Start(); err != nil {
 		return fmt.Errorf("failed to start command: %w", err)
 	}
-	
+
 	// 複数の終了監視を並行実行
 	terminationChan := make(chan string, 5)
-	
+
 	// 1. 標準的なシグナル処理
 	go s.watchForSignals(ctx, terminationChan)
-	
+
 	// 2. プロセス完了監視
 	go func() {
 		err := cmd.Wait()
@@ -754,13 +754,13 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 			terminationChan <- "process_completed"
 		}
 	}()
-	
+
 	// 3. 標準入力監視（exit コマンド用）
 	go s.watchForStdinExit(ctx, terminationChan)
-	
+
 	// 4. 緊急時のプロセス監視
 	go s.emergencyProcessMonitor(ctx, cmd, terminationChan)
-	
+
 	// 5. タイムアウト監視（極端に長い場合の保護）
 	go func() {
 		select {
@@ -770,16 +770,16 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 			return
 		}
 	}()
-	
+
 	// 終了理由を待機
 	reason := <-terminationChan
-	
+
 	// 全てのgoroutineを停止
 	cancel()
-	
+
 	// プロセス終了処理
 	s.cleanupProcess(cmd, stdin)
-	
+
 	switch {
 	case strings.HasPrefix(reason, "signal"):
 		fmt.Println("✅ Command stopped by signal")
@@ -802,30 +802,30 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 	case reason == "process_already_exited":
 		fmt.Println("🔍 Command exited")
 	}
-	
+
 	return nil
 }
 
 // watchForSignals は様々な方法でシグナルを監視します
 func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string) {
-	
+
 	// 複数のシグナルチャンネルを作成
 	sigChan1 := make(chan os.Signal, 5)
 	sigChan2 := make(chan os.Signal, 5)
 	sigChan3 := make(chan os.Signal, 5)
-	
+
 	// より多くのシグナルタイプを監視
 	signal.Notify(sigChan1, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
 	signal.Notify(sigChan2, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
 	signal.Notify(sigChan3, syscall.SIGTERM, os.Interrupt, syscall.SIGINT, syscall.SIGKILL)
-	
+
 	// コンテキストキャンセル時のクリーンアップ
 	defer func() {
 		signal.Stop(sigChan1)
 		signal.Stop(sigChan2)
 		signal.Stop(sigChan3)
 	}()
-	
+
 	// 複数の監視goroutineを起動
 	go func() {
 		for {
@@ -838,7 +838,7 @@ func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string
 			}
 		}
 	}()
-	
+
 	go func() {
 		for {
 			select {
@@ -850,7 +850,7 @@ func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string
 			}
 		}
 	}()
-	
+
 	go func() {
 		for {
 			select {
@@ -862,12 +862,12 @@ func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string
 			}
 		}
 	}()
-	
+
 	// キーボード割り込み検出の別アプローチ
 	go func() {
 		ticker := time.NewTicker(50 * time.Millisecond)
 		defer ticker.Stop()
-		
+
 		for {
 			select {
 			case <-ticker.C:
@@ -884,13 +884,13 @@ func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string
 			}
 		}
 	}()
-	
+
 	// 最後の手段：定期的にプロセスの親プロセスをチェック
 	go func() {
 		ticker := time.NewTicker(100 * time.Millisecond)
 		defer ticker.Stop()
 		originalPpid := os.Getppid()
-		
+
 		for {
 			select {
 			case <-ticker.C:
@@ -908,12 +908,12 @@ func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string
 
 // watchForStdinExit は標準入力から exit コマンドを監視します
 func (s *Shell) watchForStdinExit(ctx context.Context, terminationChan chan string) {
-	
+
 	// バッファリングして文字列を組み立て
 	go func() {
 		inputBuffer := ""
 		buffer := make([]byte, 1)
-		
+
 		for {
 			select {
 			case <-ctx.Done():
@@ -925,10 +925,10 @@ func (s *Shell) watchForStdinExit(ctx context.Context, terminationChan chan stri
 					time.Sleep(10 * time.Millisecond) // CPU使用率を下げる
 					continue
 				}
-				
+
 				if n > 0 {
 					char := string(buffer[0])
-					
+
 					// Enterキー（改行）の処理
 					if char == "\n" || char == "\r" {
 						if inputBuffer == "exit" || inputBuffer == "quit" || inputBuffer == "q" {
@@ -955,24 +955,24 @@ func (s *Shell) watchForStdinExit(ctx context.Context, terminationChan chan stri
 func (s *Shell) emergencyProcessMonitor(ctx context.Context, cmd *exec.Cmd, terminationChan chan string) {
 	ticker := time.NewTicker(30 * time.Second) // 30秒間隔に変更
 	defer ticker.Stop()
-	
+
 	emergencyCount := 0
 	for {
 		select {
 		case <-ticker.C:
 			emergencyCount++
-			
+
 			// プロセスがゾンビ化していないかチェック
 			if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
 				terminationChan <- "emergency"
 				return
 			}
-			
+
 			// 1分後に一度だけ代替手段を提示
 			if emergencyCount == 2 { // 1分経過
 				fmt.Println("\n💡 Alternative commands: 'exit', 'stop', or 'kill' + Enter")
 			}
-			
+
 			// 長時間動作している場合の自動終了
 			if emergencyCount >= 10 { // 5分経過
 				terminationChan <- "emergency_auto_terminate"
@@ -991,13 +991,13 @@ func (s *Shell) cleanupProcess(cmd *exec.Cmd, stdin interface{}) {
 			closer.Close()
 		}
 	}
-	
+
 	if cmd.Process == nil {
 		return
 	}
-	
+
 	pid := cmd.Process.Pid
-	
+
 	// 段階的終了
 	steps := []struct {
 		name   string
@@ -1007,12 +1007,12 @@ func (s *Shell) cleanupProcess(cmd *exec.Cmd, stdin interface{}) {
 		{"SIGTERM to process group", syscall.SIGTERM, 200 * time.Millisecond},
 		{"SIGKILL to process group", syscall.SIGKILL, 100 * time.Millisecond},
 	}
-	
+
 	for _, step := range steps {
 		if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
 			break
 		}
-		
+
 		// プロセスグループに送信
 		if err := syscall.Kill(-pid, step.signal.(syscall.Signal)); err != nil {
 			// 個別プロセスに送信
@@ -1022,8 +1022,7 @@ func (s *Shell) cleanupProcess(cmd *exec.Cmd, stdin interface{}) {
 				cmd.Process.Signal(step.signal)
 			}
 		}
-		
+
 		time.Sleep(step.wait)
 	}
 }
-

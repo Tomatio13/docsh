@@ -1,10 +1,10 @@
 messages:
-  welcome: "🐳 Welcome to Docknaut - Docker Command Mapping Shell"
+  welcome: "🐳 Welcome to Docsh - Docker Command Mapping Shell"
   command_not_found: "Command not found: %s"
   mapping_found: "Mapping found: %s -> %s"
   executing_command: "Executing command: %s"
   docker_not_available: "Docker is not available. Please ensure Docker daemon is running"
-  goodbye: "👋 Thank you for using Docknaut"
+  goodbye: "👋 Thank you for using Docsh"
   error: "Error: %s"
   success: "Success: %s"
   warning: "Warning: %s"
@@ -27,9 +27,9 @@ categories:
   container-management: "Container Management"
 
 commands:
-  help_title: "🐳 Docknaut Help"
-  help_description: "Welcome to Docknaut Docker Command Mapping Shell. It converts Linux commands to Docker commands."
-  docker_only_help_title: "🐳 Docknaut - Docker-Only Command Shell"
+  help_title: "🐳 Docsh Help"
+  help_description: "Welcome to Docsh Docker Command Mapping Shell. It converts Linux commands to Docker commands."
+  docker_only_help_title: "🐳 Docsh - Docker-Only Command Shell"
   docker_only_help_description: "A specialized shell for Docker operations with Linux command mappings."
   
   # Mapping commands
@@ -69,7 +69,7 @@ config:
   parse_error: "Line %d: Configuration parse error: %s"
   unknown_command: "Unknown configuration command: %s"
   usage: "Usage: config [show|set <key> <value>]"
-  show_header: "🐳 Docknaut Configuration"
+  show_header: "🐳 Docsh Configuration"
   show_theme: "Theme: %s"
   show_language: "Language: %s"
   show_github_user: "GitHub User: %s"
@@ -118,7 +118,7 @@ git:
   pull_completed: "Pull completed"
   cloning_repository: "Cloning repository: %s -> %s"
   clone_completed: "Clone completed: %s"
-  help_title: "🐳 Docknaut Git Commands"
+  help_title: "🐳 Docsh Git Commands"
   help_status: "  git status                       Show working directory status"
   help_add: "  git add <file>                   Add file to staging area"
   help_commit: "  git commit -m \"message\"        Create commit"
@@ -139,24 +139,24 @@ windows:
 shell:
   config_load_warning: "Configuration file load warning: %s"
   runtime_separator: "=================================="
-  runtime_info: "🐳 Docknaut Runtime Information"
+  runtime_info: "🐳 Docsh Runtime Information"
   runtime_os: "OS: %s"
   runtime_arch: "Architecture: %s"
 
 app:
-  title: "🐳 Docknaut - Docker Command Mapping Shell"
+  title: "🐳 Docsh - Docker Command Mapping Shell"
   description: "A convenient shell that converts Linux commands to Docker commands"
   exit_instruction: "Type 'exit' to quit"
-  welcome: "🐳 Welcome to Docknaut! Docker Command Mapping Shell.\nType 'help' for help, 'exit' to quit.\n"
-  goodbye: "👋 Thank you for using Docknaut!"
+  welcome: "🐳 Welcome to Docsh! Docker Command Mapping Shell.\nType 'help' for help, 'exit' to quit.\n"
+  goodbye: "👋 Thank you for using Docsh!"
   error: "❌ Error: %s"
-  docker_only_welcome: "🐳 Welcome to Docknaut! Docker-Only Command Shell.\nType 'help' for available commands, 'exit' to quit."
+  docker_only_welcome: "🐳 Welcome to Docsh! Docker-Only Command Shell.\nType 'help' for available commands, 'exit' to quit."
   docker_only_mode: "Docker-Only Mode"
   docker_only_error: "Command '%s' is not supported in Docker-only mode. Use 'mapping search %s' to find available Docker commands."
   docker_only_available_commands: "🐳 This is a Docker-only shell. Available commands:"
   docker_only_commands_list: "   - Docker commands: docker ps, docker run, docker exec, etc.\n   - Mapped commands: ls, ps, kill, rm, tail, cp, etc.\n   - Built-in commands: help, mapping, alias, theme, config, exit"
   docker_only_mapping_help: "   Use 'mapping list' to see all available command mappings."
-  docker_only_version: "🐳 Docknaut version 1.0.0 (Docker-Only Mode)"
+  docker_only_version: "🐳 Docsh version 1.0.0 (Docker-Only Mode)"
 
 mappings:
   not_found: "Mapping not found: %s"

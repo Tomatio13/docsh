@@ -1,10 +1,10 @@
 messages:
-  welcome: "🐳 Docknaut へようこそ - Docker コマンドマッピングシェル"
+  welcome: "🐳 Docsh へようこそ - Docker コマンドマッピングシェル"
   command_not_found: "コマンドが見つかりません: %s"
   mapping_found: "マッピングが見つかりました: %s -> %s"
   executing_command: "コマンドを実行中: %s"
   docker_not_available: "Dockerが利用できません。Dockerデーモンが起動していることを確認してください"
-  goodbye: "👋 Docknaut をご利用いただき、ありがとうございました"
+  goodbye: "👋 Docsh をご利用いただき、ありがとうございました"
   error: "エラー: %s"
   success: "成功: %s"
   warning: "警告: %s"
@@ -27,9 +27,9 @@ categories:
   container-management: "コンテナ管理"
 
 commands:
-  help_title: "🐳 Docknaut ヘルプ"
+  help_title: "🐳 Docsh ヘルプ"
   help_description: "Docker コマンドマッピングシェルへようこそ。LinuxコマンドをDockerコマンドに変換します。"
-  docker_only_help_title: "🐳 Docknaut - Docker専用コマンドシェル"
+  docker_only_help_title: "🐳 Docsh - Docker専用コマンドシェル"
   docker_only_help_description: "Docker操作に特化したLinuxコマンドマッピング機能付きシェルです。"
   
   # Mapping commands
@@ -69,7 +69,7 @@ config:
   parse_error: "行 %d: 設定の解析エラー: %s"
   unknown_command: "不明な設定コマンド: %s"
   usage: "使用方法: config [show|set <key> <value>]"
-  show_header: "🐳 Docknaut 設定情報"
+  show_header: "🐳 Docsh 設定情報"
   show_theme: "テーマ: %s"
   show_language: "言語: %s"
   show_github_user: "GitHub ユーザー: %s"
@@ -118,7 +118,7 @@ git:
   pull_completed: "プルが完了しました"
   cloning_repository: "リポジトリをクローンしています: %s -> %s"
   clone_completed: "クローンが完了しました: %s"
-  help_title: "🐳 Docknaut Git コマンド"
+  help_title: "🐳 Docsh Git コマンド"
   help_status: "  git status                       作業ディレクトリの状態を表示"
   help_add: "  git add <file>                   ファイルをステージングエリアに追加"
   help_commit: "  git commit -m \"message\"        コミットを作成"
@@ -139,24 +139,24 @@ windows:
 shell:
   config_load_warning: "設定ファイルの読み込みで警告: %s"
   runtime_separator: "=================================="
-  runtime_info: "🐳 Docknaut ランタイム情報"
+  runtime_info: "🐳 Docsh ランタイム情報"
   runtime_os: "OS: %s"
   runtime_arch: "アーキテクチャ: %s"
 
 app:
-  title: "🐳 Docknaut - Docker コマンドマッピングシェル"
+  title: "🐳 Docsh - Docker コマンドマッピングシェル"
   description: "LinuxコマンドをDockerコマンドに変換する便利なシェルです"
   exit_instruction: "終了するには 'exit' と入力してください"
-  welcome: "🐳 Docknaut へようこそ！Docker コマンドマッピングシェルです。\n'help' でヘルプを表示、'exit' で終了します。\n"
-  goodbye: "👋 Docknaut をご利用いただき、ありがとうございました！"
+  welcome: "🐳 Docsh へようこそ！Docker コマンドマッピングシェルです。\n'help' でヘルプを表示、'exit' で終了します。\n"
+  goodbye: "👋 Docsh をご利用いただき、ありがとうございました！"
   error: "❌ エラー: %s"
-  docker_only_welcome: "🐳 Docknaut へようこそ！Docker専用コマンドシェルです。\n'help' でヘルプを表示、'exit' で終了します。"
+  docker_only_welcome: "🐳 Docsh へようこそ！Docker専用コマンドシェルです。\n'help' でヘルプを表示、'exit' で終了します。"
   docker_only_mode: "Docker専用モード"
   docker_only_error: "コマンド '%s' はDocker専用モードではサポートされていません。'mapping search %s' で利用可能なDockerコマンドを確認してください。"
   docker_only_available_commands: "🐳 これはDocker専用シェルです。利用可能なコマンド:"
   docker_only_commands_list: "   - Dockerコマンド: docker ps, docker run, docker exec, etc.\n   - マッピングコマンド: ls, ps, kill, rm, tail, cp, etc.\n   - 内蔵コマンド: help, mapping, alias, theme, config, exit"
   docker_only_mapping_help: "   'mapping list' で利用可能なコマンドマッピングを確認してください。"
-  docker_only_version: "🐳 Docknaut version 1.0.0 (Docker専用モード)"
+  docker_only_version: "🐳 Docsh version 1.0.0 (Docker専用モード)"
 
 mappings:
   not_found: "マッピングが見つかりません: %s"

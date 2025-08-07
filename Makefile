@@ -1,6 +1,6 @@
-# Go-Zsh Makefile
+# docsh Makefile
 
-APP_NAME = go-zsh
+APP_NAME = docsh
 VERSION = 1.0.0
 BUILD_FLAGS = -ldflags="-s -w -X main.version=$(VERSION)"
 
@@ -75,12 +75,12 @@ dev: test local
 
 # バージョン情報表示
 version:
-	@echo "Go-Zsh version: $(VERSION)"
+    @echo "docsh version: $(VERSION)"
 	@go version
 
 # ヘルプ
 help:
-	@echo "Go-Zsh Build System"
+    @echo "docsh Build System"
 	@echo ""
 	@echo "Usage:"
 	@echo "  make [target]"
