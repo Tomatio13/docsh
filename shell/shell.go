@@ -17,6 +17,7 @@ import (
 	"docknaut/internal/executor"
 	"docknaut/internal/parser"
 	"docknaut/themes"
+	"docknaut/tui"
 
 	"github.com/c-bata/go-prompt"
 )
@@ -167,6 +168,8 @@ func (s *Shell) executeCommand(input string) error {
 
 	// Docker専用シェルの内蔵コマンドのみ処理
 	switch command {
+	case "cd":
+		return s.changeDirectory(args)
 	case "pwd":
 		fmt.Println(s.getCurrentDir())
 		return nil
@@ -196,6 +199,14 @@ func (s *Shell) executeCommand(input string) error {
 	case "version":
 		fmt.Println(i18n.T("app.docker_only_version"))
 		return nil
+	case "htop":
+		// Bubble Tea ベースのTUIモニターを起動
+		return s.launchContainerMonitor()
+	case "login":
+		if len(args) == 0 {
+			return fmt.Errorf(i18n.T("docker.container_name_required"))
+		}
+		return s.enterContainer(args[0])
 	case "clear", "cls":
 		fmt.Print("\033[2J\033[H")
 		return nil
@@ -286,6 +297,21 @@ func (s *Shell) executeCommand(input string) error {
 
 		return nil
 	}
+}
+
+// launchContainerMonitor は TUI のコンテナモニターを起動
+func (s *Shell) launchContainerMonitor() error {
+	// 依存: docker が必要
+	if !s.shellExecutor.IsDockerAvailable() {
+		return fmt.Errorf(i18n.T("docker.not_available"))
+	}
+
+	// TUI 実行
+	program := tui.NewMonitorProgram()
+	if err := program(); err != nil {
+		return fmt.Errorf("monitor ui error: %w", err)
+	}
+	return nil
 }
 
 func (s *Shell) handleAliasCommand(args []string) error {
@@ -632,7 +658,7 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.examples_kill"))
 	fmt.Println(i18n.T("commands.examples_rm"))
 	fmt.Println(i18n.T("commands.examples_tail"))
-	fmt.Println(i18n.T("commands.examples_cd"))
+	fmt.Println(i18n.T("commands.examples_login"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_docker_commands_title"))
 	fmt.Println(i18n.T("commands.docker_commands_note"))
@@ -642,6 +668,7 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.lifecycle_start"))
 	fmt.Println(i18n.T("commands.lifecycle_stop"))
 	fmt.Println(i18n.T("commands.lifecycle_exec"))
+	fmt.Println(i18n.T("commands.lifecycle_login"))
 	fmt.Println(i18n.T("commands.lifecycle_rm"))
 	fmt.Println(i18n.T("commands.lifecycle_rmi"))
 	fmt.Println()

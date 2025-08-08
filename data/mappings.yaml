@@ -197,31 +197,18 @@ mappings:
       en: "Move/rename files"
       ja: "ファイル移動/名前変更"
 
-  - id: "cd-docker-exec-bash"
-    linux_command: "cd"
+  - id: "login-docker-exec-bash"
+    linux_command: "login"
     docker_command: "docker exec -it"
-    category: "file-operations"
-    description: "ディレクトリ変更/コンテナ内に入る"
-    linux_example: "cd /path/to/dir"
+    category: "container-management"
+    description: "コンテナにログイン (/bin/bash)"
+    linux_example: "login container_name"
     docker_example: "docker exec -it container_name /bin/bash"
     notes:
-      - "コンテナ名を指定した場合は自動的にdocker execを実行"
-      - "通常のディレクトリ名の場合は従来通りcdコマンドを実行"
-      - "コンテナが実行中でない場合はエラーを表示"
-    warnings:
-      - "コンテナが存在しない場合は通常のディレクトリとして扱われます"
+      - "実行中のコンテナに /bin/bash でログイン。利用不可の場合 /bin/sh や /bin/ash を試行"
     localized_description:
-      en: "Change directory/enter container"
-      ja: "ディレクトリ変更/コンテナ内に入る"
-    localized_notes:
-      en:
-        - "Automatically executes docker exec when container name is specified"
-        - "Executes normal cd command for regular directory names"
-        - "Shows error if container is not running"
-      ja:
-        - "コンテナ名を指定した場合は自動的にdocker execを実行"
-        - "通常のディレクトリ名の場合は従来通りcdコマンドを実行"
-        - "コンテナが実行中でない場合はエラーを表示"
+      en: "Login to container (/bin/bash)"
+      ja: "コンテナにログイン (/bin/bash)"
 
 
   - id: "df-docker-system-df"

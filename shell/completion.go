@@ -58,7 +58,10 @@ func (s *Shell) Completer(d prompt.Document) []prompt.Suggest {
 
 	switch command {
 	case "cd":
-		// Docker専用シェルでは cd はコンテナへのログイン
+		// 一般的なディレクトリ変更
+		return s.completeDirectories(currentArg)
+	case "login":
+		// login はコンテナへのログイン
 		return s.completeDockerContainers(currentArg, true) // 実行中のコンテナのみ
 	case "cat", "cp", "mv":
 		return s.completeFiles(currentArg)
@@ -130,6 +133,7 @@ func (s *Shell) completeCommands(prefix string) []prompt.Suggest {
 	suggests := []prompt.Suggest{
 		// 内蔵コマンド
 		{Text: "cd", Description: i18n.T("completion.descriptions.cd")},
+		{Text: "login", Description: i18n.T("completion.descriptions.login")},
 		{Text: "pwd", Description: i18n.T("completion.descriptions.pwd")},
 		{Text: "ls", Description: i18n.T("completion.descriptions.ls")},
 		{Text: "cat", Description: i18n.T("completion.descriptions.cat")},
