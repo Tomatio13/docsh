@@ -11,7 +11,7 @@
     <a href="README_ja.md"><img src="https://img.shields.io/badge/ドキュメント-日本語-white.svg" alt="JA doc"/></a>
 </p>
 
-**docsh** is a Docker command mapping shell that simplifies Docker operations by providing intuitive command mappings and an interactive shell environment. Formerly known as "docknaut", this tool helps you manage Docker containers and images more efficiently.
+**docsh** is a Docker command mapping shell that simplifies Docker operations by providing intuitive command mappings and an interactive shell environment.
 
 ## ✨ Features
 
@@ -19,7 +19,7 @@
 - **🌍 Cross-platform**: Works on Windows, macOS, and Linux
 - **⚡ Interactive Shell**: Built-in interactive command-line interface
 - **🔧 Configurable**: YAML-based configuration with extensive customization
-- **🔗 Alias Support**: Create custom command shortcuts
+- **🔗 Alias Support**: Create custom command shortcuts via `.docshrc` or YAML
 - **🌐 Internationalization**: English and Japanese language support
 - **📜 Command History**: Persistent command history
 - **🎨 Customizable Prompts**: Personalize your shell experience
@@ -60,66 +60,61 @@ Or use the build script for all platforms:
 ### Direct Command Execution
 
 ```bash
-# Execute commands directly
-./docsh ps                    # Docker ps
-./docsh images               # Docker images
-./docsh run nginx           # Docker run nginx
+# Execute commands directly (Linux-like → Docker mapping)
+./docsh ls                   # mapped to: docker ps
+./docsh kill myapp           # mapped to: docker stop myapp
+./docsh rm myapp             # mapped to: docker rm myapp
+
+# Or pass a Docker command explicitly
+./docsh "docker ps"
+./docsh "docker images"
 ```
 
-### Basic Docker Commands
+### Common Operations (inside interactive shell)
 
 ```bash
-# Container management
-ps                          # List running containers
-psa                         # List all containers
-images                      # List images
-logs <container>            # Show container logs
-exec <container> <command>  # Execute command in container
-stop <container>            # Stop container
-rm <container>             # Remove container
-rmi <image>                # Remove image
-
-# System commands
-system prune               # Clean up unused resources
-network ls                 # List networks
-volume ls                  # List volumes
+# Container management (mapped/built-in)
+ps                           # docker ps
+logs <container>             # docker logs <container>
+exec <container> <command>   # docker exec <container> <command>
+stop <container>             # docker stop <container>
+rm <container>               # docker rm <container>
+rmi <image>                  # docker rmi <image>
 ```
 
-### Built-in Aliases
+### Aliases
+
+Aliases can be defined in YAML (`data/config.yaml`) or in your `~/.docshrc`.
+
+YAML example (shipped config):
+
+```yaml
+aliases:
+  dps: "docker ps"
+  dpa: "docker ps -a"
+  di: "docker images"
+```
+
+`.docshrc` example (user overrides):
 
 ```bash
-# Standard aliases
-ll                         # ls -la
-la                         # ls -a
-h                          # history
-
-# Docker aliases
-dps                        # docker ps
-dpa                        # docker ps -a
-di                         # docker images
-dlog                       # docker logs
-dlogf                      # docker logs -f
+alias dps="docker ps"
+alias dpa="docker ps -a"
+alias di="docker images"
 ```
 
 ## 🌐 Language Support
+Language is configured via your user config file only:
 
-docsh supports multiple languages with automatic detection:
-
-### Command Line Options
 ```bash
-./docsh --lang en          # English
-./docsh --lang ja          # Japanese
+# ~/.docshrc
+LANG="en"   # or "ja"
 ```
 
-### Environment Variables
-```bash
-export DOCSH_LANG=en       # English
-export DOCSH_LANG=ja       # Japanese
-./docsh
-```
+After editing `~/.docshrc`, restart `docsh` to apply the change.
 
-### System Locale
-docsh automatically detects your system locale. If `LANG` environment variable is set to `ja_JP.UTF-8` or similar, it will use Japanese.
+Note: In the current version, command-line flags like `--lang` and environment
+variables (e.g., `DOCSH_LANG`) are not used when `LANG` is set in `~/.docshrc`.
 
 ## ⚙️ Configuration
 
@@ -173,22 +168,24 @@ aliases:
   di: "docker images"
 ```
 
-### User Configuration
+### ~/.docshrc sample
 
-You can also use a traditional configuration file at `~/.docknautrc`:
+`docsh` reads user settings from `~/.docshrc` (if present). Example:
 
 ```bash
-# Language setting
+# Language (en or ja)
 LANG="en"
 
-# GitHub authentication (for git operations)
-GITHUB_TOKEN="ghp_your_token_here"
-GITHUB_USER="your_username"
+# Theme (optional)
+THEME="default"
 
-# Custom aliases
-alias ll="ls -la"
-alias la="ls -la"
-alias myapp="docker run -d myapp:latest"
+# Aliases (optional)
+alias dps="docker ps"
+alias dpa="docker ps -a"
+alias di="docker images"
+
+# Example: quick-run helper
+alias myapp="docker run -d --name myapp nginx:latest"
 ```
 
 ## 🛠️ Development
@@ -234,7 +231,8 @@ docsh/
 │   ├── mappings.yaml      # Docker command mappings
 │   └── locales/           # Translation files
 └── themes/                 # Theme system
-    └── theme.go           # Theme definitions
+    ├── theme.go           # Prompt themes
+    └── banner.go          # Startup banners
 ```
 
 ## 🌍 Supported Languages

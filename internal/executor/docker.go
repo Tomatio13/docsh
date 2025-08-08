@@ -138,7 +138,21 @@ func (executor *DefaultShellExecutor) ExecuteWithMappingAndOptions(ctx context.C
 
 	// Add options first (they usually come before positional arguments)
 	if options != nil {
-		for key, value := range options {
+		// Filter options depending on mapping to avoid passing unsupported flags
+		filtered := options
+		if mapping.LinuxCommand == "ls" && strings.HasPrefix(mapping.DockerCommand, "docker images") {
+			// docker images supports -a, -q, --filter, --digests, etc. Ignore -l from `ls -l`
+			allowedShort := map[string]bool{"a": true, "q": true}
+			allowedLong := map[string]bool{"all": true, "quiet": true, "filter": true, "digests": true, "format": true}
+			filtered = make(map[string]string, len(options))
+			for k, v := range options {
+				if (len(k) == 1 && allowedShort[k]) || (len(k) > 1 && allowedLong[k]) {
+					filtered[k] = v
+				}
+			}
+		}
+
+		for key, value := range filtered {
 			if value == "true" {
 				// Boolean flag option
 				if len(key) == 1 {
@@ -349,14 +363,14 @@ func (executor *DefaultShellExecutor) handleMappingCommand(args []string) (strin
 		if len(args) > 1 {
 			return executor.searchMappings(strings.Join(args[1:], " "))
 		}
-		return "", fmt.Errorf("search requires a query")
+		return "", fmt.Errorf(i18n.T("mapping.search_requires_query"))
 	case "show":
 		if len(args) > 1 {
 			return executor.showMapping(args[1])
 		}
-		return "", fmt.Errorf("show requires a command name")
+		return "", fmt.Errorf(i18n.T("mapping.show_requires_command"))
 	default:
-		return "", fmt.Errorf("unknown mapping command: %s", args[0])
+		return "", fmt.Errorf(i18n.T("mapping.unknown_command")+": %s", args[0])
 	}
 }
 
@@ -364,11 +378,11 @@ func (executor *DefaultShellExecutor) handleMappingCommand(args []string) (strin
 func (executor *DefaultShellExecutor) listAllMappings() string {
 	var output strings.Builder
 
-	output.WriteString("Available Command Mappings:\n\n")
+	output.WriteString(i18n.T("commands.docker_only_mappings_title") + "\n\n")
 
 	categories := executor.mappingEngine.GetCategories()
 	for _, category := range categories {
-		output.WriteString(fmt.Sprintf("=== %s ===\n", strings.ToUpper(category)))
+		output.WriteString(fmt.Sprintf("=== %s ===\n", i18n.T("categories."+category)))
 		categoryMappings, _ := executor.mappingEngine.ListByCategory(category)
 		for _, mapping := range categoryMappings {
 			output.WriteString(fmt.Sprintf("  %s -> %s\n", mapping.LinuxCommand, mapping.DockerCommand))
@@ -388,16 +402,16 @@ func (executor *DefaultShellExecutor) listMappingsByCategory(category string) (s
 	}
 
 	if len(mappings) == 0 {
-		return fmt.Sprintf("No mappings found for category: %s", category), nil
+		return fmt.Sprintf(i18n.T("mappings.category_not_found"), category), nil
 	}
 
 	var output strings.Builder
-	output.WriteString(fmt.Sprintf("Mappings for category '%s':\n\n", category))
+	output.WriteString(fmt.Sprintf(i18n.T("commands.mapping_list")+" '%s':\n\n", i18n.T("categories."+category)))
 
 	for _, mapping := range mappings {
 		output.WriteString(fmt.Sprintf("%s -> %s\n", mapping.LinuxCommand, mapping.DockerCommand))
-		output.WriteString(fmt.Sprintf("  Description: %s\n", mapping.Description))
-		output.WriteString(fmt.Sprintf("  Example: %s\n", mapping.DockerExample))
+		output.WriteString(fmt.Sprintf("  %s: %s\n", i18n.T("help.description"), mapping.Description))
+		output.WriteString(fmt.Sprintf("  %s: %s\n", i18n.T("examples.basic_usage"), mapping.DockerExample))
 		if len(mapping.Notes) > 0 {
 			output.WriteString(fmt.Sprintf("  Notes: %s\n", strings.Join(mapping.Notes, ", ")))
 		}
@@ -415,15 +429,15 @@ func (executor *DefaultShellExecutor) searchMappings(query string) (string, erro
 	}
 
 	if len(mappings) == 0 {
-		return fmt.Sprintf("No mappings found for query: %s", query), nil
+		return fmt.Sprintf(i18n.T("mappings.search_no_results"), query), nil
 	}
 
 	var output strings.Builder
-	output.WriteString(fmt.Sprintf("Search results for '%s':\n\n", query))
+	output.WriteString(fmt.Sprintf(i18n.T("commands.mapping_search")+": '%s'\n\n", query))
 
 	for _, mapping := range mappings {
 		output.WriteString(fmt.Sprintf("%s -> %s\n", mapping.LinuxCommand, mapping.DockerCommand))
-		output.WriteString(fmt.Sprintf("  Category: %s\n", mapping.Category))
+		output.WriteString(fmt.Sprintf("  %s: %s\n", i18n.T("categories.container-management"), i18n.T("categories."+mapping.Category)))
 		output.WriteString(fmt.Sprintf("  Description: %s\n", mapping.Description))
 		output.WriteString("\n")
 	}
@@ -437,28 +451,28 @@ func (executor *DefaultShellExecutor) showMapping(command string) (string, error
 	if err != nil {
 		mapping, err = executor.mappingEngine.FindByDockerCommand(command)
 		if err != nil {
-			return "", fmt.Errorf("no mapping found for command: %s", command)
+			return "", fmt.Errorf(i18n.T("mappings.not_found"), command)
 		}
 	}
 
 	var output strings.Builder
-	output.WriteString(fmt.Sprintf("Mapping Details for '%s':\n\n", command))
-	output.WriteString(fmt.Sprintf("Linux Command: %s\n", mapping.LinuxCommand))
-	output.WriteString(fmt.Sprintf("Docker Command: %s\n", mapping.DockerCommand))
-	output.WriteString(fmt.Sprintf("Category: %s\n", mapping.Category))
-	output.WriteString(fmt.Sprintf("Description: %s\n", mapping.Description))
-	output.WriteString(fmt.Sprintf("Linux Example: %s\n", mapping.LinuxExample))
-	output.WriteString(fmt.Sprintf("Docker Example: %s\n", mapping.DockerExample))
+	output.WriteString(fmt.Sprintf(i18n.T("commands.mapping_show")+": '%s'\n\n", command))
+	output.WriteString(fmt.Sprintf("Linux: %s\n", mapping.LinuxCommand))
+	output.WriteString(fmt.Sprintf("Docker: %s\n", mapping.DockerCommand))
+	output.WriteString(fmt.Sprintf("%s: %s\n", i18n.T("categories.container-management"), i18n.T("categories."+mapping.Category)))
+	output.WriteString(fmt.Sprintf("%s: %s\n", i18n.T("help.description"), mapping.Description))
+	output.WriteString(fmt.Sprintf("Linux: %s\n", mapping.LinuxExample))
+	output.WriteString(fmt.Sprintf("Docker: %s\n", mapping.DockerExample))
 
 	if len(mapping.Notes) > 0 {
-		output.WriteString("\nNotes:\n")
+		output.WriteString("\n" + i18n.T("help.notes") + ":\n")
 		for _, note := range mapping.Notes {
 			output.WriteString(fmt.Sprintf("  - %s\n", note))
 		}
 	}
 
 	if len(mapping.Warnings) > 0 {
-		output.WriteString("\nWarnings:\n")
+		output.WriteString("\n" + i18n.T("help.warnings") + ":\n")
 		for _, warning := range mapping.Warnings {
 			output.WriteString(fmt.Sprintf("  ⚠️  %s\n", warning))
 		}
@@ -469,24 +483,23 @@ func (executor *DefaultShellExecutor) showMapping(command string) (string, error
 
 // getHelpText returns help text for the shell
 func (executor *DefaultShellExecutor) getHelpText() string {
-	return `Docknaut - Docker Command Mapping Shell
-
-Available commands:
-  help                    Show this help message
-  version                 Show version information
-  mapping [list|search|show] <args>  Manage command mappings
-  exit                    Exit the shell
-
-Command mapping examples:
-  ls                      -> docker ps
-  ps                      -> docker ps
-  kill <container>        -> docker stop <container>
-  rm <container>          -> docker rm <container>
-  tail -f <container>     -> docker logs -f <container>
-
-For more information about specific mappings, use:
-  mapping show <command>
-`
+	var b strings.Builder
+	b.WriteString(i18n.T("commands.help_title") + "\n\n")
+	b.WriteString(i18n.T("commands.help_description") + "\n\n")
+	b.WriteString(i18n.T("help.usage") + ":\n")
+	b.WriteString("  help\n")
+	b.WriteString("  version\n")
+	b.WriteString("  mapping [list|search|show] <args>\n")
+	b.WriteString("  exit\n\n")
+	b.WriteString(i18n.T("commands.examples_header") + ":\n")
+	b.WriteString(i18n.T("commands.examples_ls") + "\n")
+	b.WriteString(i18n.T("commands.examples_ps") + "\n")
+	b.WriteString(i18n.T("commands.examples_kill") + "\n")
+	b.WriteString(i18n.T("commands.examples_rm") + "\n")
+	b.WriteString(i18n.T("commands.examples_tail") + "\n\n")
+	b.WriteString(i18n.T("commands.docker_only_more_info_title") + "\n")
+	b.WriteString("  mapping show <command>\n")
+	return b.String()
 }
 
 // executeStreamingCommand executes streaming commands like docker logs -f with real-time output

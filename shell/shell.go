@@ -626,27 +626,27 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.docker_only_help_description"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_mappings_title"))
-	fmt.Println(i18n.T("help.examples"))
-	fmt.Println("  ls          -> docker ps")
-	fmt.Println("  ps          -> docker ps")
-	fmt.Println("  kill <name> -> docker stop <name>")
-	fmt.Println("  rm <name>   -> docker rm <name>")
-	fmt.Println("  tail -f <name> -> docker logs -f <name>")
-	fmt.Println("  cd <container> -> docker exec -it <container> /bin/bash")
+	fmt.Println(i18n.T("commands.examples_header"))
+	fmt.Println(i18n.T("commands.examples_ls"))
+	fmt.Println(i18n.T("commands.examples_ps"))
+	fmt.Println(i18n.T("commands.examples_kill"))
+	fmt.Println(i18n.T("commands.examples_rm"))
+	fmt.Println(i18n.T("commands.examples_tail"))
+	fmt.Println(i18n.T("commands.examples_cd"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_docker_commands_title"))
-	fmt.Println("  docker ps, docker run, docker exec, docker logs, etc.")
+	fmt.Println(i18n.T("commands.docker_commands_note"))
 	fmt.Println()
-	fmt.Println("🐳 " + i18n.T("categories.container-management"))
-	fmt.Println("  pull <image>            " + i18n.T("docker.pull_image", "<image>"))
-	fmt.Println("  start <container>       " + i18n.T("docker.start_container", "<container>"))
-	fmt.Println("  stop <container>        " + i18n.T("docker.stop_container", "<container>"))
-	fmt.Println("  exec <container> <cmd>  " + i18n.T("docker.exec_command", "<container>", "<cmd>"))
-	fmt.Println("  rm [--force] <container> Remove container")
-	fmt.Println("  rmi [--force] <image>   Remove image")
+	fmt.Println(i18n.T("commands.lifecycle_header"))
+	fmt.Println(i18n.T("commands.lifecycle_pull"))
+	fmt.Println(i18n.T("commands.lifecycle_start"))
+	fmt.Println(i18n.T("commands.lifecycle_stop"))
+	fmt.Println(i18n.T("commands.lifecycle_exec"))
+	fmt.Println(i18n.T("commands.lifecycle_rm"))
+	fmt.Println(i18n.T("commands.lifecycle_rmi"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_builtin_commands_title"))
-	fmt.Println("  help                    " + i18n.T("commands.help_title"))
+	fmt.Println("  help                    " + i18n.T("help.usage"))
 	fmt.Println("  mapping [list|search|show] " + i18n.T("commands.mapping_help"))
 	fmt.Println("  alias <name>=<command>  " + i18n.T("commands.alias_help"))
 	fmt.Println("  theme [name]            " + i18n.T("commands.theme_help"))
@@ -684,11 +684,11 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 		return fmt.Errorf("unsupported streaming command: %s", parsedCmd.Command)
 	}
 
-	fmt.Printf("🚀 Executing: %s\n", strings.Join(dockerCmd, " "))
+	fmt.Printf(i18n.T("app.executing")+"\n", strings.Join(dockerCmd, " "))
 	if mapping != nil {
-		fmt.Printf("✅ %s -> %s\n", mapping.LinuxCommand, mapping.DockerCommand)
+		fmt.Printf(i18n.T("app.mapping_applied")+"\n", mapping.LinuxCommand, mapping.DockerCommand)
 	}
-	fmt.Println("💡 Press Ctrl+C to stop, or type 'exit' + Enter")
+	fmt.Println(i18n.T("app.stream_stop_tip"))
 
 	// コンテキストでgoroutineの協調的終了を制御
 	ctx, cancel := context.WithCancel(context.Background())
@@ -757,25 +757,25 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 
 	switch {
 	case strings.HasPrefix(reason, "signal"):
-		fmt.Println("✅ Command stopped by signal")
+		fmt.Println(i18n.T("app.command_stopped_signal"))
 	case reason == "stdin_exit":
-		fmt.Println("✅ Command stopped")
+		fmt.Println(i18n.T("app.command_stopped"))
 	case reason == "stdin_force_kill":
-		fmt.Println("💀 Command force killed")
+		fmt.Println(i18n.T("app.command_force_killed"))
 	case reason == "stdin_stop":
-		fmt.Println("🛑 Command stopped")
+		fmt.Println(i18n.T("app.command_stopped_manual"))
 	case reason == "process_completed":
-		fmt.Println("🏁 Command completed")
+		fmt.Println(i18n.T("app.command_completed"))
 	case strings.HasPrefix(reason, "process_error"):
-		fmt.Printf("❌ Command failed: %s\n", strings.TrimPrefix(reason, "process_error:"))
+		fmt.Printf(i18n.T("app.command_failed_reason")+"\n", strings.TrimPrefix(reason, "process_error:"))
 	case reason == "timeout":
-		fmt.Println("⏰ Command timed out")
+		fmt.Println(i18n.T("app.command_timed_out"))
 	case reason == "emergency":
-		fmt.Println("🚨 Command stopped")
+		fmt.Println(i18n.T("app.command_stopped_alert"))
 	case reason == "emergency_auto_terminate":
-		fmt.Println("🚨 Command auto-terminated")
+		fmt.Println(i18n.T("app.command_auto_terminated"))
 	case reason == "process_already_exited":
-		fmt.Println("🔍 Command exited")
+		fmt.Println(i18n.T("app.command_exited"))
 	}
 
 	return nil

@@ -83,15 +83,26 @@ func (parser *DefaultCommandParser) ParseCommand(input string) (*ParsedCommand, 
 				options[arg[2:]] = "true"
 			}
 		} else if strings.HasPrefix(arg, "-") && len(arg) > 1 {
-			// Short option
+			// Short option(s)
 			optionKey := arg[1:]
-			// Check if this is a flag-like option (no value expected)
+
+			// Case 1: combined short flags like -la → -l -a, but only if all are known flags
+			if len(optionKey) > 1 && allCharsAreFlagOptions(optionKey) {
+				for _, ch := range optionKey {
+					options[string(ch)] = "true"
+				}
+				continue
+			}
+
+			// Case 2: single short flag or short option with a value
 			if isFlagOption(optionKey) {
 				options[optionKey] = "true"
 			} else if i+1 < len(args) && !strings.HasPrefix(args[i+1], "-") {
+				// Treat as short option expecting a value: -o value
 				options[optionKey] = args[i+1]
 				i++ // Skip the next argument
 			} else {
+				// Fallback: treat as a boolean flag even if unknown
 				options[optionKey] = "true"
 			}
 		} else {
@@ -196,21 +207,39 @@ func (parser *DefaultCommandParser) SuggestCommands(input string) []string {
 func isFlagOption(option string) bool {
 	flagOptions := []string{
 		"f", "follow", // for tail -f
-		"a", "all",    // for ls -a, ps -a
-		"l", "long",   // for ls -l
-		"h", "help",   // for --help
+		"a", "all", // for ls -a, ps -a
+		"l", "long", // for ls -l
+		"h", "help", // for --help
 		"v", "verbose", // for --verbose
-		"q", "quiet",  // for --quiet
+		"q", "quiet", // for --quiet
 		"r", "recursive", // for -r
 		"i", "interactive", // for -i
-		"force", // for --force
+		"force",   // for --force
 		"dry-run", // for --dry-run
 	}
-	
+
 	for _, flag := range flagOptions {
 		if option == flag {
 			return true
 		}
 	}
 	return false
+}
+
+// allCharsAreFlagOptions returns true if every character in the given string
+// is a known single-character flag (e.g. "la" → 'l' and 'a' are both flags).
+func allCharsAreFlagOptions(optionKey string) bool {
+	if optionKey == "" {
+		return false
+	}
+	for _, ch := range optionKey {
+		// Only split ASCII single-letter short flags
+		if ch < 'a' || ch > 'z' {
+			return false
+		}
+		if !isFlagOption(string(ch)) {
+			return false
+		}
+	}
+	return true
 }
