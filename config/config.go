@@ -17,6 +17,9 @@ type Config struct {
 	GitHubToken string
 	GitHubUser  string
 	DataPath    string
+	// Banner settings
+	BannerEnabled bool
+	BannerStyle   string
 }
 
 func NewConfig() *Config {
@@ -25,6 +28,9 @@ func NewConfig() *Config {
 		Theme:    "default",
 		Language: "", // 空の場合は自動検出
 		DataPath: "data",
+		// Defaults for banner
+		BannerEnabled: true,
+		BannerStyle:   "default",
 	}
 }
 

@@ -5,6 +5,8 @@ import (
 	"path/filepath"
 	"strings"
 
+	"docknaut/i18n"
+
 	"github.com/c-bata/go-prompt"
 )
 
@@ -127,59 +129,59 @@ func (s *Shell) Completer(d prompt.Document) []prompt.Suggest {
 func (s *Shell) completeCommands(prefix string) []prompt.Suggest {
 	suggests := []prompt.Suggest{
 		// 内蔵コマンド
-		{Text: "cd", Description: "コンテナにログイン"},
-		{Text: "pwd", Description: "現在のディレクトリを表示"},
-		{Text: "ls", Description: "ディレクトリの内容を表示"},
-		{Text: "cat", Description: "ファイルの内容を表示"},
-		{Text: "cp", Description: "ファイルをコピー"},
-		{Text: "mv", Description: "ファイルを移動"},
-		{Text: "mkdir", Description: "ディレクトリを作成"},
-		{Text: "rmdir", Description: "ディレクトリを削除"},
-		{Text: "touch", Description: "ファイルを作成"},
-		{Text: "echo", Description: "文字列を表示"},
-		{Text: "clear", Description: "画面をクリア"},
-		{Text: "exit", Description: "シェルを終了"},
+		{Text: "cd", Description: i18n.T("completion.descriptions.cd")},
+		{Text: "pwd", Description: i18n.T("completion.descriptions.pwd")},
+		{Text: "ls", Description: i18n.T("completion.descriptions.ls")},
+		{Text: "cat", Description: i18n.T("completion.descriptions.cat")},
+		{Text: "cp", Description: i18n.T("completion.descriptions.cp")},
+		{Text: "mv", Description: i18n.T("completion.descriptions.mv")},
+		{Text: "mkdir", Description: i18n.T("completion.descriptions.mkdir")},
+		{Text: "rmdir", Description: i18n.T("completion.descriptions.rmdir")},
+		{Text: "touch", Description: i18n.T("completion.descriptions.touch")},
+		{Text: "echo", Description: i18n.T("completion.descriptions.echo")},
+		{Text: "clear", Description: i18n.T("completion.descriptions.clear")},
+		{Text: "exit", Description: i18n.T("completion.descriptions.exit")},
 
 		// Docker専用コマンド（このシェルでは Linux コマンドが Docker コマンドにマッピング）
-		{Text: "ps", Description: "コンテナ一覧表示 (docker ps)"},
-		{Text: "kill", Description: "コンテナ停止 (docker stop)"},
-		{Text: "rm", Description: "Dockerコンテナを削除"},
-		{Text: "rmi", Description: "Dockerイメージを削除"},
-		{Text: "start", Description: "Dockerコンテナを開始"},
-		{Text: "stop", Description: "Dockerコンテナを停止"},
-		{Text: "exec", Description: "Dockerコンテナ内でコマンド実行"},
-		{Text: "pull", Description: "Dockerイメージをプル"},
+		{Text: "ps", Description: i18n.T("completion.descriptions.ps")},
+		{Text: "kill", Description: i18n.T("completion.descriptions.kill")},
+		{Text: "rm", Description: i18n.T("completion.descriptions.rm")},
+		{Text: "rmi", Description: i18n.T("completion.descriptions.rmi")},
+		{Text: "start", Description: i18n.T("completion.descriptions.start")},
+		{Text: "stop", Description: i18n.T("completion.descriptions.stop")},
+		{Text: "exec", Description: i18n.T("completion.descriptions.exec")},
+		{Text: "pull", Description: i18n.T("completion.descriptions.pull")},
 
 		// ログ系コマンド
-		{Text: "tail", Description: "ログ表示 (docker logs)"},
-		{Text: "head", Description: "ログ先頭表示 (docker logs --tail)"},
-		{Text: "grep", Description: "ログ検索 (docker logs | grep)"},
+		{Text: "tail", Description: i18n.T("completion.descriptions.tail")},
+		{Text: "head", Description: i18n.T("completion.descriptions.head")},
+		{Text: "grep", Description: i18n.T("completion.descriptions.grep")},
 
 		// ファイル操作系コマンド（コンテナ内実行）
-		{Text: "vi", Description: "ファイル編集 (docker exec vi)"},
-		{Text: "nano", Description: "ファイル編集 (docker exec nano)"},
-		{Text: "mkdir", Description: "ディレクトリ作成 (docker exec mkdir)"},
-		{Text: "find", Description: "ファイル検索 (docker exec find)"},
-		{Text: "locate", Description: "ファイル検索 (docker exec find)"},
+		{Text: "vi", Description: i18n.T("completion.descriptions.vi")},
+		{Text: "nano", Description: i18n.T("completion.descriptions.nano")},
+		{Text: "mkdir", Description: i18n.T("completion.descriptions.mkdir")},
+		{Text: "find", Description: i18n.T("completion.descriptions.find")},
+		{Text: "locate", Description: i18n.T("completion.descriptions.locate")},
 
 		// ネットワーク系コマンド
-		{Text: "netstat", Description: "ポート表示 (docker port)"},
+		{Text: "netstat", Description: i18n.T("completion.descriptions.netstat")},
 
 		// システム情報系コマンド
-		{Text: "free", Description: "メモリ使用量 (docker stats)"},
-		{Text: "top", Description: "リアルタイム統計 (docker stats)"},
-		{Text: "htop", Description: "リアルタイム統計 (docker stats)"},
-		{Text: "df", Description: "ディスク使用量 (docker system df)"},
-		{Text: "du", Description: "ディスク使用量詳細 (docker system df)"},
-		{Text: "uname", Description: "システム情報 (docker version)"},
+		{Text: "free", Description: i18n.T("completion.descriptions.free")},
+		{Text: "top", Description: i18n.T("completion.descriptions.top")},
+		{Text: "htop", Description: i18n.T("completion.descriptions.htop")},
+		{Text: "df", Description: i18n.T("completion.descriptions.df")},
+		{Text: "du", Description: i18n.T("completion.descriptions.du")},
+		{Text: "uname", Description: i18n.T("completion.descriptions.uname")},
 
 		// システムコマンド
 
-		{Text: "docker", Description: "Docker コンテナ管理"},
-		{Text: "theme", Description: "テーマを変更"},
-		{Text: "lang", Description: "言語を変更"},
-		{Text: "alias", Description: "エイリアスを管理"},
-		{Text: "config", Description: "設定を表示"},
+		{Text: "docker", Description: i18n.T("completion.descriptions.docker")},
+		{Text: "theme", Description: i18n.T("completion.descriptions.theme")},
+		{Text: "lang", Description: i18n.T("completion.descriptions.lang")},
+		{Text: "alias", Description: i18n.T("completion.descriptions.alias")},
+		{Text: "config", Description: i18n.T("completion.descriptions.config")},
 	}
 
 	// エイリアスを追加
@@ -187,7 +189,7 @@ func (s *Shell) completeCommands(prefix string) []prompt.Suggest {
 		for alias := range s.config.Aliases {
 			suggests = append(suggests, prompt.Suggest{
 				Text:        alias,
-				Description: "エイリアス: " + s.config.Aliases[alias],
+				Description: i18n.T("completion.alias_value", s.config.Aliases[alias]),
 			})
 		}
 	}
@@ -264,7 +266,7 @@ func (s *Shell) completeFileSystem(prefix string, includeDirs, includeFiles bool
 			if includeDirs {
 				suggests = append(suggests, prompt.Suggest{
 					Text:        fullPath + string(filepath.Separator),
-					Description: "ディレクトリ",
+					Description: i18n.T("completion.entry_directory"),
 				})
 			}
 		} else {
@@ -272,7 +274,7 @@ func (s *Shell) completeFileSystem(prefix string, includeDirs, includeFiles bool
 			if includeFiles {
 				suggests = append(suggests, prompt.Suggest{
 					Text:        fullPath,
-					Description: "ファイル",
+					Description: i18n.T("completion.entry_file"),
 				})
 			}
 		}
@@ -395,24 +397,24 @@ func (s *Shell) completeDockerVolumes(prefix string) []prompt.Suggest {
 // completeDockerSubcommands はDockerサブコマンドの補完を提供します
 func (s *Shell) completeDockerSubcommands(prefix string) []prompt.Suggest {
 	suggests := []prompt.Suggest{
-		{Text: "ps", Description: "実行中のコンテナを表示"},
-		{Text: "images", Description: "イメージ一覧を表示"},
-		{Text: "run", Description: "新しいコンテナを実行"},
-		{Text: "exec", Description: "実行中のコンテナでコマンドを実行"},
-		{Text: "start", Description: "停止中のコンテナを開始"},
-		{Text: "stop", Description: "実行中のコンテナを停止"},
-		{Text: "restart", Description: "コンテナを再起動"},
-		{Text: "rm", Description: "コンテナを削除"},
-		{Text: "rmi", Description: "イメージを削除"},
-		{Text: "pull", Description: "イメージをダウンロード"},
-		{Text: "push", Description: "イメージをアップロード"},
-		{Text: "build", Description: "Dockerイメージをビルド"},
-		{Text: "logs", Description: "コンテナのログを表示"},
-		{Text: "inspect", Description: "詳細情報を表示"},
-		{Text: "network", Description: "ネットワークを管理"},
-		{Text: "volume", Description: "ボリュームを管理"},
-		{Text: "system", Description: "システム情報を表示"},
-		{Text: "version", Description: "バージョンを表示"},
+		{Text: "ps", Description: i18n.T("completion.docker_subcommands.ps")},
+		{Text: "images", Description: i18n.T("completion.docker_subcommands.images")},
+		{Text: "run", Description: i18n.T("completion.docker_subcommands.run")},
+		{Text: "exec", Description: i18n.T("completion.docker_subcommands.exec")},
+		{Text: "start", Description: i18n.T("completion.docker_subcommands.start")},
+		{Text: "stop", Description: i18n.T("completion.docker_subcommands.stop")},
+		{Text: "restart", Description: i18n.T("completion.docker_subcommands.restart")},
+		{Text: "rm", Description: i18n.T("completion.docker_subcommands.rm")},
+		{Text: "rmi", Description: i18n.T("completion.docker_subcommands.rmi")},
+		{Text: "pull", Description: i18n.T("completion.docker_subcommands.pull")},
+		{Text: "push", Description: i18n.T("completion.docker_subcommands.push")},
+		{Text: "build", Description: i18n.T("completion.docker_subcommands.build")},
+		{Text: "logs", Description: i18n.T("completion.docker_subcommands.logs")},
+		{Text: "inspect", Description: i18n.T("completion.docker_subcommands.inspect")},
+		{Text: "network", Description: i18n.T("completion.docker_subcommands.network")},
+		{Text: "volume", Description: i18n.T("completion.docker_subcommands.volume")},
+		{Text: "system", Description: i18n.T("completion.docker_subcommands.system")},
+		{Text: "version", Description: i18n.T("completion.docker_subcommands.version")},
 	}
 
 	return prompt.FilterHasPrefix(suggests, prefix, true)
@@ -466,10 +468,10 @@ func (s *Shell) completeDockerCommand(words []string, currentArg, beforeCursor s
 		if len(words) == 3 && !strings.HasSuffix(beforeCursor, " ") {
 			// network サブコマンドの補完
 			suggests := []prompt.Suggest{
-				{Text: "ls", Description: "ネットワーク一覧を表示"},
-				{Text: "create", Description: "ネットワークを作成"},
-				{Text: "rm", Description: "ネットワークを削除"},
-				{Text: "inspect", Description: "ネットワーク詳細を表示"},
+				{Text: "ls", Description: i18n.T("completion.docker_network_subcommands.ls")},
+				{Text: "create", Description: i18n.T("completion.docker_network_subcommands.create")},
+				{Text: "rm", Description: i18n.T("completion.docker_network_subcommands.rm")},
+				{Text: "inspect", Description: i18n.T("completion.docker_network_subcommands.inspect")},
 			}
 			return prompt.FilterHasPrefix(suggests, currentArg, true)
 		}
@@ -483,10 +485,10 @@ func (s *Shell) completeDockerCommand(words []string, currentArg, beforeCursor s
 		if len(words) == 3 && !strings.HasSuffix(beforeCursor, " ") {
 			// volume サブコマンドの補完
 			suggests := []prompt.Suggest{
-				{Text: "ls", Description: "ボリューム一覧を表示"},
-				{Text: "create", Description: "ボリュームを作成"},
-				{Text: "rm", Description: "ボリュームを削除"},
-				{Text: "inspect", Description: "ボリューム詳細を表示"},
+				{Text: "ls", Description: i18n.T("completion.docker_volume_subcommands.ls")},
+				{Text: "create", Description: i18n.T("completion.docker_volume_subcommands.create")},
+				{Text: "rm", Description: i18n.T("completion.docker_volume_subcommands.rm")},
+				{Text: "inspect", Description: i18n.T("completion.docker_volume_subcommands.inspect")},
 			}
 			return prompt.FilterHasPrefix(suggests, currentArg, true)
 		}

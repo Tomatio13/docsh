@@ -11,18 +11,19 @@ import (
 	"syscall"
 	"time"
 
+	"docknaut/i18n"
 	"docknaut/internal/engine"
 	"docknaut/internal/parser"
 )
 
 // ExecutionResult represents the result of command execution
 type ExecutionResult struct {
-	Command    string
-	Output     string
-	Error      string
-	ExitCode   int
-	Duration   time.Duration
-	Mapping    *engine.CommandMapping
+	Command  string
+	Output   string
+	Error    string
+	ExitCode int
+	Duration time.Duration
+	Mapping  *engine.CommandMapping
 }
 
 // ShellExecutor defines the interface for command execution
@@ -80,16 +81,16 @@ func (executor *DefaultShellExecutor) Execute(ctx context.Context, cmd *parser.P
 			result.Mapping = mapping
 			return executor.ExecuteWithMappingAndOptions(ctx, mapping, cmd.Args, cmd.Options)
 		}
-		
+
 		// Fallback to exact command match
 		mapping, err = executor.mappingEngine.FindByLinuxCommand(cmd.Command)
 		if err == nil {
 			result.Mapping = mapping
 			return executor.ExecuteWithMappingAndOptions(ctx, mapping, cmd.Args, cmd.Options)
 		}
-		
+
 		// Docker-only mode: reject unmapped Linux commands
-		result.Error = fmt.Sprintf("Command '%s' is not supported in Docker-only mode. Use 'mapping search %s' to find available Docker commands.", cmd.Command, cmd.Command)
+		result.Error = i18n.T("app.docker_only_error", cmd.Command, cmd.Command)
 		result.ExitCode = 1
 		result.Duration = time.Since(start)
 		return result, fmt.Errorf(result.Error)
@@ -100,7 +101,7 @@ func (executor *DefaultShellExecutor) Execute(ctx context.Context, cmd *parser.P
 	}
 
 	// Docker-only mode: reject unknown commands
-	result.Error = fmt.Sprintf("Command '%s' is not recognized. This is a Docker-only shell. Use 'help' to see available commands.", cmd.Command)
+	result.Error = i18n.T("app.docker_only_error", cmd.Command, cmd.Command)
 	result.ExitCode = 1
 	result.Duration = time.Since(start)
 	return result, fmt.Errorf(result.Error)
@@ -134,7 +135,7 @@ func (executor *DefaultShellExecutor) ExecuteWithMappingAndOptions(ctx context.C
 
 	// Parse the Docker command
 	dockerCmd := strings.Fields(mapping.DockerCommand)
-	
+
 	// Add options first (they usually come before positional arguments)
 	if options != nil {
 		for key, value := range options {
@@ -155,7 +156,7 @@ func (executor *DefaultShellExecutor) ExecuteWithMappingAndOptions(ctx context.C
 			}
 		}
 	}
-	
+
 	// Add positional arguments
 	if len(args) > 0 {
 		dockerCmd = append(dockerCmd, args...)
@@ -168,11 +169,11 @@ func (executor *DefaultShellExecutor) ExecuteWithMappingAndOptions(ctx context.C
 
 	// Check if this is a streaming command
 	isStreaming := isStreamingCommand(dockerCmd)
-	
+
 	if isStreaming {
 		return executor.executeStreamingCommand(ctx, dockerCmd, result)
 	}
-	
+
 	// Execute the Docker command (non-streaming)
 	cmd := exec.CommandContext(ctx, dockerCmd[0], dockerCmd[1:]...)
 	output, err := cmd.CombinedOutput()
@@ -208,8 +209,10 @@ func (executor *DefaultShellExecutor) DryRun(cmd *parser.ParsedCommand) (string,
 			if len(cmd.Args) > 0 {
 				dockerCmd = dockerCmd + " " + strings.Join(cmd.Args, " ")
 			}
-			return fmt.Sprintf("Would execute: %s\n\nMapping: %s -> %s\nDescription: %s\n",
-				dockerCmd, mapping.LinuxCommand, mapping.DockerCommand, mapping.Description), nil
+			return fmt.Sprintf("%s: %s\n\nMapping: %s -> %s\n%s: %s\n",
+				i18n.T("messages.executing_command", dockerCmd), dockerCmd,
+				mapping.LinuxCommand, mapping.DockerCommand,
+				i18n.T("help.description"), mapping.Description), nil
 		}
 	}
 
@@ -217,7 +220,7 @@ func (executor *DefaultShellExecutor) DryRun(cmd *parser.ParsedCommand) (string,
 	if len(cmd.Args) > 0 {
 		commandLine = commandLine + " " + strings.Join(cmd.Args, " ")
 	}
-	return fmt.Sprintf("Would execute: %s", commandLine), nil
+	return fmt.Sprintf(i18n.T("messages.executing_command"), commandLine), nil
 }
 
 // IsDockerAvailable checks if Docker is available and running
@@ -292,10 +295,10 @@ func (executor *DefaultShellExecutor) executeDockerCommand(ctx context.Context, 
 
 	// Check if Docker is available
 	if !executor.IsDockerAvailable() {
-		result.Error = "Docker is not available or not running"
+		result.Error = i18n.T("docker.not_available")
 		result.ExitCode = 1
 		result.Duration = time.Since(start)
-		return result, fmt.Errorf("docker is not available")
+		return result, fmt.Errorf(i18n.T("docker.not_available"))
 	}
 
 	// Prepend "docker" if not already present
@@ -362,7 +365,7 @@ func (executor *DefaultShellExecutor) listAllMappings() string {
 	var output strings.Builder
 
 	output.WriteString("Available Command Mappings:\n\n")
-	
+
 	categories := executor.mappingEngine.GetCategories()
 	for _, category := range categories {
 		output.WriteString(fmt.Sprintf("=== %s ===\n", strings.ToUpper(category)))
@@ -489,13 +492,13 @@ For more information about specific mappings, use:
 // executeStreamingCommand executes streaming commands like docker logs -f with real-time output
 func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Context, dockerCmd []string, result *ExecutionResult) (*ExecutionResult, error) {
 	start := time.Now()
-	
+
 	// Create the command with its own process group
 	cmd := exec.CommandContext(ctx, dockerCmd[0], dockerCmd[1:]...)
 	cmd.SysProcAttr = &syscall.SysProcAttr{
 		Setpgid: true,
 	}
-	
+
 	// Setup pipes for stdout and stderr
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
@@ -504,7 +507,7 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 		result.Duration = time.Since(start)
 		return result, err
 	}
-	
+
 	stderr, err := cmd.StderrPipe()
 	if err != nil {
 		result.Error = err.Error()
@@ -512,7 +515,7 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 		result.Duration = time.Since(start)
 		return result, err
 	}
-	
+
 	// Start the command
 	if err := cmd.Start(); err != nil {
 		result.Error = err.Error()
@@ -520,17 +523,17 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 		result.Duration = time.Since(start)
 		return result, err
 	}
-	
+
 	// Setup dedicated signal handling for this process
 	sigChan := make(chan os.Signal, 1)
 	// Stop any existing signal notifications to avoid conflicts with go-prompt
 	signal.Stop(sigChan)
 	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
-	
+
 	// Channel to signal when command is done
 	done := make(chan error, 1)
 	outputDone := make(chan bool, 2)
-	
+
 	// Goroutine to handle stdout
 	go func() {
 		defer func() { outputDone <- true }()
@@ -544,7 +547,7 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 			}
 		}
 	}()
-	
+
 	// Goroutine to handle stderr
 	go func() {
 		defer func() { outputDone <- true }()
@@ -558,12 +561,12 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 			}
 		}
 	}()
-	
+
 	// Goroutine to wait for command completion
 	go func() {
 		done <- cmd.Wait()
 	}()
-	
+
 	// Wait for either completion or cancellation
 	select {
 	case <-ctx.Done():
@@ -573,12 +576,12 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 		result.ExitCode = 130
 		result.Duration = time.Since(start)
 		return result, fmt.Errorf("command interrupted")
-		
+
 	case err := <-done:
 		// Command completed normally
 		signal.Stop(sigChan) // Clean up signal handling
 		result.Duration = time.Since(start)
-		
+
 		if err != nil {
 			result.Error = err.Error()
 			if exitError, ok := err.(*exec.ExitError); ok {
@@ -588,10 +591,10 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 			}
 			return result, err
 		}
-		
+
 		result.ExitCode = 0
 		return result, nil
-		
+
 	case <-sigChan:
 		// Signal received directly
 		fmt.Println("\n^C")
@@ -611,10 +614,10 @@ func (executor *DefaultShellExecutor) terminateCommand(cmd *exec.Cmd) {
 		if cmd.Process.Pid > 0 {
 			syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
 		}
-		
+
 		// Give it a moment to terminate gracefully
 		time.Sleep(100 * time.Millisecond)
-		
+
 		// If still running, force kill the process group
 		if cmd.ProcessState == nil || !cmd.ProcessState.Exited() {
 			if cmd.Process.Pid > 0 {
@@ -630,7 +633,7 @@ func isStreamingCommand(dockerCmd []string) bool {
 	if len(dockerCmd) < 2 {
 		return false
 	}
-	
+
 	// Check for docker logs -f
 	if dockerCmd[0] == "docker" && dockerCmd[1] == "logs" {
 		for _, arg := range dockerCmd[2:] {
@@ -639,12 +642,12 @@ func isStreamingCommand(dockerCmd []string) bool {
 			}
 		}
 	}
-	
+
 	// Check for docker attach
 	if dockerCmd[0] == "docker" && dockerCmd[1] == "attach" {
 		return true
 	}
-	
+
 	// Check for docker exec with interactive/tty flags
 	if dockerCmd[0] == "docker" && dockerCmd[1] == "exec" {
 		for _, arg := range dockerCmd[2:] {
@@ -653,7 +656,7 @@ func isStreamingCommand(dockerCmd []string) bool {
 			}
 		}
 	}
-	
+
 	// Check for docker stats (enhanced logic for --no-stream)
 	if dockerCmd[0] == "docker" && dockerCmd[1] == "stats" {
 		// Check if --no-stream is present
@@ -664,14 +667,14 @@ func isStreamingCommand(dockerCmd []string) bool {
 		}
 		return true // Default docker stats is streaming
 	}
-	
+
 	return false
 }
 
 // executeContainerEntry handles cd command to enter containers
 func (executor *DefaultShellExecutor) executeContainerEntry(ctx context.Context, containerName string, result *ExecutionResult) (*ExecutionResult, error) {
 	start := time.Now()
-	
+
 	// Check if container exists and is running
 	isContainer, err := executor.isDockerContainer(containerName)
 	if err != nil {
@@ -680,14 +683,14 @@ func (executor *DefaultShellExecutor) executeContainerEntry(ctx context.Context,
 		result.Duration = time.Since(start)
 		return result, err
 	}
-	
+
 	if !isContainer {
 		result.Error = fmt.Sprintf("Container '%s' not found", containerName)
 		result.ExitCode = 1
 		result.Duration = time.Since(start)
 		return result, fmt.Errorf("container not found")
 	}
-	
+
 	// Check if container is running
 	running, err := executor.isContainerRunning(containerName)
 	if err != nil {
@@ -696,17 +699,17 @@ func (executor *DefaultShellExecutor) executeContainerEntry(ctx context.Context,
 		result.Duration = time.Since(start)
 		return result, err
 	}
-	
+
 	if !running {
 		result.Error = fmt.Sprintf("Container '%s' is not running", containerName)
 		result.ExitCode = 1
 		result.Duration = time.Since(start)
 		return result, fmt.Errorf("container not running")
 	}
-	
+
 	// Try different shells in order of preference
 	shells := []string{"/bin/bash", "/bin/sh", "/bin/ash"}
-	
+
 	// Check if TTY is available
 	var dockerFlags []string
 	if executor.isTTYAvailable() {
@@ -714,11 +717,11 @@ func (executor *DefaultShellExecutor) executeContainerEntry(ctx context.Context,
 	} else {
 		dockerFlags = []string{"exec", "-i"}
 	}
-	
+
 	for _, shell := range shells {
 		args := append(dockerFlags, containerName, shell)
 		cmd := exec.CommandContext(ctx, "docker", args...)
-		
+
 		// In non-TTY environment, don't try to actually execute the command
 		if !executor.isTTYAvailable() {
 			result.Output = fmt.Sprintf("Would enter container: %s (non-interactive mode)", containerName)
@@ -726,11 +729,11 @@ func (executor *DefaultShellExecutor) executeContainerEntry(ctx context.Context,
 			result.Duration = time.Since(start)
 			return result, nil
 		}
-		
+
 		cmd.Stdin = os.Stdin
 		cmd.Stdout = os.Stdout
 		cmd.Stderr = os.Stderr
-		
+
 		err := cmd.Run()
 		if err == nil {
 			result.Output = fmt.Sprintf("Entered container: %s", containerName)
@@ -739,7 +742,7 @@ func (executor *DefaultShellExecutor) executeContainerEntry(ctx context.Context,
 			return result, nil
 		}
 	}
-	
+
 	result.Error = fmt.Sprintf("Failed to enter container '%s': no available shell", containerName)
 	result.ExitCode = 1
 	result.Duration = time.Since(start)
@@ -754,28 +757,28 @@ func (executor *DefaultShellExecutor) isDockerContainer(name string) (bool, erro
 	if err != nil {
 		return false, err
 	}
-	
+
 	containerNames := strings.Split(strings.TrimSpace(string(output)), "\n")
 	for _, containerName := range containerNames {
 		if containerName == name {
 			return true, nil
 		}
 	}
-	
+
 	// Also check stopped containers
 	cmd = exec.Command("docker", "ps", "-a", "--format", "{{.Names}}", "--filter", fmt.Sprintf("name=%s", name))
 	output, err = cmd.Output()
 	if err != nil {
 		return false, err
 	}
-	
+
 	containerNames = strings.Split(strings.TrimSpace(string(output)), "\n")
 	for _, containerName := range containerNames {
 		if containerName == name {
 			return true, nil
 		}
 	}
-	
+
 	return false, nil
 }
 
@@ -786,14 +789,14 @@ func (executor *DefaultShellExecutor) isContainerRunning(name string) (bool, err
 	if err != nil {
 		return false, err
 	}
-	
+
 	containerNames := strings.Split(strings.TrimSpace(string(output)), "\n")
 	for _, containerName := range containerNames {
 		if containerName == name {
 			return true, nil
 		}
 	}
-	
+
 	return false, nil
 }
 
@@ -831,7 +834,7 @@ func (executor *DefaultShellExecutor) formatSimplePsOutput(output string) string
 	namesPos := strings.Index(header, "NAMES")
 
 	var result strings.Builder
-	
+
 	// Process each container line (skip header)
 	for i := 1; i < len(lines); i++ {
 		line := lines[i]
@@ -840,7 +843,7 @@ func (executor *DefaultShellExecutor) formatSimplePsOutput(output string) string
 		}
 
 		var status, name, ports string
-		
+
 		// Extract fields based on column positions
 		if statusPos >= 0 && statusPos < len(line) {
 			// Extract STATUS field
@@ -850,23 +853,23 @@ func (executor *DefaultShellExecutor) formatSimplePsOutput(output string) string
 			}
 			status = strings.TrimSpace(line[statusPos:statusEnd])
 		}
-		
+
 		// Extract NAME (last field)
 		if namesPos >= 0 && namesPos < len(line) {
 			name = strings.TrimSpace(line[namesPos:])
 		}
-		
+
 		// Extract PORTS field
 		if portsPos >= 0 && portsPos < len(line) && namesPos > portsPos {
 			ports = strings.TrimSpace(line[portsPos:namesPos])
 		}
-		
+
 		// Clean up status (remove extra info, keep main status)
 		status = executor.cleanStatus(status)
-		
+
 		// Clean up ports (remove empty or "-" entries)
 		ports = executor.cleanPorts(ports)
-		
+
 		// Format output: STATUS NAME PORT
 		if ports != "" {
 			result.WriteString(fmt.Sprintf("%-10s %-20s %s\n", status, name, ports))
@@ -884,7 +887,7 @@ func (executor *DefaultShellExecutor) cleanStatus(status string) string {
 	if status == "" {
 		return "unknown"
 	}
-	
+
 	// Extract main status word (Up, Exited, Created, etc.)
 	words := strings.Fields(status)
 	if len(words) > 0 {
@@ -903,7 +906,7 @@ func (executor *DefaultShellExecutor) cleanStatus(status string) string {
 			return strings.ToLower(mainStatus)
 		}
 	}
-	
+
 	return strings.ToLower(status)
 }
 
@@ -913,21 +916,21 @@ func (executor *DefaultShellExecutor) cleanPorts(ports string) string {
 	if ports == "" || ports == "-" {
 		return ""
 	}
-	
+
 	// Split by comma and clean up each port mapping
 	portList := strings.Split(ports, ", ")
 	var cleanPorts []string
-	
+
 	for _, port := range portList {
 		port = strings.TrimSpace(port)
 		if port != "" && port != "-" {
 			cleanPorts = append(cleanPorts, port)
 		}
 	}
-	
+
 	if len(cleanPorts) == 0 {
 		return ""
 	}
-	
+
 	return strings.Join(cleanPorts, ", ")
 }

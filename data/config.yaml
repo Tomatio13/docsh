@@ -1,5 +1,8 @@
+banner:
+  enabled: true
+  style: kawaii
 shell:
-  prompt: "🐳 docknaut> "
+  prompt: "🐳 Dosch> "
   history_size: 1000
   auto_complete: true
   dry_run_mode: false

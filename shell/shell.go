@@ -79,6 +79,12 @@ func (s *Shell) Start() error {
 		fmt.Printf(i18n.T("shell.config_load_warning"), err)
 	}
 
+	// 起動バナーを表示
+	if s.config.BannerEnabled {
+		banner := themes.RenderBanner(s.config.BannerStyle)
+		fmt.Print(banner)
+	}
+
 	fmt.Print(i18n.T("app.docker_only_welcome"))
 
 	// go-promptを使用したインタラクティブプロンプト
@@ -620,6 +626,7 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.docker_only_help_description"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_mappings_title"))
+	fmt.Println(i18n.T("help.examples"))
 	fmt.Println("  ls          -> docker ps")
 	fmt.Println("  ps          -> docker ps")
 	fmt.Println("  kill <name> -> docker stop <name>")
@@ -630,26 +637,26 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.docker_only_docker_commands_title"))
 	fmt.Println("  docker ps, docker run, docker exec, docker logs, etc.")
 	fmt.Println()
-	fmt.Println("🐳 Docker Lifecycle Commands:")
-	fmt.Println("  pull <image>            Pull image from registry")
-	fmt.Println("  start <container>       Start stopped container")
-	fmt.Println("  stop <container>        Stop running container")
-	fmt.Println("  exec <container> <cmd>  Execute command in container")
+	fmt.Println("🐳 " + i18n.T("categories.container-management"))
+	fmt.Println("  pull <image>            " + i18n.T("docker.pull_image", "<image>"))
+	fmt.Println("  start <container>       " + i18n.T("docker.start_container", "<container>"))
+	fmt.Println("  stop <container>        " + i18n.T("docker.stop_container", "<container>"))
+	fmt.Println("  exec <container> <cmd>  " + i18n.T("docker.exec_command", "<container>", "<cmd>"))
 	fmt.Println("  rm [--force] <container> Remove container")
 	fmt.Println("  rmi [--force] <image>   Remove image")
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_builtin_commands_title"))
-	fmt.Println("  help                    Show this help")
-	fmt.Println("  mapping [list|search|show] Manage command mappings")
-	fmt.Println("  alias <name>=<command>  Create command alias")
-	fmt.Println("  theme [name]            Change shell theme")
-	fmt.Println("  config [show]           Show configuration")
-	fmt.Println("  exit                    Exit shell")
+	fmt.Println("  help                    " + i18n.T("commands.help_title"))
+	fmt.Println("  mapping [list|search|show] " + i18n.T("commands.mapping_help"))
+	fmt.Println("  alias <name>=<command>  " + i18n.T("commands.alias_help"))
+	fmt.Println("  theme [name]            " + i18n.T("commands.theme_help"))
+	fmt.Println("  config [show]           " + i18n.T("commands.config_help"))
+	fmt.Println("  exit                    " + i18n.T("commands.exit_help"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_more_info_title"))
-	fmt.Println("  mapping list            List all command mappings")
-	fmt.Println("  mapping search <query>  Search for specific mappings")
-	fmt.Println("  mapping show <command>  Show detailed mapping info")
+	fmt.Println("  mapping list            " + i18n.T("commands.mapping_list"))
+	fmt.Println("  mapping search <query>  " + i18n.T("commands.mapping_search"))
+	fmt.Println("  mapping show <command>  " + i18n.T("commands.mapping_show"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_note_title") + " " + i18n.T("commands.docker_only_note_message"))
 }
