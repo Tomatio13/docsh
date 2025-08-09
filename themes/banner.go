@@ -22,11 +22,6 @@ func RenderBanner(style string) string {
 	}
 }
 
-func defaultBanner() string {
-	// Rounded + whale mark
-	return ansi256("36", "\n      🐳  Docsh\n  Docker Command Mapping Shell\n\n")
-}
-
 func minimalBanner() string {
 	return "Docsh (Docker-Only)\n\n"
 }
@@ -116,8 +111,7 @@ func lerpColor(a, b rgb, t float64) rgb {
 	return rgb{R: cl(r), G: cl(g), B: cl(b2)}
 }
 
-func truecolor(r, g, b int) string   { return fmt.Sprintf("\033[38;2;%d;%d;%dm", r, g, b) }
-func bgTruecolor(r, g, b int) string { return fmt.Sprintf("\033[48;2;%d;%d;%dm", r, g, b) }
+func truecolor(r, g, b int) string { return fmt.Sprintf("\033[38;2;%d;%d;%dm", r, g, b) }
 
 func supportsTrueColor() bool {
 	if v := os.Getenv("COLORTERM"); strings.Contains(strings.ToLower(v), "truecolor") || strings.Contains(strings.ToLower(v), "24bit") {
@@ -128,7 +122,6 @@ func supportsTrueColor() bool {
 }
 
 func ansi256(code, text string) string { return fmt.Sprintf("\033[%sm%s\033[0m", code, text) }
-func bgAnsi256(code string) string     { return "\033[" + code + "m" }
 
 func ansi256Gradient(lines []string) string {
 	// Use a small palette from magenta -> purple -> blue -> cyan
@@ -156,14 +149,4 @@ func ansi256Gradient(lines []string) string {
 	}
 	out.WriteString("\n")
 	return out.String()
-}
-
-// helper to pick an index into the 256-color palette for background gradient
-func gradientPaletteIndex(x, width int) string {
-	palette := []string{"48;5;201", "48;5;135", "48;5;69", "48;5;51"}
-	idx := int(float64(x) / math.Max(1, float64(width)) * float64(len(palette)))
-	if idx >= len(palette) {
-		idx = len(palette) - 1
-	}
-	return palette[idx]
 }

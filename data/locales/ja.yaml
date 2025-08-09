@@ -36,6 +36,7 @@ commands:
   examples_rm: "  rm <name>   -> docker rm <name>"
   examples_tail: "  tail -f <name> -> docker logs -f <name>"
   examples_login: "  login <container> -> docker exec -it <container> /bin/bash"
+  examples_log: "  log <name> -> docker logs <name>"
   docker_commands_note_2: "  docker ps, docker run, docker exec, docker logs, など"
   lifecycle_header_2: "🐳 Docker ライフサイクルコマンド:"
   lifecycle_pull_2: "  pull <image>            レジストリからイメージを取得"

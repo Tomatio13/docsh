@@ -699,6 +699,7 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.examples_kill"))
 	fmt.Println(i18n.T("commands.examples_rm"))
 	fmt.Println(i18n.T("commands.examples_tail"))
+	fmt.Println(i18n.T("commands.examples_log"))
 	fmt.Println(i18n.T("commands.examples_login"))
 	fmt.Println()
 	// Dockerコマンドの列挙は非表示（設計に合わせて省略）

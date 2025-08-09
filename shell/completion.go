@@ -93,6 +93,10 @@ func (s *Shell) Complete(line string) []Suggest {
 		return s.completeDockerContainers(currentArg, true)
 	case "tail", "head", "grep":
 		return s.completeDockerContainers(currentArg, false)
+	case "log":
+		// エイリアス: log -> docker logs [-f]
+		// 停止中も含め全コンテナから補完
+		return s.completeDockerContainers(currentArg, false)
 	case "vi", "nano", "mkdir", "find", "locate":
 		return s.completeDockerContainers(currentArg, true)
 	case "netstat":

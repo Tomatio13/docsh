@@ -49,6 +49,7 @@ aliases:
   dps: "docker ps"
   dpa: "docker ps -a"
   di: "docker images"
+  log: "docker logs -f"
   dlog: "docker logs"
   dlogf: "docker logs -f"
   dexec: "docker exec -it"
