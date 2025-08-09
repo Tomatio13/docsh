@@ -89,6 +89,24 @@ commands:
   docker_only_note_title: "⚠️  Note:"
   docker_only_note_message: "This is a Docker-only shell. Regular Linux commands\n    are only available if they have Docker mappings."
 
+  # Docker Compose lifecycle (for help command)
+  compose_lifecycle_header: "🐳 Docker Compose Lifecycle Commands:"
+  compose_project_ps_line: "project ps                          List containers by service"
+  compose_project_service_start_line: "project <service> start             Start specific service"
+  compose_project_service_logs_line: "project <service> logs              Show logs for specific service"
+  compose_project_service_restart_line: "project <service> restart           Restart specific service"
+  compose_project_service_stop_line: "project <service> stop              Stop all services"
+  ps_by_project_line: "ps --by-project                     Show containers by project"
+
+  # Built-in commands (alt keys used by help command)
+  mapping_help_2: "mapping [list|search|show] <args>  Manage command mappings"
+  mapping_list_2: "mapping list [category]           List mappings by category"
+  mapping_search_2: "mapping search <query>           Search mappings"
+  mapping_show_2: "mapping show <command>            Show specific mapping details"
+  alias_help_2: "alias <name>=<command>              Set alias"
+  theme_help_2: "theme [name]                       Set theme"
+  config_help_2: "config [show|set]                 Manage configuration"
+  exit_help_2: "exit                              Exit shell"
 examples:
   basic_usage: "Basic Usage:"
   linux_to_docker: "Enter Linux commands and they will be automatically converted to Docker commands:"

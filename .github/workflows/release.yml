@@ -29,48 +29,40 @@ jobs:
 
       - name: Build Windows 64bit
         run: |
-          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/cherrysh-windows-x64.exe .
+          GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/docsh-windows-x64.exe .
           cd Release
-          zip cherrysh-${{ steps.get_version.outputs.VERSION }}-windows-x64.zip cherrysh-windows-x64.exe
-          cd ..
-
-      - name: Build Windows 32bit
-        run: |
-          GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/cherrysh-windows-x86.exe .
-          cd Release
-          zip cherrysh-${{ steps.get_version.outputs.VERSION }}-windows-x86.zip cherrysh-windows-x86.exe
+          zip docsh-${{ steps.get_version.outputs.VERSION }}-windows-x64.zip docsh-windows-x64.exe
           cd ..
 
       - name: Build Linux 64bit
         run: |
-          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/cherrysh-linux-x64 .
+          GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/docsh-linux-x64 .
           cd Release
-          tar -czf cherrysh-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz cherrysh-linux-x64
+          tar -czf docsh-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz docsh-linux-x64
           cd ..
 
       - name: Build macOS Intel
         run: |
-          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/cherrysh-macos-x64 .
+          GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/docsh-macos-x64 .
           cd Release
-          tar -czf cherrysh-${{ steps.get_version.outputs.VERSION }}-macos-x64.tar.gz cherrysh-macos-x64
+          tar -czf docsh-${{ steps.get_version.outputs.VERSION }}-macos-x64.tar.gz docsh-macos-x64
           cd ..
 
       - name: Build macOS ARM64
         run: |
-          GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/cherrysh-macos-arm64 .
+          GOOS=darwin GOARCH=arm64 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/docsh-macos-arm64 .
           cd Release
-          tar -czf cherrysh-${{ steps.get_version.outputs.VERSION }}-macos-arm64.tar.gz cherrysh-macos-arm64
+          tar -czf docsh-${{ steps.get_version.outputs.VERSION }}-macos-arm64.tar.gz docsh-macos-arm64
           cd ..
 
       - name: Create Release
         uses: softprops/action-gh-release@v2
         with:
           files: |
-            Release/cherrysh-${{ steps.get_version.outputs.VERSION }}-windows-x64.zip
-            Release/cherrysh-${{ steps.get_version.outputs.VERSION }}-windows-x86.zip
-            Release/cherrysh-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz
-            Release/cherrysh-${{ steps.get_version.outputs.VERSION }}-macos-x64.tar.gz
-            Release/cherrysh-${{ steps.get_version.outputs.VERSION }}-macos-arm64.tar.gz
+            Release/docsh-${{ steps.get_version.outputs.VERSION }}-windows-x64.zip
+            Release/docsh-${{ steps.get_version.outputs.VERSION }}-linux-x64.tar.gz
+            Release/docsh-${{ steps.get_version.outputs.VERSION }}-macos-x64.tar.gz
+            Release/docsh-${{ steps.get_version.outputs.VERSION }}-macos-arm64.tar.gz
           generate_release_notes: true
           draft: false
           prerelease: false

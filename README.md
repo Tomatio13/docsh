@@ -13,6 +13,8 @@
 
 **docsh** is a Docker command mapping shell that simplifies Docker operations by providing intuitive command mappings and an interactive shell environment.
 
+<img src="assets/Screenshot_en.png">
+
 ## ✨ Features
 
 - **🐳 Docker Command Mapping**: Simplified and intuitive Docker command aliases

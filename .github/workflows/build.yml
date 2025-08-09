@@ -33,20 +33,20 @@ jobs:
         run: go test -v ./...
 
       - name: Build for Linux
-        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o cherrysh-linux .
+        run: GOOS=linux GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o docsh-linux .
 
       - name: Build for Windows
-        run: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o cherrysh-windows.exe .
+        run: GOOS=windows GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o docsh-windows.exe .
 
       - name: Build for macOS
-        run: GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o cherrysh-macos .
+        run: GOOS=darwin GOARCH=amd64 CGO_ENABLED=0 go build -ldflags="-s -w" -o docsh-macos .
 
       - name: Upload build artifacts
         uses: actions/upload-artifact@v4
         with:
           name: build-artifacts
           path: |
-            cherrysh-linux
-            cherrysh-windows.exe
-            cherrysh-macos
+            docsh-linux
+            docsh-windows.exe
+            docsh-macos
           retention-days: 7 

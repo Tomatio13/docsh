@@ -1,4 +1,4 @@
-## 🎉 CherryShell Release
+## 🎉 Docsh Release
 
 ### 新機能 / New Features
 - 
@@ -17,28 +17,27 @@
 ## 📥 ダウンロード / Download
 
 ### Windows
-- **64bit**: [cherrysh-{{VERSION}}-windows-x64.zip](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/cherrysh-{{VERSION}}-windows-x64.zip)
-- **32bit**: [cherrysh-{{VERSION}}-windows-x86.zip](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/cherrysh-{{VERSION}}-windows-x86.zip)
+- **64bit**: [docsh-{{VERSION}}-windows-x64.zip](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/docsh-{{VERSION}}-windows-x64.zip)
 
 ### Linux
-- **64bit**: [cherrysh-{{VERSION}}-linux-x64.tar.gz](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/cherrysh-{{VERSION}}-linux-x64.tar.gz)
+- **64bit**: [docsh-{{VERSION}}-linux-x64.tar.gz](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/docsh-{{VERSION}}-linux-x64.tar.gz)
 
 ### macOS
-- **Intel**: [cherrysh-{{VERSION}}-macos-x64.tar.gz](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/cherrysh-{{VERSION}}-macos-x64.tar.gz)
-- **Apple Silicon**: [cherrysh-{{VERSION}}-macos-arm64.tar.gz](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/cherrysh-{{VERSION}}-macos-arm64.tar.gz)
+- **Intel**: [docsh-{{VERSION}}-macos-x64.tar.gz](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/docsh-{{VERSION}}-macos-x64.tar.gz)
+- **Apple Silicon**: [docsh-{{VERSION}}-macos-arm64.tar.gz](https://github.com/{{OWNER}}/{{REPO}}/releases/download/{{VERSION}}/docsh-{{VERSION}}-macos-arm64.tar.gz)
 
 ## 🚀 インストール方法 / Installation
 
 ### Windows
 1. 対応するzipファイルをダウンロード
 2. 適当なフォルダに展開
-3. `cherrysh-windows-x64.exe`を実行
+3. `docsh-windows-x64.exe`を実行
 
 ### Linux / macOS
 1. 対応するtar.gzファイルをダウンロード
-2. 展開: `tar -xzf cherrysh-{{VERSION}}-*.tar.gz`
-3. 実行可能にする: `chmod +x cherrysh-*`
-4. 実行: `./cherrysh-*`
+2. 展開: `tar -xzf docsh-{{VERSION}}-*.tar.gz`
+3. 実行可能にする: `chmod +x docsh-*`
+4. 実行: `./docsh-*`
 
 ---
 

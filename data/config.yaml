@@ -2,7 +2,7 @@ banner:
   enabled: true
   style: kawaii
 shell:
-  prompt: "🐳 Dosch> "
+  prompt: "🐳 docsh> "
   history_size: 1000
   auto_complete: true
   dry_run_mode: false

@@ -254,7 +254,7 @@ func (executor *DefaultShellExecutor) executeBuiltinCommand(ctx context.Context,
 	case "help":
 		result.Output = executor.getHelpText()
 	case "version":
-		result.Output = "Docknaut version 1.0.0"
+		result.Output = "Docsh version 1.0.0"
 	case "mapping":
 		output, err := executor.handleMappingCommand(cmd.Args)
 		if err != nil {

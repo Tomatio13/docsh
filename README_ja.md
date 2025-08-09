@@ -13,6 +13,8 @@
 
 **docsh** は、Linux 風の直感的な操作で Docker を扱えるインタラクティブシェルです。よく使う Linux コマンドを Docker コマンドにマッピングして実行できます。
 
+<img src="assets/Screenshot_ja.png">
+
 ## ✨ 特長
 
 - **🐳 Docker コマンドマッピング**: `ls`→`docker ps`、`kill`→`docker stop` など直感的
