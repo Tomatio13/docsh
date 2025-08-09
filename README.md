@@ -32,9 +32,9 @@
 
 Download the latest release:
 
-[![Latest Release](https://img.shields.io/github/v/release/your-username/docsh?style=for-the-badge)](https://github.com/your-username/docsh/releases/latest)
+[![Latest Release](https://img.shields.io/github/v/release/Tomatio13/docsh?style=for-the-badge)](https://github.com/Tomatio13/docsh/releases/latest)
 
-> **📥 Download from [Releases Page](https://github.com/your-username/docsh/releases)**
+> **📥 Download from [Releases Page](https://github.com/Tomatio13/docsh/releases)**
 
 ### 🛠️ Build from Source
 

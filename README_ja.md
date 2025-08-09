@@ -32,6 +32,11 @@
 
 最新リリースをダウンロードしてください。
 
+[![Latest Release](https://img.shields.io/github/v/release/Tomatio13/docsh?style=for-the-badge)](https://github.com/Tomatio13/docsh/releases/latest)
+
+> **📥 Download from [Releases Page](https://github.com/Tomatio13/docsh/releases)**
+
+
 ### 🛠️ ソースからビルド
 
 ```bash
