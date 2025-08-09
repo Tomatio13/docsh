@@ -184,6 +184,10 @@ func (m replModel) Update(msg tea.Msg) (tea.Model, tea.Cmd) {
 		}
 	case execDoneMsg:
 		// 実行完了後にプロンプトを復帰
+		// エラーがあれば表示（従来はREPL側で非表示だったため、何も出ない問題があった）
+		if msg.err != nil {
+			fmt.Printf("%v\n", msg.err)
+		}
 		m.isExecuting = false
 		m.echoLine = ""
 		m.input.Focus()

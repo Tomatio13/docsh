@@ -56,7 +56,7 @@ func (s *Shell) handleProjectCommand(args []string) error {
 		rest = args[2:]
 	}
 
-	// collect containers belonging to the project
+	// collect containers belonging to projects
 	groups, err := s.collectProjects()
 	if err != nil {
 		return err
@@ -68,19 +68,49 @@ func (s *Shell) handleProjectCommand(args []string) error {
 			break
 		}
 	}
-	if pg == nil {
-		return fmt.Errorf("project not found: %s", project)
-	}
 
 	switch action {
 	case "ps":
 		printProjectPS(pg)
 		return nil
 	case "logs":
-		if len(rest) == 0 {
-			return fmt.Errorf("service name required")
+		// 2系統の入力を許容する:
+		// 1) 正規: project <project> logs <service> [options]
+		// 2) 省略: project <service> logs [options]
+		if len(rest) == 0 || strings.HasPrefix(rest[0], "-") {
+			// 省略系: 第一引数はサービス名、rest はオプション
+			service := project
+			options := rest
+			// サービス名から一意のコンテナを特定
+			var (
+				foundContainer string
+				foundProjects  []string
+			)
+			for i := range groups {
+				g := &groups[i]
+				for _, svc := range g.Services {
+					if svc.ServiceName == service || svc.Container.Names == service {
+						foundProjects = append(foundProjects, g.ProjectName)
+						foundContainer = svc.Container.Names
+					}
+				}
+			}
+			if len(foundProjects) == 0 {
+				return fmt.Errorf("service not found: %s", service)
+			}
+			if len(foundProjects) > 1 {
+				return fmt.Errorf("service '%s' is ambiguous across projects: %s", service, strings.Join(foundProjects, ", "))
+			}
+			return s.execDocker("logs", append(options, foundContainer)...)
 		}
-		return s.execDocker("logs", append([]string{serviceContainerName(pg, rest[0])}, rest[1:]...)...)
+		// 正規系: pg が必要
+		if pg == nil {
+			return fmt.Errorf("project not found: %s", project)
+		}
+		// docker logs は [OPTIONS] CONTAINER 順
+		container := serviceContainerName(pg, rest[0])
+		options := rest[1:]
+		return s.execDocker("logs", append(options, container)...)
 	case "start":
 		composeFile := filepath.Join(pg.WorkingDir, "docker-compose.yml")
 		if len(rest) == 0 {
