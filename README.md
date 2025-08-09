@@ -82,6 +82,79 @@ rm <container>               # docker rm <container>
 rmi <image>                  # docker rmi <image>
 ```
 
+### Docker Lifecycle Commands (from `help`)
+
+```
+🐳 Docker Lifecycle Commands:
+  pull <image>            Pull image from registry
+  start <container>       Start stopped container
+  stop <container>        Stop running container
+  exec <container> <cmd>  Execute command in container
+  login <container>        Login to container (/bin/bash)
+  rm [--force] <container> Remove container
+  rmi [--force] <image>   Remove image
+  log     <container>          Show container logs
+  tail -f <container>          Follow container logs in real-time
+  top                                       Show resource usage
+  htop                                      Show resource usage (graph)
+⚠️  Note: To exit 'tail -f' and 'top', type 'exit' while displaying.
+```
+
+### Project/Compose Operations (project commands)
+
+Treat containers with Docker Compose labels as a "project" and operate by service.
+
+- List all projects
+  ```bash
+  ps --by-project
+  # or
+  project ps
+  ```
+
+- List services in a project
+  ```bash
+  project <project> ps
+  ```
+
+- Show service logs (recommended)
+  ```bash
+  project <project> logs <service> -f --tail 100
+  # Follows docker logs arg order: pass [OPTIONS] first, the container name is resolved and appended at the end
+  ```
+
+- Shorthand when the service name is globally unique
+  ```bash
+  project <service> logs -f --tail 100
+  # If the same service name exists across multiple projects, you will get an ambiguity error
+  ```
+
+- Start project/service (Compose-aware)
+  ```bash
+  # Start the whole project (docker-compose.yml preferred if present)
+  project <project> start
+
+  # Start a specific service
+  project <project> start <service>
+  ```
+
+- Restart/Stop (Compose-aware)
+  ```bash
+  project <project> restart [<service>]
+  project <project> stop    [<service>]
+  ```
+
+Reference from help (excerpt):
+
+```
+🐳 Docker Compose Lifecycle Commands:
+  project ps                          List services by project
+  project <service> start             Start a specific service
+  project <service> logs              Show logs of a specific service
+  project <service> restart           Restart a specific service
+  project <service> stop              Stop all services
+  ps --by-project                     List containers grouped by project
+```
+
 ### Aliases
 
 Aliases can be defined in YAML (`data/config.yaml`) or in your `~/.docshrc`.

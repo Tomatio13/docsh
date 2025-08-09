@@ -8,7 +8,7 @@ import (
 	"runtime"
 	"strings"
 
-	"docknaut/i18n"
+	"docsh/i18n"
 )
 
 // isBuiltinCommand は内蔵コマンドかどうかを判定します

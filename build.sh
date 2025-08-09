@@ -16,15 +16,8 @@ else
     echo "✗ Windows 64bit build failed"
 fi
 
-# Windows 32bit
-echo "Building for Windows 32bit..."
-GOOS=windows GOARCH=386 CGO_ENABLED=0 go build -ldflags="-s -w" -o Release/docsh-windows-x86.exe .
-if [ $? -eq 0 ]; then
-    echo "✓ Windows 32bit build successful"
-    ls -lh Release/docsh-windows-x86.exe
-else
-    echo "✗ Windows 32bit build failed"
-fi
+## Windows 32bit (dropped)
+## Removed due to syscall incompatibilities and low demand
 
 # Linux 64bit
 echo "Building for Linux 64bit..."
@@ -59,7 +52,7 @@ fi
 echo ""
 echo "Build completed! Available binaries in Release folder:"
 echo "Windows 64bit: Release/docsh-windows-x64.exe"
-echo "Windows 32bit: Release/docsh-windows-x86.exe"
+echo "Windows 32bit: (dropped)"
 echo "Linux 64bit:   Release/docsh-linux-x64"
 echo "macOS Intel:   Release/docsh-macos-x64"
 echo "macOS ARM64:   Release/docsh-macos-arm64"

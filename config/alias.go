@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"docknaut/i18n"
+	"docsh/i18n"
 )
 
 func (c *Config) AddAlias(name, command string) {

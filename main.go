@@ -5,9 +5,9 @@ import (
 	"os"
 	"path/filepath"
 
-	"docknaut/config"
-	"docknaut/i18n"
-	"docknaut/shell"
+	"docsh/config"
+	"docsh/i18n"
+	"docsh/shell"
 )
 
 func main() {

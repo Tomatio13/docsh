@@ -8,16 +8,15 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
-	"syscall"
 	"time"
 
-	"docknaut/config"
-	"docknaut/i18n"
-	"docknaut/internal/engine"
-	"docknaut/internal/executor"
-	"docknaut/internal/parser"
-	"docknaut/themes"
-	"docknaut/tui"
+	"docsh/config"
+	"docsh/i18n"
+	"docsh/internal/engine"
+	"docsh/internal/executor"
+	"docsh/internal/parser"
+	"docsh/themes"
+	"docsh/tui"
 
 	// go-prompt は Bubble Tea に置き換え
 	tea "github.com/charmbracelet/bubbletea"
@@ -711,6 +710,11 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.lifecycle_login_2"))
 	fmt.Println(i18n.T("commands.lifecycle_rm_2"))
 	fmt.Println(i18n.T("commands.lifecycle_rmi_2"))
+	fmt.Println(i18n.T("commands.lifecycle_log_2"))
+	fmt.Println(i18n.T("commands.lifecycle_tailf_2"))
+	fmt.Println(i18n.T("commands.lifecycle_top_2"))
+	fmt.Println(i18n.T("commands.lifecycle_htop_2"))
+	fmt.Println(i18n.T("commands.lifecycle_streaming_note_2"))
 	fmt.Println()
 	// 内蔵コマンド（最後に表示）
 	// Docker Compose lifecycle（設計どおり）
@@ -769,9 +773,8 @@ func (s *Shell) executeStreamingCommandDirectly(parsedCmd *parser.ParsedCommand)
 
 	// Dockerコマンドを作成
 	cmd := exec.CommandContext(ctx, dockerCmd[0], dockerCmd[1:]...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
-	}
+	// OSごとの適切なプロセスグループ設定（Windowsではno-op）
+	setShellProcessGroup(cmd)
 
 	// パイプを作成してstdin/stdout/stderrを制御
 	stdin, err := cmd.StdinPipe()
@@ -863,9 +866,9 @@ func (s *Shell) watchForSignals(ctx context.Context, terminationChan chan string
 	sigChan3 := make(chan os.Signal, 5)
 
 	// より多くのシグナルタイプを監視
-	signal.Notify(sigChan1, os.Interrupt, syscall.SIGINT, syscall.SIGTERM)
-	signal.Notify(sigChan2, syscall.SIGINT, syscall.SIGHUP, syscall.SIGQUIT)
-	signal.Notify(sigChan3, syscall.SIGTERM, os.Interrupt, syscall.SIGINT, syscall.SIGKILL)
+	registerShellSignals(sigChan1)
+	registerShellSignals(sigChan2)
+	registerShellSignals(sigChan3)
 
 	// コンテキストキャンセル時のクリーンアップ
 	defer func() {
@@ -1047,14 +1050,7 @@ func (s *Shell) cleanupProcess(cmd *exec.Cmd, stdin interface{}) {
 	pid := cmd.Process.Pid
 
 	// 段階的終了
-	steps := []struct {
-		name   string
-		signal os.Signal
-		wait   time.Duration
-	}{
-		{"SIGTERM to process group", syscall.SIGTERM, 200 * time.Millisecond},
-		{"SIGKILL to process group", syscall.SIGKILL, 100 * time.Millisecond},
-	}
+	steps := defaultShellTerminationSteps()
 
 	for _, step := range steps {
 		if cmd.ProcessState != nil && cmd.ProcessState.Exited() {
@@ -1062,9 +1058,9 @@ func (s *Shell) cleanupProcess(cmd *exec.Cmd, stdin interface{}) {
 		}
 
 		// プロセスグループに送信
-		if err := syscall.Kill(-pid, step.signal.(syscall.Signal)); err != nil {
+		if err := sendShellSignalToGroup(pid, step.signal); err != nil {
 			// 個別プロセスに送信
-			if step.signal == syscall.SIGKILL {
+			if isShellKillSignal(step.signal) {
 				cmd.Process.Kill()
 			} else {
 				cmd.Process.Signal(step.signal)

@@ -6,7 +6,7 @@ import (
 	"path/filepath"
 	"strings"
 
-	"docknaut/i18n"
+	"docsh/i18n"
 )
 
 // Suggest は簡易サジェスト型

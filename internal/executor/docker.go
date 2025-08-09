@@ -8,12 +8,11 @@ import (
 	"os/exec"
 	"os/signal"
 	"strings"
-	"syscall"
 	"time"
 
-	"docknaut/i18n"
-	"docknaut/internal/engine"
-	"docknaut/internal/parser"
+	"docsh/i18n"
+	"docsh/internal/engine"
+	"docsh/internal/parser"
 )
 
 // ExecutionResult represents the result of command execution
@@ -508,9 +507,8 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 
 	// Create the command with its own process group
 	cmd := exec.CommandContext(ctx, dockerCmd[0], dockerCmd[1:]...)
-	cmd.SysProcAttr = &syscall.SysProcAttr{
-		Setpgid: true,
-	}
+	// OSごとの適切なプロセスグループ設定（Windowsではno-op）
+	setNewProcessGroup(cmd)
 
 	// Setup pipes for stdout and stderr
 	stdout, err := cmd.StdoutPipe()
@@ -541,7 +539,8 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 	sigChan := make(chan os.Signal, 1)
 	// Stop any existing signal notifications to avoid conflicts with go-prompt
 	signal.Stop(sigChan)
-	signal.Notify(sigChan, os.Interrupt, syscall.SIGTERM)
+	// OS毎に適切なシグナルを登録
+	registerTerminationSignals(sigChan)
 
 	// Channel to signal when command is done
 	done := make(chan error, 1)
@@ -622,23 +621,8 @@ func (executor *DefaultShellExecutor) executeStreamingCommand(ctx context.Contex
 
 // terminateCommand forcibly terminates a command and its process group
 func (executor *DefaultShellExecutor) terminateCommand(cmd *exec.Cmd) {
-	if cmd.Process != nil {
-		// First try to terminate the process group
-		if cmd.Process.Pid > 0 {
-			syscall.Kill(-cmd.Process.Pid, syscall.SIGTERM)
-		}
-
-		// Give it a moment to terminate gracefully
-		time.Sleep(100 * time.Millisecond)
-
-		// If still running, force kill the process group
-		if cmd.ProcessState == nil || !cmd.ProcessState.Exited() {
-			if cmd.Process.Pid > 0 {
-				syscall.Kill(-cmd.Process.Pid, syscall.SIGKILL)
-			}
-			cmd.Process.Kill()
-		}
-	}
+	// OSごとの適切な終了処理（Windowsでは個別Kill、Unix系ではPGIDにシグナル）
+	terminateProcess(cmd)
 }
 
 // isStreamingCommand checks if a Docker command is a streaming command

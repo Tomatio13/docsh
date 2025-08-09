@@ -6,7 +6,7 @@ import (
 	"os/exec"
 	"strings"
 
-	"docknaut/i18n"
+	"docsh/i18n"
 )
 
 // isDockerContainer checks if the given name or ID is a Docker container

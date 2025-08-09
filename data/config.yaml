@@ -86,9 +86,9 @@ completion:
   max_suggestions: 16
 
 themes:
-  default: "docknaut"
+  default: "docsh"
   available:
-    - name: "docknaut"
+    - name: "docsh"
       prompt: "🐳 %s $ "
       colors:
         directory: "cyan"

@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"strings"
 
-	"docknaut/i18n"
+	"docsh/i18n"
 )
 
 // Theme はプロンプトテーマの定義

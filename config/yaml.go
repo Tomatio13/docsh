@@ -161,7 +161,7 @@ func (c *Config) SaveYAMLConfig(dataPath string) error {
 	yamlConfig := YAMLConfig{}
 
 	// Basic shell configuration
-	yamlConfig.Shell.Prompt = "🐳 docknaut> "
+	yamlConfig.Shell.Prompt = "🐳 docsh> "
 	yamlConfig.Shell.HistorySize = 1000
 	yamlConfig.Shell.AutoComplete = true
 	yamlConfig.Shell.DryRunMode = false

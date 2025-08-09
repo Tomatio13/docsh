@@ -9,7 +9,7 @@ import (
 	"strings"
 	"time"
 
-	"docknaut/themes"
+	"docsh/themes"
 )
 
 func (s *Shell) showPrompt() {
