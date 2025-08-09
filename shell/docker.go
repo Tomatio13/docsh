@@ -5,7 +5,7 @@ import (
 	"os"
 	"os/exec"
 	"strings"
-	
+
 	"docknaut/i18n"
 )
 
@@ -121,19 +121,17 @@ func (s *Shell) enterContainer(containerName string) error {
 
 	// Try different shells in order of preference
 	shells := []string{"/bin/bash", "/bin/sh", "/bin/ash"}
-	
-	for _, shell := range shells {
-		cmd := exec.Command("docker", "exec", "-it", containerName, shell)
+
+	// ここでは純粋に対話実行（REPL側が先にQuitしてから呼ばれる）
+	for _, sh := range shells {
+		cmd := exec.Command("docker", "exec", "-it", containerName, sh)
 		cmd.Stdin = s.getStdin()
 		cmd.Stdout = s.getStdout()
 		cmd.Stderr = s.getStderr()
-		
-		err := cmd.Run()
-		if err == nil {
+		if err := cmd.Run(); err == nil {
 			return nil
 		}
 	}
-
 	return fmt.Errorf("failed to enter container '%s': no available shell", containerName)
 }
 
@@ -257,7 +255,7 @@ func (s *Shell) execInContainer(containerName string, command []string) error {
 	dockerCmd = append(dockerCmd, command...)
 
 	fmt.Printf(i18n.T("docker.exec_command")+"\n", containerName, strings.Join(command, " "))
-	
+
 	cmd := exec.Command(dockerCmd[0], dockerCmd[1:]...)
 	cmd.Stdin = s.getStdin()
 	cmd.Stdout = s.getStdout()
@@ -344,14 +342,14 @@ func (s *Shell) removeContainer(containerName string, force bool) error {
 	}
 
 	fmt.Printf(i18n.T("docker.remove_container")+"\n", containerName)
-	
+
 	var cmd *exec.Cmd
 	if force {
 		cmd = exec.Command("docker", "rm", "-f", containerName)
 	} else {
 		cmd = exec.Command("docker", "rm", containerName)
 	}
-	
+
 	cmd.Stdout = s.getStdout()
 	cmd.Stderr = s.getStderr()
 
@@ -386,14 +384,14 @@ func (s *Shell) removeImage(imageName string, force bool) error {
 	}
 
 	fmt.Printf(i18n.T("docker.remove_image")+"\n", imageName)
-	
+
 	var removeCmd *exec.Cmd
 	if force {
 		removeCmd = exec.Command("docker", "rmi", "-f", imageName)
 	} else {
 		removeCmd = exec.Command("docker", "rmi", imageName)
 	}
-	
+
 	removeCmd.Stdout = s.getStdout()
 	removeCmd.Stderr = s.getStderr()
 

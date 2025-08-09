@@ -19,17 +19,20 @@ import (
 	"docknaut/themes"
 	"docknaut/tui"
 
-	"github.com/c-bata/go-prompt"
+	// go-prompt は Bubble Tea に置き換え
+	tea "github.com/charmbracelet/bubbletea"
 )
 
 type Shell struct {
-	cwd           string
-	config        *config.Config
-	history       []string
-	mappingEngine engine.MappingEngine
-	commandParser parser.CommandParser
-	shellExecutor executor.ShellExecutor
-	dataPath      string
+	cwd             string
+	config          *config.Config
+	history         []string
+	mappingEngine   engine.MappingEngine
+	commandParser   parser.CommandParser
+	shellExecutor   executor.ShellExecutor
+	dataPath        string
+	teaProgram      *tea.Program
+	pendingExternal func() error
 }
 
 func NewShell(cfg *config.Config, dataPath string) *Shell {
@@ -88,25 +91,34 @@ func (s *Shell) Start() error {
 
 	fmt.Print(i18n.T("app.docker_only_welcome"))
 
-	// go-promptを使用したインタラクティブプロンプト
-	p := prompt.New(
-		s.executor,
-		s.Completer,
-		prompt.OptionTitle("🐳 Docsh (Docker-Only)"),
-		prompt.OptionHistory(s.history),
-		prompt.OptionLivePrefix(s.getLivePrefix),
-		prompt.OptionPreviewSuggestionTextColor(prompt.Blue),
-		prompt.OptionSelectedSuggestionBGColor(prompt.LightGray),
-		prompt.OptionSuggestionBGColor(prompt.DarkGray),
-		prompt.OptionDescriptionBGColor(prompt.Black),
-		prompt.OptionDescriptionTextColor(prompt.White),
-		prompt.OptionScrollbarThumbColor(prompt.DarkGray),
-		prompt.OptionScrollbarBGColor(prompt.Black),
-		prompt.OptionMaxSuggestion(16),
-	)
-	p.Run()
+	// Bubble Tea REPL を再起動可能にするループ
+	for {
+		// REPL起動
+		if err := s.StartBubbleTeaREPL(); err != nil {
+			return err
+		}
+		// REPL終了後、外部対話処理が要求されていれば実行し、再度REPLへ
+		if s.pendingExternal != nil {
+			_ = s.pendingExternal()
+			s.pendingExternal = nil
+			// ループ継続してREPL再起動
+			continue
+		}
+		// 通常終了
+		return nil
+	}
+}
 
-	return nil
+// setTeaProgram は REPL の tea.Program を登録します
+func (s *Shell) setTeaProgram(p *tea.Program) {
+	s.teaProgram = p
+}
+
+// runWithTerminalSuspended は Bubble Tea の制御を一時停止して外部対話型コマンドを実行します
+func (s *Shell) runWithTerminalSuspended(run func() error) error {
+	// 現行のBubble Teaには汎用Suspend APIがないため、
+	// ここでは単に外部コマンドを直接実行する（REPL側ではisExecutingで描画停止済み）
+	return run()
 }
 
 // executor はコマンド実行を処理します
@@ -202,11 +214,40 @@ func (s *Shell) executeCommand(input string) error {
 	case "htop":
 		// Bubble Tea ベースのTUIモニターを起動
 		return s.launchContainerMonitor()
+	case "project":
+		return s.handleProjectCommand(args)
 	case "login":
 		if len(args) == 0 {
 			return fmt.Errorf(i18n.T("docker.container_name_required"))
 		}
 		return s.enterContainer(args[0])
+	case "ps":
+		// カスタム: ps --by-project
+		if parsedCmd.Options["by-project"] == "true" {
+			return s.psByProject()
+		}
+		// それ以外は既存のデフォルト処理に倣って実行
+		isStreaming := isStreamingCommand(parsedCmd)
+		if isStreaming {
+			return s.executeStreamingCommandDirectly(parsedCmd)
+		}
+		ctx, cancel := context.WithTimeout(context.Background(), 30*time.Second)
+		defer cancel()
+		result, err := s.shellExecutor.Execute(ctx, parsedCmd)
+		if err != nil {
+			fmt.Printf("❌ %s\n", result.Error)
+			fmt.Println(i18n.T("app.docker_only_available_commands"))
+			fmt.Println(i18n.T("app.docker_only_commands_list"))
+			fmt.Println(i18n.T("app.docker_only_mapping_help"))
+			return nil
+		}
+		if result.Output != "" {
+			fmt.Print(result.Output)
+		}
+		if result.Mapping != nil {
+			fmt.Printf("✅ %s -> %s\n", result.Mapping.LinuxCommand, result.Mapping.DockerCommand)
+		}
+		return nil
 	case "clear", "cls":
 		fmt.Print("\033[2J\033[H")
 		return nil
@@ -652,7 +693,7 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.docker_only_help_description"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_mappings_title"))
-	fmt.Println(i18n.T("commands.examples_header"))
+	fmt.Println(i18n.T("examples.basic_usage"))
 	fmt.Println(i18n.T("commands.examples_ls"))
 	fmt.Println(i18n.T("commands.examples_ps"))
 	fmt.Println(i18n.T("commands.examples_kill"))
@@ -660,30 +701,34 @@ func (s *Shell) showHelp() {
 	fmt.Println(i18n.T("commands.examples_tail"))
 	fmt.Println(i18n.T("commands.examples_login"))
 	fmt.Println()
-	fmt.Println(i18n.T("commands.docker_only_docker_commands_title"))
-	fmt.Println(i18n.T("commands.docker_commands_note"))
+	// Dockerコマンドの列挙は非表示（設計に合わせて省略）
+	fmt.Println(i18n.T("commands.lifecycle_header_2"))
+	fmt.Println(i18n.T("commands.lifecycle_pull_2"))
+	fmt.Println(i18n.T("commands.lifecycle_start_2"))
+	fmt.Println(i18n.T("commands.lifecycle_stop_2"))
+	fmt.Println(i18n.T("commands.lifecycle_exec_2"))
+	fmt.Println(i18n.T("commands.lifecycle_login_2"))
+	fmt.Println(i18n.T("commands.lifecycle_rm_2"))
+	fmt.Println(i18n.T("commands.lifecycle_rmi_2"))
 	fmt.Println()
-	fmt.Println(i18n.T("commands.lifecycle_header"))
-	fmt.Println(i18n.T("commands.lifecycle_pull"))
-	fmt.Println(i18n.T("commands.lifecycle_start"))
-	fmt.Println(i18n.T("commands.lifecycle_stop"))
-	fmt.Println(i18n.T("commands.lifecycle_exec"))
-	fmt.Println(i18n.T("commands.lifecycle_login"))
-	fmt.Println(i18n.T("commands.lifecycle_rm"))
-	fmt.Println(i18n.T("commands.lifecycle_rmi"))
+	// 内蔵コマンド（最後に表示）
+	// Docker Compose lifecycle（設計どおり）
+	fmt.Println(i18n.T("commands.compose_lifecycle_header"))
+	fmt.Println("  " + i18n.T("commands.compose_project_ps_line"))
+	fmt.Println("  " + i18n.T("commands.compose_project_service_start_line"))
+	fmt.Println("  " + i18n.T("commands.compose_project_service_logs_line"))
+	fmt.Println("  " + i18n.T("commands.compose_project_service_restart_line"))
+	fmt.Println("  " + i18n.T("commands.compose_project_service_stop_line"))
+	fmt.Println("  " + i18n.T("commands.ps_by_project_line"))
 	fmt.Println()
+	// 内蔵コマンド
 	fmt.Println(i18n.T("commands.docker_only_builtin_commands_title"))
 	fmt.Println("  help                    " + i18n.T("help.usage"))
-	fmt.Println("  mapping [list|search|show] " + i18n.T("commands.mapping_help"))
-	fmt.Println("  alias <name>=<command>  " + i18n.T("commands.alias_help"))
-	fmt.Println("  theme [name]            " + i18n.T("commands.theme_help"))
-	fmt.Println("  config [show]           " + i18n.T("commands.config_help"))
-	fmt.Println("  exit                    " + i18n.T("commands.exit_help"))
-	fmt.Println()
-	fmt.Println(i18n.T("commands.docker_only_more_info_title"))
-	fmt.Println("  mapping list            " + i18n.T("commands.mapping_list"))
-	fmt.Println("  mapping search <query>  " + i18n.T("commands.mapping_search"))
-	fmt.Println("  mapping show <command>  " + i18n.T("commands.mapping_show"))
+	fmt.Println("  " + i18n.T("commands.mapping_help_2"))
+	fmt.Println("  " + i18n.T("commands.alias_help_2"))
+	fmt.Println("  " + i18n.T("commands.theme_help_2"))
+	fmt.Println("  " + i18n.T("commands.config_help_2"))
+	fmt.Println("  " + i18n.T("commands.exit_help_2"))
 	fmt.Println()
 	fmt.Println(i18n.T("commands.docker_only_note_title") + " " + i18n.T("commands.docker_only_note_message"))
 }

@@ -783,7 +783,10 @@ func clamp(v, lo, hi int) int {
 func NewMonitorProgram() func() error {
 	return func() error {
 		p := tea.NewProgram(newModel(), tea.WithAltScreen())
+		// AltScreenから戻る際にカーソルを隠すコマンドを返す
 		_, err := p.Run()
+		// 戻る直前にカーソルが可視化されることがあるので明示的に非表示
+		fmt.Print("\x1b[?25l")
 		return err
 	}
 }

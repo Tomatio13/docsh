@@ -18,7 +18,7 @@ func main() {
 		execPath = "."
 	}
 	dataPath := filepath.Join(filepath.Dir(execPath), "data")
-	
+
 	// データディレクトリが存在しない場合はカレントディレクトリの data を使用
 	if _, err := os.Stat(dataPath); os.IsNotExist(err) {
 		dataPath = "data"
@@ -53,7 +53,7 @@ func main() {
 
 	// シェルを初期化
 	s := shell.NewShell(cfg, dataPath)
-	
+
 	// コマンドライン引数が渡された場合は直接実行
 	if len(os.Args) > 1 {
 		// 引数を結合してコマンドとして実行
@@ -64,7 +64,7 @@ func main() {
 			}
 			command += arg
 		}
-		
+
 		// 直接コマンドを実行
 		if err := s.ExecuteCommand(command); err != nil {
 			fmt.Printf("Error: %v\n", err)
@@ -72,7 +72,7 @@ func main() {
 		}
 		return
 	}
-	
-	// インタラクティブモードでシェルを開始
+
+	// インタラクティブモードでシェルを開始（Bubble Tea REPL）
 	s.Start()
 }

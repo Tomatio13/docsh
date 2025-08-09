@@ -47,7 +47,7 @@ func NewCommandParser() CommandParser {
 		},
 		builtinCommands: []string{
 			"exit", "quit", "help", "version", "alias", "unalias", "theme", "lang",
-			"config", "mapping", "search", "list", "pwd", "clear", "cls",
+			"config", "mapping", "search", "list", "pwd", "clear", "cls", "project",
 		},
 	}
 }
